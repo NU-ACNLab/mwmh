@@ -1,0 +1,9 @@
+papers/*
+data/*
+plots/*
+*.csv
+*.docx
+*.xlsx
+*~
+*.DS_Store
+*RData
