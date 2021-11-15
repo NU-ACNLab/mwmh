@@ -13,9 +13,11 @@
 
 pwd; hostname; date
 
-singularity run --cleanenv -B /projects/b1108/data/MWMH \
+singularity run --cleanenv --containall -B /projects/b1108:/projects/b1108 \
     /home/erb9722/fmriprep_20.2.3.sif \
-    /projects/b1108/data/MWMH/bids_directory /projects/b1108/data/MWMH \
+    /projects/b1108/data/MWMH/bids_directory /projects/b1108/data/MWMH/fmriprep \
     participant \
-    --participant-label MWMH001 --fs-license-file /home/erb9722/license.txt \
+    --participant-label MWMH117 \
+    --fs-license-file /projects/b1108/software/freesurfer_license/license.txt \
+    -w /projects/b1108/data/MWMH/work \
     --bids-filter-file /projects/b1108/data/MWMH/config/ses-1_config.json
