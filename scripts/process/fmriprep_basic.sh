@@ -1,12 +1,16 @@
 #!/bin/bash
-#SBATCH --job-name=sub-MWMH001_ses-1  # Job name
-#SBATCH --mail-type=FAIL              # Mail events (NONE, BEGIN, END, FAIL, ALL)
-#SBATCH --mail-user=ellynbutler2027@u.northwestern.edu     # Where to send mail
-#SBATCH --ntasks=1                    # Run on a single CPU
-#SBATCH --partition=normal            # Run on a single CPU
-#SBATCH --mem=64gb                    # Job memory request
-#SBATCH --time=30:00:00               # Time limit hrs:min:sec
-#SBATCH --output=serial_test_%j.log   # Standard output and error log
+#SBATCH --account=b1108                                   ## YOUR ACCOUNT pXXXX or bXXXX
+#SBATCH --partition=normal                                ## PARTITION (buyin, short, normal, w10001, etc)
+#SBATCH --array=1                                         ## number of jobs to run "in parallel"
+#SBATCH --nodes=1                                         ## how many computers do you need
+#SBATCH --ntasks-per-node=1                               ## how many cpus or processors do you need on each computer
+#SBATCH --time=30:10:00                                   ## how long does this need to run (remember different partitions have restrictions on this param)
+#SBATCH --mem-per-cpu=64G                                 ## how much RAM do you need per CPU (this effects your FairShare score so be careful to not ask for more than you need))
+#SBATCH --job-name="sample_job_\${SLURM_ARRAY_TASK_ID}"   ## use the task id in the name of the job
+#SBATCH --output=sample_job.%A_%a.out                     ## use the jobid (A) and the specific job index (a) to name your log file
+#SBATCH --mail-type=FAIL                                  ## you can receive e-mail alerts from SLURM when your job begins and when your job finishes (completed, failed, etc)
+#SBATCH --mail-user=ellynbutler2027@u.northwestern.edu    ## your email
+
 pwd; hostname; date
 
 singularity run --cleanenv /home/erb9722/fmriprep_20.2.3.sif \
