@@ -13,10 +13,11 @@
 
 pwd; hostname; date
 
-singularity run --cleanenv --containall \
+SINGULARITYENV_TEMPLATEFLOW_HOME=/home/fmriprep/.cache/templateflow \
+    singularity run --cleanenv --containall \
     -B /projects/b1108:/projects/b1108 \
     -B /projects/b1108/software/freesurfer_license/license.txt:/opt/freesurfer/license.txt \
-    -B /projects/b1108/templateflow:/home/erb9722/templateflow \
+    -B /projects/b1108/templateflow:/home/fmriprep/.cache/templateflow \
     /home/erb9722/fmriprep_20.2.3.sif \
     /projects/b1108/data/MWMH/bids_directory /projects/b1108/data/MWMH \
     participant \
