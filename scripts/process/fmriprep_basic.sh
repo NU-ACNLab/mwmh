@@ -16,15 +16,17 @@ pwd; hostname; date
 SINGULARITYENV_TEMPLATEFLOW_HOME=/home/fmriprep/.cache/templateflow \
     singularity run --cleanenv --containall \
     -B /projects/b1108:/projects/b1108 \
+    -B /projects/b1108/software/freesurfer_license/license.txt:/opt/freesurfer/license.txt \
     -B /projects/b1108/templateflow:/home/fmriprep/.cache/templateflow \
     /home/erb9722/fmriprep_20.2.3.sif \
     /projects/b1108/data/MWMH/bids_directory /projects/b1108/data/MWMH \
     participant --participant-label MWMH117 \
     --fs-no-reconall \
     -w /projects/b1108/data/MWMH/work \
+    --fs-license-file /opt/freesurfer/license.txt \
     --output-spaces MNI152NLin2009cAsym \
     --skull-strip-template OASIS30ANTs \
     --bids-filter-file /projects/b1108/data/MWMH/config/ses-1_config.json
 
-#    -B /projects/b1108/software/freesurfer_license/license.txt:/opt/freesurfer/license.txt \
-#    --fs-license-file /opt/freesurfer/license.txt \
+
+#sbatch -o /projects/b1108/data/MWMH/launch/fmriprep/sub-MWMH117.txt /home/erb9722/studies/mwmh/scripts/process/fmriprep_basic.sh
