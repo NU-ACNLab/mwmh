@@ -38,6 +38,8 @@ for subDir in subDirs:
                 if filesId:
                     break
             final_dict['filesIdentical'].append(filesId)
+        else:
+            final_dict['filesIdentical'].append(None)
 
 final_df = pd.DataFrame.from_dict(final_dict)
 
