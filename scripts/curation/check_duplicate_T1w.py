@@ -36,10 +36,9 @@ for subDir in subDirs:
                 otherT1w_array = otherT1w_img.get_fdata()
                 filesId = np.array_equal(firstT1w_array, otherT1w_array)
                 if filesId:
-                    final_dict['filesIdentical'].append(filesId)
                     break
-                final_dict['filesIdentical'].append(filesId)
+            final_dict['filesIdentical'].append(filesId)
 
 final_df = pd.DataFrame.from_dict(final_dict)
 
-pd.to_csv(baseDir+'demographics/duplicate_T1w.csv', index=False)
+final_df.to_csv(baseDir+'demographics/duplicate_T1w.csv', index=False)
