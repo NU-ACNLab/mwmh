@@ -63,10 +63,3 @@ smoothandmask.connect(susan, 'smoothed_file', applymask, 'in_file')
 
 # running the workflow
 smoothandmask.run()
-
-# Create masker object
-masker = NiftiLabelsMasker(labels_img='MNI152NLin2009cAsym', standardize=True)
-
-#
-confounds_file = os.path.join(sesDir, [x for x in fList if ('confounds_timeseries.tsv' in x)][0])
-time_series = masker.fit_transform(filefMRI, confounds=confounds_file)

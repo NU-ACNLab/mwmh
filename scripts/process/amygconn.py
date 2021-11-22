@@ -66,9 +66,10 @@ labels_img = nib.load(MNIDir+'tpl-MNI152NLin2009cAsym_res-01_atlas-Schaefer2018_
 labels_path = MNIDir+'tpl-MNI152NLin2009cAsym_atlas-Schaefer2018_desc-1000Parcels7Networks_dseg.tsv'
 labels_df = pd.read_csv(labels_path, sep='\t')
 labels_list = labels_df['name'] # will want to truncate names
-confounds_path = os.path.join(sesDir, [x for x in fList if ('confounds_timeseries.tsv' in x)][0])
+confounds_path = os.path.join(funcInDir, [x for x in fList if ('confounds_timeseries.tsv' in x)][0])
 confounds_df = pd.read_csv(confounds_path, sep='\t')
 confounds_csv = os.path.join(outDir, subj, ses, 'confounds.csv')
+os.makedirs(os.path.join(outDir, subj, ses), exist_ok=True)
 confounds_df.to_csv(confounds_csv, index=False)
 
 
