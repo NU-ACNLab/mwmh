@@ -14,7 +14,7 @@
 pwd; hostname; date
 
 SINGULARITYENV_TEMPLATEFLOW_HOME=/home/fmriprep/.cache/templateflow \
-    singularity run --cleanenv --containall \
+    singularity run --writable-tmpfs --cleanenv --containall \
     -B /projects/b1108:/projects/b1108 \
     -B /projects/b1108/software/freesurfer_license/license.txt:/opt/freesurfer/license.txt \
     -B /projects/b1108/templateflow:/home/fmriprep/.cache/templateflow \
@@ -29,4 +29,4 @@ SINGULARITYENV_TEMPLATEFLOW_HOME=/home/fmriprep/.cache/templateflow \
     --bids-filter-file /projects/b1108/data/MWMH/config/ses-1_config.json
 
 
-#sbatch -o /projects/b1108/data/MWMH/launch/fmriprep/sub-MWMH117.txt /home/erb9722/studies/mwmh/scripts/process/fmriprep_basic.sh
+#sbatch -o /projects/b1108/data/MWMH/launch/fmriprep/test.txt /home/erb9722/studies/mwmh/scripts/process/fmriprep_basic.sh
