@@ -8,14 +8,16 @@ import os
 import shutil
 import re
 import numpy as np
+import glob
 
 indir = '/projects/b1108/data/MWMH/bids_directory/'
 outdir = '/projects/b1108/data/MWMH/fmriprep/'
 launchdir = '/projects/b1108/data/MWMH/launch/fmriprep/'
 
-subjs = os.listdir(indir)
+subDirs = glob.glob(indir + "sub-*")
 
-for subj in subjs:
+for subDir in subDirs:
+    subj = subDir.split('/')[6]
     if not os.path.exists(outdir+subj):
         os.mkdir(outdir+subj)
     unprocessed_sessions = np.setdiff1d(os.listdir(indir+subj), os.listdir(outdir+subj))
