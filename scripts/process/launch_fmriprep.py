@@ -33,6 +33,7 @@ for subj in subjs:
             '/home/erb9722/fmriprep_20.2.3.sif', '/projects/b1108/data/MWMH/bids_directory',
             '/projects/b1108/data/MWMH', 'participant', '--participant-label',
             participant_label, '--fs-no-reconall',
+            '-w /projects/b1108/data/MWMH/work',
             '--fs-license-file /opt/freesurfer/license.txt',
             '--output-spaces MNI152NLin6Asym', '--skull-strip-template OASIS30ANTs',
             '--bids-filter-file', '/projects/b1108/data/MWMH/config/'+ses+'_config.json']
