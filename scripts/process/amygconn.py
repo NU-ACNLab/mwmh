@@ -1,7 +1,7 @@
 ### This script conducts the post-processing steps after fmriprep
 ###
 ### Ellyn Butler
-### November 22, 2021
+### November 22, 2021 - December 9, 2021
 
 import os
 import json
@@ -65,6 +65,7 @@ mask_img = nib.load(fileMask)
 
 MNIDir = '/projects/b1108/templateflow/tpl-MNI152NLin2009cAsym/'
 labels_img = nib.load(MNIDir+'tpl-MNI152NLin2009cAsym_res-01_atlas-Schaefer2018_desc-1000Parcels7Networks_dseg.nii.gz')
+# ^ Not going to work. Only cortical labels
 labels_path = MNIDir+'tpl-MNI152NLin2009cAsym_atlas-Schaefer2018_desc-1000Parcels7Networks_dseg.tsv'
 labels_df = pd.read_csv(labels_path, sep='\t')
 labels_list = labels_df['name'] # will want to truncate names
@@ -112,12 +113,18 @@ time_series = masker.fit_transform(func_img, confounds=confounds_df)
 correlation_measure = ConnectivityMeasure(kind='correlation')
 correlation_matrix = correlation_measure.fit_transform([time_series])[0]
 
-# Get row from correlation_matrix that corresponds to the amygdala
+# TO DO: Write out time series
+
+# TO DO: Get row from correlation_matrix that corresponds to the amygdala
+
+
 
 # Make a large figure, masking the main diagonal for visualization:
 np.fill_diagonal(correlation_matrix, 0)
 
 # The labels we have start with the background (0), hence we skip the first label.
 # matrices are ordered for block-like representation
-plotting.plot_matrix(correlation_matrix, figure=(10, 8), labels=labels[1:],
+#https://nilearn.github.io/modules/generated/nilearn.plotting.plot_matrix.html
+# TO DO: This isn't working
+plotting.plot_matrix(correlation_matrix, figure=(10, 8), labels=labels_list,
                      vmax=0.8, vmin=-0.8, reorder=True)
