@@ -37,7 +37,7 @@ for subj in subjs:
             '--output-spaces MNI152NLin6Asym', '--skull-strip-template OASIS30ANTs',
             '--bids-filter-file', '/projects/b1108/data/MWMH/config/'+ses+'_config.json']
         fmriprep_script = launchdir+subj+'_'+ses+'_fmriprep_run.sh'
-        os.system('cat /home/erb9722/Documents/studies/mwmh/scripts/process/sbatchinfo.sh > '+fmriprep_script)
+        os.system('cat /home/erb9722/studies/mwmh/scripts/process/sbatchinfo.sh > '+fmriprep_script)
         os.system('echo '+' '.join(cmd)+' >> '+fmriprep_script)
         os.system('chmod +x '+fmriprep_script)
         os.system('sbatch -o /projects/b1108/data/MWMH/launch/fmriprep/'+subj+'_'+ses+'.txt'+' '+fmriprep_script)
