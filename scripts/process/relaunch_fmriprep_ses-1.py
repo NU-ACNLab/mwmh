@@ -25,8 +25,6 @@ for subDir in subDirs:
         ses = 'ses-1'
         if not os.path.exists(outdir+subj+'/'+ses):
             os.mkdir(outdir+subj+'/'+ses)
-        ses_indir = indir+subj+'/'+ses
-        ses_outdir = outdir+subj+'/'+ses
         participant_label = subj.split('-')[1]
         cmd = ['SINGULARITYENV_TEMPLATEFLOW_HOME=/home/fmriprep/.cache/templateflow',
             'singularity', 'run', '--writable-tmpfs', '--cleanenv', '--containall',
@@ -40,7 +38,7 @@ for subDir in subDirs:
             '--fs-license-file /opt/freesurfer/license.txt',
             '--output-spaces MNI152NLin6Asym', '--skull-strip-template OASIS30ANTs',
             '--bids-filter-file', '/projects/b1108/data/MWMH/config/'+ses+'_config.json']
-        fmriprep_script = launchdir+subj+'_'+ses+'_fmriprep_run.sh'
+        fmriprep_script = launchdir+subj+'_'+ses+'_fmriprep_run_general.sh'
         os.system('cat /home/erb9722/studies/mwmh/scripts/process/sbatchinfo_general.sh > '+fmriprep_script)
         os.system('echo '+' '.join(cmd)+' >> '+fmriprep_script)
         os.system('chmod +x '+fmriprep_script)

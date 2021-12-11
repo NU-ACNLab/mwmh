@@ -24,8 +24,6 @@ for subDir in subDirs:
     for ses in unprocessed_sessions:
         if not os.path.exists(outdir+subj+'/'+ses):
             os.mkdir(outdir+subj+'/'+ses)
-        ses_indir = indir+subj+'/'+ses
-        ses_outdir = outdir+subj+'/'+ses
         participant_label = subj.split('-')[1]
         cmd = ['SINGULARITYENV_TEMPLATEFLOW_HOME=/home/fmriprep/.cache/templateflow',
             'singularity', 'run', '--writable-tmpfs', '--cleanenv', '--containall',
