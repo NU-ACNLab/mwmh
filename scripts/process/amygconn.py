@@ -77,7 +77,6 @@ power_columns = ['{}_derivative1_power2'.format(c) for c
                      in confound_vars]
 final_confounds = confound_vars + derivative_columns + power_columns
 confounds_df = confounds_df[final_confounds]
-confounds_df.to_csv(confounds_csv, index=False)
 
 #### Remove first 10 TRs
 #https://carpentries-incubator.github.io/SDC-BIDS-fMRI/05-data-cleaning-with-nilearn/index.html
