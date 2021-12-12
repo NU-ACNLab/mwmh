@@ -1,7 +1,7 @@
 ### This script conducts the post-processing steps after fmriprep
 ###
 ### Ellyn Butler
-### November 22, 2021 - December 9, 2021
+### November 22, 2021 - December 12, 2021
 
 import os
 import json
@@ -31,27 +31,26 @@ def main(argv):
       elif opt in ("-o", "--odir"):
          outDir = arg
       elif opt in ("-s", "--sub"):
-         subj = arg
+         sub = arg
       elif opt in ("-ss", "--ses"):
          ses = arg
    print 'Input directory is "', inDir
    print 'Output directory is "', outDir
-   print 'Subject is "', subj
+   print 'Subject is "', sub
    print 'Sesssion is "', ses
 
 ##### DIRECTORY BUSINESS ######
 # original data directory
-inDir = '/projects/b1108/data/MWMH/fmriprep'
+inDir = '/projects/b1108/data/MWMH/fmriprep/'
 # Output directory
-outDir = '/projects/b1108/data/MWMH/amygconn'
+outDir = '/projects/b1108/data/MWMH/amygconn/'
 
-subj = 'sub-'+'MWMH117' #subj
+sub = 'sub-'+'MWMH117' #sub
 ses = 'ses-'+'1' #ses
 
-
 # directory where preprocessed fMRI data is located
-subjInDir = os.path.join(inDir, subj)
-sesInDir = os.path.join(subjInDir, ses)
+subInDir = os.path.join(inDir, sub)
+sesInDir = os.path.join(subInDir, ses)
 funcInDir = os.path.join(sesInDir, 'func')
 
 # location of the pre-processed fMRI & mask
@@ -63,31 +62,33 @@ filefMRI = os.path.join(funcInDir, imagefMRI)
 fileMask = os.path.join(funcInDir, imageMask)
 mask_img = nib.load(fileMask)
 
-MNIDir = '/projects/b1108/templateflow/tpl-MNI152NLin2009cAsym/'
-labels_img = nib.load(MNIDir+'tpl-MNI152NLin2009cAsym_res-01_atlas-Schaefer2018_desc-1000Parcels7Networks_dseg.nii.gz')
+SeitzDir = '/projects/b1081/Atlases/Seitzman300/'
+labels_img = nib.load(SeitzDir+'Seitzman300_MNI_res02_allROIs.nii.gz')
 # ^ Not going to work. Only cortical labels
-labels_path = MNIDir+'tpl-MNI152NLin2009cAsym_atlas-Schaefer2018_desc-1000Parcels7Networks_dseg.tsv'
+labels_path = SeitzDir+'ROIs_anatomicalLabels.txt'
 labels_df = pd.read_csv(labels_path, sep='\t')
-labels_list = labels_df['name'] # will want to truncate names
+labels_df = labels_df.rename(columns={'0=cortexMid,1=cortexL,2=cortexR,3=hippocampus,4=amygdala,5=basalGanglia,6=thalamus,7=cerebellum': 'region'})
+
+labels_list = labels_df.iloc[:, 0] # will want to truncate names
 confounds_path = os.path.join(funcInDir, [x for x in fList if ('confounds_timeseries.tsv' in x)][0])
 confounds_df = pd.read_csv(confounds_path, sep='\t')
-confounds_csv = os.path.join(outDir, subj, ses, 'confounds.csv')
-os.makedirs(os.path.join(outDir, subj, ses), exist_ok=True)
-
-param_file = open(os.path.join(funcInDir, subj+'_'+ses+'_task-rest_run-1_space-MNI152NLin2009cAsym_desc-preproc_bold.json'),)
+os.makedirs(os.path.join(outDir, sub, ses), exist_ok=True)
+param_file = open(os.path.join(funcInDir, sub+'_'+ses+'_task-rest_run-1_space-MNI152NLin6Asym_desc-preproc_bold.json'),)
 param_df = json.load(param_file)
 
 #### Calculate confounds
 # TO DO: Make it what Zach does
+confounds_df = confounds_df.loc[10:] # drop the first 10 TRs from confounds df
 confound_vars = ['trans_x','trans_y','trans_z',
                  'rot_x','rot_y','rot_z',
-                 'global_signal',
-                 'csf', 'white_matter']
+                 'global_signal', 'csf',
+                 'white_matter']
 derivative_columns = ['{}_derivative1'.format(c) for c
                      in confound_vars]
-final_confounds = confound_vars + derivative_columns
+power_columns = ['{}_derivative1_power2'.format(c) for c
+                     in confound_vars]
+final_confounds = confound_vars + derivative_columns + power_columns
 confounds_df = confounds_df[final_confounds]
-confounds_df = confounds_df.loc[10:] # drop the first 10 TRs from confounds df
 confounds_df.to_csv(confounds_csv, index=False)
 
 #### Remove first 10 TRs
@@ -113,18 +114,36 @@ time_series = masker.fit_transform(func_img, confounds=confounds_df)
 correlation_measure = ConnectivityMeasure(kind='correlation')
 correlation_matrix = correlation_measure.fit_transform([time_series])[0]
 
-# TO DO: Write out time series
+# Write out time series
+np.savetxt(outDir+sub+'/'+ses+'/'+sub+'_'+ses+'_seitz_timeseries.csv',
+    time_series, delimiter=',')
 
-# TO DO: Get row from correlation_matrix that corresponds to the amygdala
+# Write out correlation matrix
+np.savetxt(outDir+sub+'/'+ses+'/'+sub+'_'+ses+'_seitz_corrmat.csv',
+    correlation_matrix, delimiter=',')
 
+# Write out average amygdala connectivity
+amyg_indices = labels_df[labels_df['region'] == 4].index
+amyg_corr = correlation_matrix[amyg_indices]
+amyg_ave_corr = (amyg_corr[0,] + amyg_corr[1,])/2 # average across right and left
+amyg_cols = ['region'+str(x) for x in range(1,301)]
+amyg_df = pd.DataFrame(columns = amyg_cols)
+amyg_df.loc[0] = amyg_ave_corr.T
+amyg_df['subid'] = sub.split('-')[1]
+amyg_df['sesid'] = ses.split('-')[1]
+cols = ['subid', 'sesid']
+cols.extend(amyg_cols)
+amyg_df = amyg_df[cols]
 
+amyg_df.to_csv(outDir+sub+'/'+ses+'/'+sub+'_'+ses+'_seitz_amygcorr.csv', index=False)
 
 # Make a large figure, masking the main diagonal for visualization:
-np.fill_diagonal(correlation_matrix, 0)
+#np.fill_diagonal(correlation_matrix, 0)
 
 # The labels we have start with the background (0), hence we skip the first label.
 # matrices are ordered for block-like representation
 #https://nilearn.github.io/modules/generated/nilearn.plotting.plot_matrix.html
 # TO DO: This isn't working
-plotting.plot_matrix(correlation_matrix, figure=(10, 8), labels=labels_list,
-                     vmax=0.8, vmin=-0.8, reorder=True)
+#plotting.plot_matrix(correlation_matrix, figure=(10, 8), labels=amyg_cols,
+#                     vmax=0.8, vmin=-0.8, reorder=True,
+#                     output_file=outDir+sub+'/'+ses+'/'+sub+'_'+ses+'_corrmat.png')
