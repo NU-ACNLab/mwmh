@@ -13,31 +13,19 @@ from nilearn.input_data import NiftiLabelsMasker
 from nilearn.connectome import ConnectivityMeasure
 from nilearn import plotting
 import sys, getopt
+import argparse
 
-def main(argv):
-   inputfile = ''
-   outputfile = ''
-   try:
-      opts, args = getopt.getopt(argv,"hi:o:",["idir=","odir=","sub=","ses="]) # the "hi:o" part may be incomplete
-   except getopt.GetoptError:
-      print('amygconn.py -i <inputdir> -o <outputdir> -s <subject> -ss <session>')
-      sys.exit(2)
-   for opt, arg in opts:
-      if opt == '-h':
-         print('amygconn.py -i <inputdir> -o <outputdir> -s <subject> -ss <session>')
-         sys.exit()
-      elif opt in ("-i", "--idir"):
-         inDir = arg
-      elif opt in ("-o", "--odir"):
-         outDir = arg
-      elif opt in ("-s", "--sub"):
-         sub = arg
-      elif opt in ("-ss", "--ses"):
-         ses = arg
-   print 'Input directory is "', inDir
-   print 'Output directory is "', outDir
-   print 'Subject is "', sub
-   print 'Sesssion is "', ses
+parser = argparse.ArgumentParser()
+parser.add_argument('-i', default='/projects/b1108/data/MWMH/fmriprep/')
+parser.add_argument('-o', default='/projects/b1108/data/MWMH/amygconn/')
+parser.add_argument('-s')
+parser.add_argument('-ss')
+args = parser.parse_args()
+
+inDir = args.i
+outDir = args.o
+sub = args.s
+ses = args.ss
 
 ##### DIRECTORY BUSINESS ######
 # original data directory
