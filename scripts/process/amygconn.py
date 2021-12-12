@@ -20,11 +20,11 @@ def main(argv):
    try:
       opts, args = getopt.getopt(argv,"hi:o:",["idir=","odir=","sub=","ses="]) # the "hi:o" part may be incomplete
    except getopt.GetoptError:
-      print 'amygconn.py -i <inputdir> -o <outputdir> -s <subject> -ss <session>'
+      print('amygconn.py -i <inputdir> -o <outputdir> -s <subject> -ss <session>')
       sys.exit(2)
    for opt, arg in opts:
       if opt == '-h':
-         print 'amygconn.py -i <inputdir> -o <outputdir> -s <subject> -ss <session>'
+         print('amygconn.py -i <inputdir> -o <outputdir> -s <subject> -ss <session>')
          sys.exit()
       elif opt in ("-i", "--idir"):
          inDir = arg
