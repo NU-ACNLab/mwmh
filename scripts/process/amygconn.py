@@ -41,12 +41,12 @@ def main(argv):
 
 ##### DIRECTORY BUSINESS ######
 # original data directory
-inDir = '/projects/b1108/data/MWMH/fmriprep/'
+#inDir = '/projects/b1108/data/MWMH/fmriprep/'
 # Output directory
-outDir = '/projects/b1108/data/MWMH/amygconn/'
+#outDir = '/projects/b1108/data/MWMH/amygconn/'
 
-sub = 'sub-'+'MWMH117' #sub
-ses = 'ses-'+'1' #ses
+sub = 'sub-'+sub #'MWMH117' #sub
+ses = 'ses-'+ses #'1' #ses
 
 # directory where preprocessed fMRI data is located
 subInDir = os.path.join(inDir, sub)
