@@ -24,4 +24,5 @@ singularity run --writable-tmpfs --cleanenv \
   --grouping all -c none --overwrite
 
 
-# sbatch -o /projects/b1108/studies/mwmh/data/raw/neuroimaging/bids/tabulate.txt
+# sbatch -o /projects/b1108/studies/mwmh/data/raw/neuroimaging/bids/tabulate.txt \
+# /projects/b1108/studies/mwmh/scripts/curation/
