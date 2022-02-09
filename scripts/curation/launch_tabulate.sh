@@ -1,9 +1,3 @@
-### This script launches heudiconv to tabulate the dicom headers across
-### all of MWMH
-###
-### Ellyn Butler
-### February 9, 2022
-
 #!/bin/bash
 #SBATCH --account=p31521                                  ## YOUR ACCOUNT pXXXX or bXXXX
 #SBATCH --partition=normal                                ## PARTITION (buyin, short, normal, w10001, etc)
@@ -25,4 +19,4 @@ singularity run --writable-tmpfs --cleanenv \
 
 
 # sbatch -o /projects/b1108/studies/mwmh/data/raw/neuroimaging/bids/tabulate.txt \
-# /projects/b1108/studies/mwmh/scripts/curation/
+# /projects/b1108/studies/mwmh/scripts/curation/launch_tabulate.sh
