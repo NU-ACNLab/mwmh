@@ -1,0 +1,2 @@
+mkdir: cannot create directory ‘/projects/b1108/studies/mwmh/data/raw/neuroimaging/dicoms/sub-MWMH219/ses-2’: File exists
+cp: cannot create regular file ‘/projects/b1108/studies/mwmh/data/raw/neuroimaging/dicoms/sub-MWMH219/ses-2/SCANS/7/DICOM/MWMH219.MR.fMRI_STUDIES_MILLER.7.32.20180413.154425.d37ena.dcm’: File exists
