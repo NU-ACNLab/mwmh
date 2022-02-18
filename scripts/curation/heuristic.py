@@ -41,7 +41,7 @@ def infotodict(seqinfo):
     info = {t1w: [], dti: [], faces: [], avoid: [], rest: []}
 
     for idx, s in enumerate(seqinfo):
-        if (s.TR == 2.3) and ('tfl_epinav_ME2_pt8mm_p2' in s.protocol_name) and (s.is_derived == False):
+        if (s.dim3 == 208) and ('tfl_epinav_ME2_pt8mm_p2' in s.protocol_name) and (s.is_derived == False):
             info[t1w].append(s.series_id)
         elif ('DTI_MB4_68dir_1pt5mm_b1k' in s.protocol_name) and (s.is_derived == False):
             info[dti].append(s.series_id)

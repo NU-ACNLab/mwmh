@@ -78,7 +78,7 @@ func_img = raw_func_img.slicer[:,:,:,10:]
 masker = NiftiLabelsMasker(labels_img=labels_img,
                             labels=labels_list,
                             mask_img=mask_img,
-                            smoothing_fwhm=6,
+                            smoothing_fwhm=0,
                             standardize=True, #Check if fMRI does this
                             detrend=True,
                             low_pass=.08,
