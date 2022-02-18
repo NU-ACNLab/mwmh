@@ -34,5 +34,7 @@ for mwmhdir in ${mwmhdirs}; do
   if [ ! -d "${outdir}/sub-${sub}/ses-${ses}" ]; then
     mkdir ${outdir}/sub-${sub}/ses-${ses}
   fi
-  cp -r ${mwmhdir}/SCANS ${outdir}/sub-${sub}/ses-${ses}
+  if [ ! -d "${outdir}/sub-${sub}/ses-${ses}/SCANS" ]; then
+    cp -r ${mwmhdir}/SCANS ${outdir}/sub-${sub}/ses-${ses}
+  fi
 done
