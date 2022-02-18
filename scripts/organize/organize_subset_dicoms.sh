@@ -13,7 +13,7 @@ mwmhdirs=`find ${indir} -maxdepth 1 -name "MWMH*"`
 for mwmhdir in ${mwmhdirs}; do
   # If "rescan" is in mwmhdir filename, break
   if [[ "${mwmhdir}" == *"rescan"* ]]; then
-    break
+    continue
   fi
   # Get sub and ses labels
   sub=`echo ${mwmhdir} | cut -d '/' -f 5 | cut -d '_' -f 1 | cut -d 'C' -f 1`
