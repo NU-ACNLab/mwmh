@@ -14,6 +14,6 @@
 
 singularity run --writable-tmpfs --cleanenv \
   -B /projects/b1108/studies/mwmh:/base \
-  /home/erb9722/heudiconv_0.9.0.sif -d /base/dicoms/sub-{subject}/*/*/*/*/*/*.dcm \
+  /home/erb9722/heudiconv_0.9.0.sif -d /base/data/raw/neuroimaging/dicoms/sub-{subject}/*/*/*/*/*/*.dcm \
   -o /base/data/raw/neuroimaging/bids/ \
   -f /base/scripts/curation/heuristic.py -s MWMH219 -c dcm2niix -b --overwrite
