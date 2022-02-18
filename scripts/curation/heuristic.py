@@ -41,15 +41,15 @@ def infotodict(seqinfo):
     info = {t1w: [], dti: [], faces: [], avoid: [], rest: []}
 
     for idx, s in enumerate(seqinfo):
-        if (s.dim3 == 208) and ('tfl_epinav_ME2_pt8mm_p2' in s.protocol_name) and (s.is_derived == False):
+        if (s.dim3 == 208) and ('tfl_epinav_ME2' in s.protocol_name) and (s.is_derived == False):
             info[t1w].append(s.series_id)
-        elif ('DTI_MB4_68dir_1pt5mm_b1k' in s.protocol_name) and (s.is_derived == False):
+        elif ('DTI_MB4_68dir' in s.protocol_name) and (s.is_derived == False):
             info[dti].append(s.series_id)
         elif ('FACES' in s.protocol_name) and (s.is_derived == False):
             info[faces].append(s.series_id)
         elif ('PASSIVE_AVOIDANCE' in s.protocol_name) and (s.is_derived == False):
             info[avoid].append(s.series_id)
-        elif ('Mb8_rest_HCP_22_64_555_2mmiso' in s.protocol_name) and (s.is_derived == False):
+        elif ('Mb8_rest_HCP' in s.protocol_name) and (s.is_derived == False):
             info[rest].append(s.series_id)
 
     return info
