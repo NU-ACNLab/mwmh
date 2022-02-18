@@ -12,11 +12,11 @@
 #SBATCH --mail-user=ellynbutler2027@u.northwestern.edu    ## your email
 
 singularity run --writable-tmpfs --cleanenv \
-  -B /projects/b1108:/base \
+  -B /projects/b1108/studies/mwmh/data/raw/neuroimaging:/base \
   /home/erb9722/heudiconv_0.9.0.sif \
-  --files /base/studies/mwmh/data/raw/neuroimaging/bids/ \
+  -d /base/dicom/sub-{subject}/*/*/*/*/*.dcm \
   -s MWMH219 MWMH379 MWMH112 MWMH196 MWMH225 MWMH275 MWMH293 \
-  -o /base/studies/mwmh/data/raw/neuroimaging/bids/ -f convertall \
+  -o /base/bids/ -f convertall \
   --grouping all -c none --overwrite
 
 
@@ -26,3 +26,5 @@ singularity run --writable-tmpfs --cleanenv \
 # February 16, 2022: Trying a subset of subjects because this error hasn't been
 # addressed yet, and there isn't a clear place to bind:
 # https://github.com/nipy/heudiconv/issues/545
+
+#  --files /base/studies/mwmh/data/raw/neuroimaging/bids/ \
