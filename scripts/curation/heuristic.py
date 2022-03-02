@@ -47,7 +47,7 @@ def infotodict(seqinfo):
             info[dti].append(s.series_id)
         elif ('FACES' in s.protocol_name) and (s.is_derived == False):
             info[faces].append(s.series_id)
-        elif ('PASSIVE_AVOIDANCE' in s.protocol_name) and (s.is_derived == False):
+        elif ('PASSIVE' in s.protocol_name) and (s.is_derived == False):
             info[avoid].append(s.series_id)
         elif ('Mb8_rest_HCP' in s.protocol_name) and (s.is_derived == False):
             info[rest].append(s.series_id)
