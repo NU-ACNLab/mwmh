@@ -14,7 +14,6 @@
 
 singularity run --writable-tmpfs --cleanenv --containall \
   -B /projects/b1108/studies/mwmh:/base \
-  -B /home/erb9722 \
   /home/erb9722/heudiconv_0.9.0.sif \
   -d /base/data/raw/neuroimaging/dicoms/sub-{subject}/*/*/*/*/*.dcm \
   -o /base/data/raw/neuroimaging/bids/ \
