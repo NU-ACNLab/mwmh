@@ -15,11 +15,12 @@ singularity run --writable-tmpfs --cleanenv \
   -B /projects/b1108/studies/mwmh/data/raw/neuroimaging:/base \
   /home/erb9722/heudiconv_0.9.0.sif \
   -d /base/dicoms/sub-{subject}/*/*/*/*/*.dcm \
-  -s MWMH219 MWMH379 MWMH112 MWMH196 MWMH225 MWMH275 MWMH293 \
+  -s MWMH102 \
   -o /base/bids/ -f convertall \
   --grouping all -c none --overwrite
 
 
+#MWMH219 MWMH379 MWMH112 MWMH196 MWMH225 MWMH275 MWMH293
 # sbatch -o /projects/b1108/studies/mwmh/data/raw/neuroimaging/bids/tabulate.txt \
 # /projects/b1108/studies/mwmh/scripts/curation/launch_tabulate.sh
 

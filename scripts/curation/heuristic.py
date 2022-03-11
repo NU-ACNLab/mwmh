@@ -45,9 +45,9 @@ def infotodict(seqinfo):
             info[t1w].append(s.series_id)
         elif ('DTI_MB4_68dir' in s.protocol_name) and (s.is_derived == False):
             info[dti].append(s.series_id)
-        elif ('FACES' in s.protocol_name) and (s.is_derived == False):
+        elif (('FACES' in s.protocol_name) or ('MB2_task' in s.protocol_name)) and (s.dim4 < 205) and (s.dim4 > 195) and (s.is_derived == False):
             info[faces].append(s.series_id)
-        elif ('PASSIVE' in s.protocol_name) and (s.is_derived == False):
+        elif (('PASSIVE' in s.protocol_name) or ('MB2_task' in s.protocol_name)) and (s.dim4 > 295) and (s.dim4 < 305) and (s.is_derived == False):
             info[avoid].append(s.series_id)
         elif ('Mb8_rest_HCP' in s.protocol_name) and (s.is_derived == False):
             info[rest].append(s.series_id)

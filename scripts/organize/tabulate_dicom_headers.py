@@ -2,7 +2,7 @@
 ### for all of the sequences, subjects and sessions
 ###
 ### Ellyn Butler
-### February 1, 2022
+### February 1, 2022 - March 8, 2022
 
 import pydicom #https://github.com/pydicom/pydicom
 # https://pydicom.github.io/pydicom/stable/old/getting_started.html
@@ -27,7 +27,8 @@ param_dict = {
     'ProtocolName':[],
     'RepetitionTime':[],
     'SequenceName':[],
-    'SliceThickness':[]
+    'SliceThickness':[],
+    'NDicoms':[]
 }
 
 for sub_dir in subject_dirs:
@@ -35,16 +36,23 @@ for sub_dir in subject_dirs:
     sequences = [seq for seq in sequences if seq != 'junk']
     # Skip 99, not a real sequence?
     sequences = [seq for seq in sequences if '99' not in seq]
+    if 'C' in sub_dir:
+        sub = sub_dir.split('/')[-1].split('C')[0]
+        ses = int(sub_dir.split('/')[-1].split('V')[1].split('_')[0].split('-')[0])
+    else:
+        sub = sub_dir.split('/')[-1].split('_')[0]
+        osub_dir = os.popen('find '+todd_dir+' -maxdepth 1 -name "'+sub+'CV*"').read().split("\n")[0]
+        oses = int(osub_dir.split('/')[-1].split('V')[1].split('_')[0].split('-')[0])
+        if oses == 1:
+            ses = 2
+        else:
+            ses = 1
+    if sub == 'MWMH257' and ses == 1:
+        print(sub, ses)
     for seq in sequences:
         dcm_path = os.popen('find '+sub_dir+'/SCANS/'+seq+'/DICOM/ -name "*.dcm"').read().split("\n")[0]
         if len(dcm_path) > 0:
             dcm = pydicom.dcmread(dcm_path)
-            if 'C' in sub_dir:
-                sub = sub_dir.split('/')[-1].split('C')[0]
-                ses = sub_dir.split('/')[-1].split('V')[1].split('_')[0]
-            else:
-                sub = sub_dir.split('/')[-1].split('_')[0]
-                ses = 'NA'
             param_dict['subid'].append(sub)
             param_dict['sesid'].append(ses)
             if hasattr(dcm, 'AcquisitionDate'):
@@ -53,7 +61,6 @@ for sub_dir in subject_dirs:
                 param_dict['AcquisitionDate'].append('NA')
             if hasattr(dcm, 'SeriesNumber'):
                 param_dict['SeriesNumber'].append(dcm.SeriesNumber)
-                print(dcm.SeriesNumber)
             else:
                 param_dict['SeriesNumber'].append('NA')
             if hasattr(dcm, 'EchoNumbers'):
@@ -62,7 +69,6 @@ for sub_dir in subject_dirs:
                 param_dict['EchoNumbers'].append('NA')
             if hasattr(dcm, 'EchoTime'):
                 param_dict['EchoTime'].append(dcm.EchoTime)
-                print(dcm.EchoTime)
             else:
                 param_dict['EchoTime'].append('NA')
             if hasattr(dcm, 'FlipAngle'):
@@ -88,10 +94,10 @@ for sub_dir in subject_dirs:
                 param_dict['SliceThickness'].append(dcm.SliceThickness)
             else:
                 param_dict['SliceThickness'].append('NA')
-
+            # Count the number of dicoms in the dicom directory
+            dicoms = os.popen('find '+sub_dir+'/SCANS/'+seq+'/DICOM/'+' -name "*.dcm"').read().split("\n")[:-1]
+            ndicoms = len(dicoms)
+            param_dict['NDicoms'].append(ndicoms)
 
 param_df = pd.DataFrame.from_dict(param_dict)
 param_df.to_csv('/projects/b1108/studies/mwmh/data/raw/neuroimaging/meta/params_'+datetime.today().strftime('%Y-%m-%d')+'.csv', index=False)
-
-unique_param_df = param_df.drop('subid', 1).drop('sesid', 1).drop('AcquisitionDate', 1).drop_duplicates()
-unique_param_df.to_csv('/projects/b1108/studies/mwmh/data/raw/neuroimaging/meta/unique_params_'+datetime.today().strftime('%Y-%m-%d')+'.csv',index=False)
