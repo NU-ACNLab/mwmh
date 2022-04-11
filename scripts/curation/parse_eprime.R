@@ -69,7 +69,8 @@ final_avoid_df <- data.frame(subid=rep('MWMH166', nrow(avoid_df)*4),
                        sesid=rep(1, nrow(avoid_df)*4),
                        onset=NA, duration=NA, trial=NA, cue=NA, fix1=NA,
                        feedback=NA, fix2=NA, approach=NA, avoid=NA,
-                       reward=NA, loss=NA, nothing=NA)
+                       reward=NA, loss=NA, nothing=NA, gain50=NA, gain10=NA,
+                       lose10=NA, lose50=NA)
 
 ########## Stimuli
 
@@ -118,15 +119,31 @@ for (i in 1:nrow(avoid_df)) {
   final_avoid_df[i+j+1, 'loss'] <- (avoid_df[i, 'Amount'] < 0)*final_avoid_df[i+j+1, 'feedback']
   final_avoid_df[i+j+2, 'loss'] <- (avoid_df[i, 'Amount'] < 0)*final_avoid_df[i+j+2, 'feedback']
   final_avoid_df[i+j+3, 'loss'] <- (avoid_df[i, 'Amount'] < 0)*final_avoid_df[i+j+3, 'feedback']
-  # gain 50
-  # gain 10
-  # lose 10
-  # lose 50
   # nothing - feedback & $0
   final_avoid_df[i+j, 'nothing'] <- (avoid_df[i, 'Amount'] == 0)*final_avoid_df[i+j, 'feedback']
   final_avoid_df[i+j+1, 'nothing'] <- (avoid_df[i, 'Amount'] == 0)*final_avoid_df[i+j+1, 'feedback']
   final_avoid_df[i+j+2, 'nothing'] <- (avoid_df[i, 'Amount'] == 0)*final_avoid_df[i+j+2, 'feedback']
   final_avoid_df[i+j+3, 'nothing'] <- (avoid_df[i, 'Amount'] == 0)*final_avoid_df[i+j+3, 'feedback']
+  # gain 50
+  final_avoid_df[i+j, 'gain50'] <- (avoid_df[i, 'Amount'] == 50)*final_avoid_df[i+j, 'feedback']
+  final_avoid_df[i+j+1, 'gain50'] <- (avoid_df[i, 'Amount'] == 50)*final_avoid_df[i+j+1, 'feedback']
+  final_avoid_df[i+j+2, 'gain50'] <- (avoid_df[i, 'Amount'] == 50)*final_avoid_df[i+j+2, 'feedback']
+  final_avoid_df[i+j+3, 'gain50'] <- (avoid_df[i, 'Amount'] == 50)*final_avoid_df[i+j+3, 'feedback']
+  # gain 10
+  final_avoid_df[i+j, 'gain10'] <- (avoid_df[i, 'Amount'] == 10)*final_avoid_df[i+j, 'feedback']
+  final_avoid_df[i+j+1, 'gain10'] <- (avoid_df[i, 'Amount'] == 10)*final_avoid_df[i+j+1, 'feedback']
+  final_avoid_df[i+j+2, 'gain10'] <- (avoid_df[i, 'Amount'] == 10)*final_avoid_df[i+j+2, 'feedback']
+  final_avoid_df[i+j+3, 'gain10'] <- (avoid_df[i, 'Amount'] == 10)*final_avoid_df[i+j+3, 'feedback']
+  # lose 10
+  final_avoid_df[i+j, 'lose10'] <- (avoid_df[i, 'Amount'] == -10)*final_avoid_df[i+j, 'feedback']
+  final_avoid_df[i+j+1, 'lose10'] <- (avoid_df[i, 'Amount'] == -10)*final_avoid_df[i+j+1, 'feedback']
+  final_avoid_df[i+j+2, 'lose10'] <- (avoid_df[i, 'Amount'] == -10)*final_avoid_df[i+j+2, 'feedback']
+  final_avoid_df[i+j+3, 'lose10'] <- (avoid_df[i, 'Amount'] == -10)*final_avoid_df[i+j+3, 'feedback']
+  # lose 50
+  final_avoid_df[i+j, 'lose50'] <- (avoid_df[i, 'Amount'] == -50)*final_avoid_df[i+j, 'feedback']
+  final_avoid_df[i+j+1, 'lose50'] <- (avoid_df[i, 'Amount'] == -50)*final_avoid_df[i+j+1, 'feedback']
+  final_avoid_df[i+j+2, 'lose50'] <- (avoid_df[i, 'Amount'] == -50)*final_avoid_df[i+j+2, 'feedback']
+  final_avoid_df[i+j+3, 'lose50'] <- (avoid_df[i, 'Amount'] == -50)*final_avoid_df[i+j+3, 'feedback']
   j=j+3
 }
 
