@@ -20,27 +20,27 @@ avoid_df <- avoid_df[avoid_df$Subject %in% sub & avoid_df$Session %in% ses, ]
 row.names(avoid_df) <- 1:nrow(avoid_df)
 
 ########## Times
-head(avoid_df[, c('Stm.OnsetTime', 'Fixation.OnsetTime',
-            'Fixation.OnsetToOnsetTime', 'Stm.OnsetToOnsetTime',
-            'Stm.RT')])
+#head(avoid_df[, c('Stm.OnsetTime', 'Fixation.OnsetTime',
+#            'Fixation.OnsetToOnsetTime', 'Stm.OnsetToOnsetTime',
+#            'Stm.RT')])
 
 ### Length of Cue Phase (Should be: 1500, Found: ~ 1485)
 # Onset of Cue Phase: 'Stm.OnsetTime'?
-avoid_df$Fixation.OnsetTime - avoid_df$Stm.OnsetTime
+#avoid_df$Fixation.OnsetTime - avoid_df$Stm.OnsetTime
 
 ### Length of First Fixation (Should be: 500-2500, Found: 501-2519)
 # Onset of First Fixation: 'Fixation.OnsetTime'?
-avoid_df$Fixation.OnsetToOnsetTime #What actually happened?
+#avoid_df$Fixation.OnsetToOnsetTime #What actually happened?
 # OR (not equal!!! but very close)
-avoid_df$Jit1 #What was supposed to happen?
+#avoid_df$Jit1 #What was supposed to happen?
 
 ### Length of Feedback Phase (Should be: 1500, Found: ~ 1485)
 # Onset of Feedback Phase: 'Fixation.OnsetTime' + 'Fixation.OnsetToOnsetTime'?
-avoid_df$Stm.OnsetToOnsetTime
+#avoid_df$Stm.OnsetToOnsetTime
 
 ### Length of Second Fixation (Should be: 0-4000, Found: )
 # Onset of Second Fixation: 'Stm.OnsetToOnsetTime' + 'Fixation.OnsetTime' + 'Fixation.OnsetToOnsetTime'
-avoid_df$Jit2 #? There should be a less perfect version of this, and odd increasing
+#avoid_df$Jit2 #? There should be a less perfect version of this, and odd increasing
 # Alternatively, use the different of the onset for the second fixation and the
 # onset of the subsequent cue... but don't know length of very last fix2 that way
 # (just put in value for Jit2 - but Jit2's don't line up well...)
@@ -49,8 +49,8 @@ fix2_dur <- c(avoid_df[2:nrow(avoid_df), 'Stm.OnsetTime'] - (avoid_df[1:(nrow(av
   avoid_df[1:(nrow(avoid_df) - 1), 'Fixation.OnsetToOnsetTime']),
   avoid_df[nrow(avoid_df), 'Jit2'])
 
-#eprime_to_pulse <- avoid_df[1, 'Stm.OnsetTime'] - # TO DO: Look at design file for constant
-eprime_to_pulse <- 0 #TMP
+eprime_to_pulse <- avoid_df[1, 'Stm.OnsetTime'] - 12000
+#eprime_to_pulse <- 0 #TMP
 
 # NOTE: First onset time seems suspiciously late
 time_df <- data.frame(onset_cue=(avoid_df$Stm.OnsetTime - eprime_to_pulse)/1000,
@@ -182,7 +182,21 @@ write.table(final_avoid_df, paste0(bids_path, sub, '/ses-', ses, '/func/sub-MWMH
 
 faces_df <- read.csv(paste0(base_path, 'combined/task-faces.csv'))
 faces_df <- faces_df[faces_df$Subject %in% sub & faces_df$Session %in% ses, ]
+faces_df <- faces_df[2:nrow(faces_df), ] # NOT SURE IF APPROPRIATE
 row.names(faces_df) <- 1:nrow(faces_df)
 
 
-eprime_to_pulse = faces_df[1, 'Stm.OnsetTime'] - # TO DO: Look at design file for constant
+eprime_to_pulse <- faces_df[1, 'ImageDisplay2.OnsetTime'] - 14500 # THIS MIGHT BE CORRECT - SUSPICIOUS NA FIRST ROW
+
+fix_dur <- c(avoid_df[2:nrow(faces_df), 'Stm.OnsetTime'] - (faces_df[1:(nrow(faces_df) - 1),
+  'Stm.OnsetToOnsetTime'] + avoid_df[1:(nrow(faces_df) - 1), 'Fixation.OnsetTime'] +
+  faces_df[1:(nrow(avoid_df) - 1), 'Fixation.OnsetToOnsetTime']),
+  avoid_df[nrow(avoid_df), 'Jit2'])
+
+time_df <- data.frame(onset_stm=(faces_df$Stm.OnsetTime - eprime_to_pulse)/1000,
+            duration_stm=(faces_df$Fixation.OnsetTime - avoid_df$Stm.OnsetTime)/1000,
+            onset_fix=(avoid_df$Fixation.OnsetTime - eprime_to_pulse)/1000,
+            duration_fix=(avoid_df$Fixation.OnsetToOnsetTime)/1000,
+            onset_blank=(avoid_df$Fixation.OnsetTime - eprime_to_pulse)/1000,
+            duration_blank=(avoid_df$Fixation.OnsetToOnsetTime)/1000
+          )
