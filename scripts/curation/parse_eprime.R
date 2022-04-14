@@ -65,8 +65,8 @@ time_df <- data.frame(onset_cue=(avoid_df$Stm.OnsetTime - eprime_to_pulse)/1000,
 
 avoid_df <- cbind(avoid_df, time_df)
 
-final_avoid_df <- data.frame(subid=rep('MWMH166', nrow(avoid_df)*4),
-                       sesid=rep(1, nrow(avoid_df)*4),
+final_avoid_df <- data.frame(subid=rep(paste0('MWMH', sub), nrow(avoid_df)*4),
+                       sesid=rep(ses, nrow(avoid_df)*4),
                        onset=NA, duration=NA, trial=NA, cue=NA, fix1=NA,
                        feedback=NA, fix2=NA, approach=NA, avoid=NA,
                        reward=NA, loss=NA, nothing=NA, gain50=NA, gain10=NA,
@@ -182,21 +182,54 @@ write.table(final_avoid_df, paste0(bids_path, sub, '/ses-', ses, '/func/sub-MWMH
 
 faces_df <- read.csv(paste0(base_path, 'combined/task-faces.csv'))
 faces_df <- faces_df[faces_df$Subject %in% sub & faces_df$Session %in% ses, ]
-faces_df <- faces_df[2:nrow(faces_df), ] # NOT SURE IF APPROPRIATE
+faces_df <- faces_df[2:(nrow(faces_df)-1), ] # NOT SURE IF APPROPRIATE, but first and last rows have mostly NAs
 row.names(faces_df) <- 1:nrow(faces_df)
 
 
 eprime_to_pulse <- faces_df[1, 'ImageDisplay2.OnsetTime'] - 14500 # THIS MIGHT BE CORRECT - SUSPICIOUS NA FIRST ROW
 
-fix_dur <- c(avoid_df[2:nrow(faces_df), 'Stm.OnsetTime'] - (faces_df[1:(nrow(faces_df) - 1),
-  'Stm.OnsetToOnsetTime'] + avoid_df[1:(nrow(faces_df) - 1), 'Fixation.OnsetTime'] +
-  faces_df[1:(nrow(avoid_df) - 1), 'Fixation.OnsetToOnsetTime']),
-  avoid_df[nrow(avoid_df), 'Jit2'])
+fix_dur <- c(faces_df[2:nrow(faces_df), 'ImageDisplay2.OnsetTime'] -
+  (faces_df[1:(nrow(faces_df)-1), 'Blank.OnsetTime'] + faces_df[1:(nrow(faces_df)-1),
+  'Blank.OnsetToOnsetTime']), avoid_df[nrow(faces_df), 'Jit1'])
 
-time_df <- data.frame(onset_stm=(faces_df$Stm.OnsetTime - eprime_to_pulse)/1000,
-            duration_stm=(faces_df$Fixation.OnsetTime - avoid_df$Stm.OnsetTime)/1000,
-            onset_fix=(avoid_df$Fixation.OnsetTime - eprime_to_pulse)/1000,
-            duration_fix=(avoid_df$Fixation.OnsetToOnsetTime)/1000,
-            onset_blank=(avoid_df$Fixation.OnsetTime - eprime_to_pulse)/1000,
-            duration_blank=(avoid_df$Fixation.OnsetToOnsetTime)/1000
+time_df <- data.frame(onset_face=(faces_df$ImageDisplay2.OnsetTime - eprime_to_pulse)/1000,
+            duration_face=(faces_df$Blank.OnsetTime - faces_df$ImageDisplay2.OnsetTime)/1000,
+            onset_blank=(faces_df$Blank.OnsetTime - eprime_to_pulse)/1000,
+            duration_blank=(faces_df$Blank.OnsetToOnsetTime)/1000,
+            onset_fix=(faces_df$Jitter1.OnsetTime - eprime_to_pulse)/1000,
+            duration_fix=fix_dur/1000
           )
+
+faces_df <- cbind(faces_df, time_df)
+
+#subid,sesid,onset,duration,trial,stm,blank,fix,female,happy,intensity10,intensity20,intensity30,intensity40,intensity50,correct
+# TO DO: Is 1 or 2 correct? Need to check eprime files
+
+final_faces_df <- data.frame(subid=rep(paste0('MWMH', sub), nrow(faces_df)*3),
+                        sesid=rep(ses, nrow(faces_df)*3),
+                        onset=NA, duration=NA, trial=NA, face=NA, blank=NA,
+                        fix=NA, female=NA, happy=NA, intensity10=NA,
+                        intensity20=NA, intensity30=NA, intensity40=NA,
+                        intensity50=NA, correct=NA)
+
+#
+j=0
+for (i in 1:nrow(faces_df)) {
+  # onset
+  final_faces_df[i+j, 'onset'] <- faces_df[i, 'onset_face']
+  final_faces_df[i+j+1, 'onset'] <- faces_df[i, 'onset_blank']
+  final_faces_df[i+j+2, 'onset'] <- faces_df[i, 'onset_fix']
+  # duration
+  final_faces_df[i+j, 'duration'] <- faces_df[i, 'duration_face']
+  final_faces_df[i+j+1, 'duration'] <- faces_df[i, 'duration_blank']
+  final_faces_df[i+j+2, 'duration'] <- faces_df[i, 'duration_fix']
+  # trial
+  final_faces_df[(i+j):(i+j+2), 'trial'] <- faces_df[i, 'Trial']
+  # face - is a face event or not
+  final_faces_df[(i+j):(i+j+2), 'face'] <- c(1, 0, 0)
+  # blank - is a blank screen or not
+  final_faces_df[(i+j):(i+j+2), 'blank'] <- c(0, 1, 0)
+  # fix - is a fixation cross or not
+  final_faces_df[(i+j):(i+j+2), 'fix'] <- c(0, 0, 1)
+  j=j+2
+}
