@@ -5,7 +5,6 @@
 ### March 29, 2022 - April 14, 2022
 
 library('stringr')
-library('ggplot2')
 
 # TO DO: Turn these into command line arguments for job submission
 sub = 379
@@ -157,7 +156,14 @@ write.table(final_avoid_df, paste0(bids_path, sub, '/ses-', ses, '/func/sub-MWMH
 
 faces_df <- read.csv(paste0(base_path, 'combined/task-faces.csv'))
 faces_df <- faces_df[faces_df$Subject %in% sub & faces_df$Session %in% ses, ]
-faces_df <- faces_df[2:(nrow(faces_df)-1), ] # NOT SURE IF APPROPRIATE, but first and last rows have mostly NAs
+
+if (is.na(faces_df[1, 'gender'])) {
+  faces_df <- faces_df[2:nrow(faces_df), ] # NOT SURE IF APPROPRIATE, but first and last rows have mostly NAs
+}
+if (is.na(faces_df[nrow(faces_df), 'gender'])) {
+  faces_df <- faces_df[1:(nrow(faces_df)-1), ]
+}
+
 row.names(faces_df) <- 1:nrow(faces_df)
 
 
@@ -177,14 +183,16 @@ time_df <- data.frame(onset_face=(faces_df$ImageDisplay2.OnsetTime - eprime_to_p
 
 faces_df <- cbind(faces_df, time_df)
 
-#subid,sesid,onset,duration,trial,face,blank,fix,female,happy,intensity10,intensity20,intensity30,intensity40,intensity50,correct
+#subid,sesid,onset,duration,trial,face,blank,fix,female,happy,intensity10,intensity20,intensity30,intensity40,intensity50,correct,press
 
 final_faces_df <- data.frame(subid=rep(paste0('MWMH', sub), nrow(faces_df)*3),
                         sesid=rep(ses, nrow(faces_df)*3),
                         onset=NA, duration=NA, trial=NA, face=NA, blank=NA,
                         fix=NA, female=NA, happy=NA, intensity10=NA,
                         intensity20=NA, intensity30=NA, intensity40=NA,
-                        intensity50=NA, correct=NA)
+                        intensity50=NA, correct=NA, press=NA)
+
+corr_gender_resp <- cor(faces_df$ImageDisplay2.RESP, faces_df$gender, use='complete.obs')
 
 j=0
 for (i in 1:nrow(faces_df)) {
@@ -233,17 +241,70 @@ for (i in 1:nrow(faces_df)) {
   final_faces_df[i+j+1, 'intensity50'] <- (faces_df[i, 'intensity'] == 50)*final_faces_df[i+j+1, 'face']
   final_faces_df[i+j+2, 'intensity50'] <- (faces_df[i, 'intensity'] == 50)*final_faces_df[i+j+2, 'face']
   # correct - (1) they correctly identified the gender of the face (0) they did not, or it wasn't a face
+  # April 14, 2022: THIS IS APPROXIMATE. There were issues with the button boxes. see evaluate_eprime.R for details
   # NOTE: This is different from the definition in E-Prime output
-  if (faces_df[i, 'gender'] == 1) {
-    final_faces_df[i+j, 'correct'] <- (!is.na(faces_df[i, 'ImageDisplay2']) & faces_df[i, 'ImageDisplay2'] == 4)*final_faces_df[i+j, 'face']
+  if (!is.na(faces_df[i, 'ImageDisplay2.RESP'])) {
+    final_faces_df[(i+j):(i+j+2), 'press'] <- c(1, 0, 0)
+    if (1 %in% faces_df$ImageDisplay2) {
+      # If corr positive (preponderance of the evidence that it should be)
+      if (corr_gender_resp > 0) {
+        if (faces_df[i, 'gender'] == 1) {
+          final_faces_df[i+j, 'correct'] <- (faces_df[i, 'ImageDisplay2.RESP'] == 1)*final_faces_df[i+j, 'face']
+          final_faces_df[i+j+1, 'correct'] <- (faces_df[i, 'ImageDisplay2.RESP'] == 1)*final_faces_df[i+j+1, 'face']
+          final_faces_df[i+j+2, 'correct'] <- (faces_df[i, 'ImageDisplay2.RESP'] == 1)*final_faces_df[i+j+2, 'face']
+        } else {
+          final_faces_df[i+j, 'correct'] <- (faces_df[i, 'ImageDisplay2.RESP'] == 2)*final_faces_df[i+j, 'face']
+          final_faces_df[i+j+1, 'correct'] <- (faces_df[i, 'ImageDisplay2.RESP'] == 2)*final_faces_df[i+j+1, 'face']
+          final_faces_df[i+j+2, 'correct'] <- (faces_df[i, 'ImageDisplay2.RESP'] == 2)*final_faces_df[i+j+2, 'face']
+        }
+      # If corr negative
+      } else {
+        if (faces_df[i, 'gender'] == 1) {
+          final_faces_df[i+j, 'correct'] <- (faces_df[i, 'ImageDisplay2.RESP'] == 2)*final_faces_df[i+j, 'face']
+          final_faces_df[i+j+1, 'correct'] <- (faces_df[i, 'ImageDisplay2.RESP'] == 2)*final_faces_df[i+j+1, 'face']
+          final_faces_df[i+j+2, 'correct'] <- (faces_df[i, 'ImageDisplay2.RESP'] == 2)*final_faces_df[i+j+2, 'face']
+        } else {
+          final_faces_df[i+j, 'correct'] <- (faces_df[i, 'ImageDisplay2.RESP'] == 1)*final_faces_df[i+j, 'face']
+          final_faces_df[i+j+1, 'correct'] <- (faces_df[i, 'ImageDisplay2.RESP'] == 1)*final_faces_df[i+j+1, 'face']
+          final_faces_df[i+j+2, 'correct'] <- (faces_df[i, 'ImageDisplay2.RESP'] == 1)*final_faces_df[i+j+2, 'face']
+        }
+      }
+    } else if (4 %in% faces_df$ImageDisplay2.RESP) {
+      # If corr positive
+      if (corr_gender_resp > 0) {
+        if (faces_df[i, 'gender'] == 1) {
+          final_faces_df[i+j, 'correct'] <- (faces_df[i, 'ImageDisplay2.RESP'] == 3)*final_faces_df[i+j, 'face']
+          final_faces_df[i+j+1, 'correct'] <- (faces_df[i, 'ImageDisplay2.RESP'] == 3)*final_faces_df[i+j+1, 'face']
+          final_faces_df[i+j+2, 'correct'] <- (faces_df[i, 'ImageDisplay2.RESP'] == 3)*final_faces_df[i+j+2, 'face']
+        } else {
+          final_faces_df[i+j, 'correct'] <- (faces_df[i, 'ImageDisplay2.RESP'] == 4)*final_faces_df[i+j, 'face']
+          final_faces_df[i+j+1, 'correct'] <- (faces_df[i, 'ImageDisplay2.RESP'] == 4)*final_faces_df[i+j+1, 'face']
+          final_faces_df[i+j+2, 'correct'] <- (faces_df[i, 'ImageDisplay2.RESP'] == 4)*final_faces_df[i+j+2, 'face']
+        }
+      # If corr negative (what it is most often in the 3s and 4s case)
+      } else {
+        if (faces_df[i, 'gender'] == 1) {
+          final_faces_df[i+j, 'correct'] <- (faces_df[i, 'ImageDisplay2.RESP'] == 4)*final_faces_df[i+j, 'face']
+          final_faces_df[i+j+1, 'correct'] <- (faces_df[i, 'ImageDisplay2.RESP'] == 4)*final_faces_df[i+j+1, 'face']
+          final_faces_df[i+j+2, 'correct'] <- (faces_df[i, 'ImageDisplay2.RESP'] == 4)*final_faces_df[i+j+2, 'face']
+        } else {
+          final_faces_df[i+j, 'correct'] <- (faces_df[i, 'ImageDisplay2.RESP'] == 3)*final_faces_df[i+j, 'face']
+          final_faces_df[i+j+1, 'correct'] <- (faces_df[i, 'ImageDisplay2.RESP'] == 3)*final_faces_df[i+j+1, 'face']
+          final_faces_df[i+j+2, 'correct'] <- (faces_df[i, 'ImageDisplay2.RESP'] == 3)*final_faces_df[i+j+2, 'face']
+        }
+      }
+    }
   } else {
-
+    final_faces_df[(i+j):(i+j+2), 'correct'] <- 0
+    final_faces_df[(i+j):(i+j+2), 'press'] <- 0
   }
   j=j+2
 }
 
+
+
 # SANITY CHECK: Does the onset time of the i+1 row equal the onset + duration of i?
-sanity <- final_faces_df[2:nrow(final_faces_df), 'onset'] - (final_avoid_df[1:(nrow(final_faces_df) - 1),'onset'] + final_faces_df[1:(nrow(final_faces_df) - 1), 'duration']) < .00001
+sanity <- final_faces_df[2:nrow(final_faces_df), 'onset'] - (final_faces_df[1:(nrow(final_faces_df) - 1), 'onset'] + final_faces_df[1:(nrow(final_faces_df) - 1), 'duration']) < .00001
 
 if (FALSE %in% sanity) {
   stop('The onsets and durations are not matching up')
