@@ -13,11 +13,12 @@
 
 
 singularity run --writable-tmpfs --cleanenv --containall \
-  -B /projects/b1108/studies/mwmh:/base \
+  -B /projects/b1108/studies/mwmh/data/raw/neuroimaging:/base \
+  -B /projects/b1108/studies/mwmh/scripts/curation/heuristic.py:/base/heuristic.py \
   /home/erb9722/heudiconv_0.9.0.sif \
-  -d /base/data/raw/neuroimaging/dicoms/sub-{subject}/*/*/*/*/*.dcm \
-  -o /base/data/raw/neuroimaging/bids/ \
-  -f /base/scripts/curation/heuristic.py -s MWMH219 -c dcm2niix -b --overwrite
+  -d /base/dicoms/sub-{subject}/*/*/*/*/*.dcm \
+  -o /base/bids/ \
+  -f /base/heuristic.py -s MWMH219 -c dcm2niix -b --overwrite
 
 
 
