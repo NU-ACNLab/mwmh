@@ -24,19 +24,19 @@ def curate_scan(sub, ses, scan, indir):
     if len(dcm_path) > 0:
         dcm = pydicom.dcmread(dcm_path)
         # T1w image
-        if ('tfl_epinav_ME2' in dcm.ProtocolName) and (ndicoms == 208) and (dcm.AcquisitionMatrix[1] == 320):
+        if (('l_epinav_ME2' in dcm.ProtocolName) | 'MPRAGE_SAG_0.8iso' in dcm.ProtocolName) and (ndicoms == 208) and (dcm.AcquisitionMatrix[1] == 320):
 
         # DTI 9 (10-13 derived)
-        elif ('DTI_MB4_68dir_1pt5mm_b1k' == dcm.SeriesDescription) and (ndicoms > 60) and (dcm.SliceThickness == 1.5) and (dcm.RepetitionTime == 2500):
+        elif ('DTI_MB4_68dir_1pt5mm_b1k' == dcm.SeriesDescription) and (ndicoms > 60) and (ndicoms < 70) and (dcm.SliceThickness == 1.5) and (dcm.RepetitionTime == 2500):
 
         # faces 16 (15 for 181 1)
-        elif (('FACES' in dcm.ProtocolName) or ('MB2_task' in s.ProtocolName)) and (ndicoms < 205) and (ndicoms > 195) and (dcm.SliceThickness < 1.8):
+        elif (('FACES' in dcm.ProtocolName) or ('MB2_task' in dcm.ProtocolName)) and (ndicoms < 205) and (ndicoms > 195) and (dcm.SliceThickness < 1.8):
 
         # passive avoidance 17
         elif (('PASSIVE' in dcm.ProtocolName) or ('MB2_task' in dcm.ProtocolName)) and (ndicom > 295) and (ndicoms < 305) and (dcm.SliceThickness < 1.8):
 
         # resting state 18
-        elif ('Mb8_rest_HCP' in dcm.ProtocolName) and :
+        elif ('Mb8_rest_HCP' in dcm.ProtocolName) and (dcm.SliceThickness == 2):
 
 
 
