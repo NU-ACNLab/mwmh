@@ -11,3 +11,5 @@ plots/*
 *measures/*
 *errors/*
 *eprime/*
+*handbooks/*
+*__pycache__*
