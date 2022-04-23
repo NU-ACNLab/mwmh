@@ -2,7 +2,7 @@
 ### far too many ways.
 ###
 ### Ellyn Butler
-### April 19, 2022 - April 21, 2022
+### April 19, 2022 - April 23, 2022
 
 import pydicom #https://github.com/pydicom/pydicom
 # https://pydicom.github.io/pydicom/stable/old/getting_started.html
@@ -15,19 +15,15 @@ from nipype.interfaces.dcm2nii import Dcm2niix
 indir = '/projects/b1108/studies/mwmh/data/raw/neuroimaging/dicoms'
 outdir = '/projects/b1108/studies/mwmh/data/raw/neuroimaging/bids'
 
-#sub = 'sub-MWMH320'
+#sub = 'sub-MWMH378'
 #ses = 'ses-1'
 
-def convert_dicoms(sub, ses, dicomdir, bidsdir, modality):
+def convert_dicoms(dicomdir, bidsdir, modality):
     converter = Dcm2niix()
     converter.inputs.source_dir = dicomdir
     converter.inputs.compression = 5
     converter.inputs.output_dir = bidsdir+'/'+modality
     converter.run()
-    json = os.popen('find '+bidsdir+'/'+modality+' -name "*.json"').read().split("\n")[0]
-    os.rename(json, bidsdir+'/'+modality+'/'+sub+'_'+ses+'_'+modality+'.json')
-    nifti = os.popen('find '+bidsdir+'/'+modality+' -name "*.nii.gz"').read().split("\n")[0]
-    os.rename(nifti, bidsdir+'/'+modality+'/'+sub+'_'+ses+'_'+modality+'.nii.gz')
 
 
 def curate_scan(sub, ses, scan, indir):
@@ -50,26 +46,64 @@ def curate_scan(sub, ses, scan, indir):
             modality = 'anat'
             if not os.path.isdir(bidsdir+'/'+modality):
                 os.mkdir(bidsdir+'/'+modality)
-            convert_dicoms(sub, ses, dicomdir, bidsdir, modality)
+            convert_dicoms(dicomdir, bidsdir, modality)
+            json = os.popen('find '+bidsdir+'/'+modality+' -name "*.json"').read().split("\n")[0]
+            os.rename(json, bidsdir+'/'+modality+'/'+sub+'_'+ses+'_'+modality+'.json')
+            nifti = os.popen('find '+bidsdir+'/'+modality+' -name "*.nii.gz"').read().split("\n")[0]
+            os.rename(nifti, bidsdir+'/'+modality+'/'+sub+'_'+ses+'_'+modality+'.nii.gz')
         # DTI 9 (10-13 derived)
         elif ('DTI_MB4_68dir_1pt5mm_b1k' == dcm.SeriesDescription) and (ndicoms > 60) and (ndicoms < 70) and (dcm.SliceThickness == 1.5) and (dcm.RepetitionTime == 2500):
             modality = 'dwi'
             if not os.path.isdir(bidsdir+'/'+modality):
                 os.mkdir(bidsdir+'/'+modality)
-            convert_dicoms(sub, ses, dicomdir, bidsdir, modality)
+            convert_dicoms(dicomdir, bidsdir, modality)
             # Rename files to be BIDS compliant
+            json = os.popen('find '+bidsdir+'/'+modality+' -name "*.json"').read().split("\n")[0]
+            os.rename(json, bidsdir+'/'+modality+'/'+sub+'_'+ses+'_'+modality+'.json')
+            nifti = os.popen('find '+bidsdir+'/'+modality+' -name "*.nii.gz"').read().split("\n")[0]
+            os.rename(nifti, bidsdir+'/'+modality+'/'+sub+'_'+ses+'_'+modality+'.nii.gz')
             bvec = os.popen('find '+bidsdir+'/'+modality+' -name "*.bvec"').read().split("\n")[0]
             os.rename(bvec, bidsdir+'/'+modality+'/'+sub+'_'+ses+'_'+modality+'.bvec')
             bval = os.popen('find '+bidsdir+'/'+modality+' -name "*.bval"').read().split("\n")[0]
             os.rename(bval, bidsdir+'/'+modality+'/'+sub+'_'+ses+'_'+modality+'.bval')
         # faces 16 (15 for 181 1)
         elif (('FACES' in dcm.ProtocolName) or ('MB2_task' in dcm.ProtocolName)) and (ndicoms < 205) and (ndicoms > 195) and (dcm.SliceThickness < 1.8):
-
+            modality = 'func'
+            if not os.path.isdir(bidsdir+'/'+modality):
+                os.mkdir(bidsdir+'/'+modality)
+            convert_dicoms(dicomdir, bidsdir, modality)
+            json = os.popen('find '+bidsdir+'/'+modality+' -name "*FACES*.json"').read().split("\n")[0]
+            if len(json) == 0:
+                json = os.popen('find '+bidsdir+'/'+modality+' -name "*MB2_task*.json"').read().split("\n")[0]
+            os.rename(json, bidsdir+'/'+modality+'/'+sub+'_'+ses+'_task-faces_bold.json')
+            nifti = os.popen('find '+bidsdir+'/'+modality+' -name "*FACES*.nii.gz"').read().split("\n")[0]
+            if len(nifti) == 0:
+                nifti = os.popen('find '+bidsdir+'/'+modality+' -name "*MB2_task*.nifti"').read().split("\n")[0]
+            os.rename(nifti, bidsdir+'/'+modality+'/'+sub+'_'+ses+'_task-faces_bold.nii.gz')
         # passive avoidance 17
-        elif (('PASSIVE' in dcm.ProtocolName) or ('MB2_task' in dcm.ProtocolName)) and (ndicom > 295) and (ndicoms < 305) and (dcm.SliceThickness < 1.8):
-
+        elif (('PASSIVE' in dcm.ProtocolName) or ('MB2_task' in dcm.ProtocolName)) and (ndicoms > 295) and (ndicoms < 305) and (dcm.SliceThickness < 1.8):
+            modality = 'func'
+            if not os.path.isdir(bidsdir+'/'+modality):
+                os.mkdir(bidsdir+'/'+modality)
+            convert_dicoms(dicomdir, bidsdir, modality)
+            json = os.popen('find '+bidsdir+'/'+modality+' -name "*PASSIVE*.json"').read().split("\n")[0]
+            if len(json) == 0:
+                json = os.popen('find '+bidsdir+'/'+modality+' -name "*MB2_task*.json"').read().split("\n")[0]
+            os.rename(json, bidsdir+'/'+modality+'/'+sub+'_'+ses+'_task-avoid_bold.json')
+            nifti = os.popen('find '+bidsdir+'/'+modality+' -name "*PASSIVE*.nii.gz"').read().split("\n")[0]
+            if len(nifti) == 0:
+                nifti = os.popen('find '+bidsdir+'/'+modality+' -name "*MB2_task*.nifti"').read().split("\n")[0]
+            os.rename(nifti, bidsdir+'/'+modality+'/'+sub+'_'+ses+'_task-avoid_bold.nii.gz')
         # resting state 18
         elif ('Mb8_rest_HCP' in dcm.ProtocolName) and (dcm.SliceThickness == 2):
+            modality = 'func'
+            if not os.path.isdir(bidsdir+'/'+modality):
+                os.mkdir(bidsdir+'/'+modality)
+            convert_dicoms(dicomdir, bidsdir, modality)
+            json = os.popen('find '+bidsdir+'/'+modality+' -name "*Mb8_rest_HCP*.json"').read().split("\n")[0]
+            os.rename(json, bidsdir+'/'+modality+'/'+sub+'_'+ses+'_task-rest_bold.json')
+            nifti = os.popen('find '+bidsdir+'/'+modality+' -name "*Mb8_rest_HCP*.nii.gz"').read().split("\n")[0]
+            os.rename(nifti, bidsdir+'/'+modality+'/'+sub+'_'+ses+'_task-rest_bold.nii.gz')
 
 
 
