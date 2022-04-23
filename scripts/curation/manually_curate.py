@@ -48,9 +48,9 @@ def curate_scan(sub, ses, scan, indir):
                 os.mkdir(bidsdir+'/'+modality)
             convert_dicoms(dicomdir, bidsdir, modality)
             json = os.popen('find '+bidsdir+'/'+modality+' -name "*.json"').read().split("\n")[0]
-            os.rename(json, bidsdir+'/'+modality+'/'+sub+'_'+ses+'_'+modality+'.json')
+            os.rename(json, bidsdir+'/'+modality+'/'+sub+'_'+ses+'_T1w.json')
             nifti = os.popen('find '+bidsdir+'/'+modality+' -name "*.nii.gz"').read().split("\n")[0]
-            os.rename(nifti, bidsdir+'/'+modality+'/'+sub+'_'+ses+'_'+modality+'.nii.gz')
+            os.rename(nifti, bidsdir+'/'+modality+'/'+sub+'_'+ses+'_T1w.nii.gz')
         # DTI 9 (10-13 derived)
         elif ('DTI_MB4_68dir_1pt5mm_b1k' == dcm.SeriesDescription) and (ndicoms > 60) and (ndicoms < 70) and (dcm.SliceThickness == 1.5) and (dcm.RepetitionTime == 2500):
             modality = 'dwi'

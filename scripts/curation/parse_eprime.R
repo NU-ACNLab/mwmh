@@ -7,10 +7,10 @@
 library('stringr')
 
 # TO DO: Turn these into command line arguments for job submission
-sub = 379
+sub = 378
 ses = 1
 
-base_path <- '~/Documents/Northwestern/studies/mwmh/data/processed/neuroimaging/behavioral/'
+base_path <- '/projects/b1108/studies/mwmh/data/processed/neuroimaging/behavioral/'
 
 
 #################################### Avoid ####################################
@@ -39,9 +39,7 @@ time_df <- data.frame(onset_cue=(avoid_df$Stm.OnsetTime - eprime_to_pulse)/1000,
 
 avoid_df <- cbind(avoid_df, time_df)
 
-final_avoid_df <- data.frame(subid=rep(paste0('MWMH', sub), nrow(avoid_df)*4),
-                       sesid=rep(ses, nrow(avoid_df)*4),
-                       onset=NA, duration=NA, trial=NA, cue=NA, fix1=NA,
+final_avoid_df <- data.frame(onset=NA, duration=NA, trial=NA, cue=NA, fix1=NA,
                        feedback=NA, fix2=NA, approach=NA, avoid=NA,
                        reward=NA, loss=NA, nothing=NA, gain50=NA, gain10=NA,
                        lose10=NA, lose50=NA)
@@ -121,7 +119,7 @@ for (i in 1:nrow(avoid_df)) {
   j=j+3
 }
 
-bids_path <- '~/Documents/Northwestern/studies/mwmh/data/raw/neuroimaging/bids/sub-MWMH'
+bids_path <- '/projects/b1108/studies/mwmh/data/raw/neuroimaging/bids/sub-MWMH'
 
 # SANITY CHECK: Does the onset time of the i+1 row equal the onset + duration of i?
 sanity <- final_avoid_df[2:nrow(final_avoid_df), 'onset'] - (final_avoid_df[1:(nrow(final_avoid_df) - 1),'onset'] + final_avoid_df[1:(nrow(final_avoid_df) - 1), 'duration']) < .00001
@@ -132,7 +130,7 @@ if (FALSE %in% sanity) {
 
 # Write out tsv to bids directory
 write.table(final_avoid_df, paste0(bids_path, sub, '/ses-', ses, '/func/sub-MWMH',
-  sub, '_ses-', ses, '_task-avoid.tsv'), row.names=FALSE, sep='\t')
+  sub, '_ses-', ses, '_task-avoid_events.tsv'), row.names=FALSE, sep='\t')
 
 # final_avoid_df should have 96*4 = 384 rows
 
@@ -183,11 +181,9 @@ time_df <- data.frame(onset_face=(faces_df$ImageDisplay2.OnsetTime - eprime_to_p
 
 faces_df <- cbind(faces_df, time_df)
 
-#subid,sesid,onset,duration,trial,face,blank,fix,female,happy,intensity10,intensity20,intensity30,intensity40,intensity50,correct,press
+#onset,duration,trial,face,blank,fix,female,happy,intensity10,intensity20,intensity30,intensity40,intensity50,correct,press
 
-final_faces_df <- data.frame(subid=rep(paste0('MWMH', sub), nrow(faces_df)*3),
-                        sesid=rep(ses, nrow(faces_df)*3),
-                        onset=NA, duration=NA, trial=NA, face=NA, blank=NA,
+final_faces_df <- data.frame(onset=NA, duration=NA, trial=NA, face=NA, blank=NA,
                         fix=NA, female=NA, happy=NA, intensity10=NA,
                         intensity20=NA, intensity30=NA, intensity40=NA,
                         intensity50=NA, correct=NA, press=NA)
@@ -312,4 +308,4 @@ if (FALSE %in% sanity) {
 
 # Write out tsv to bids directory
 write.table(final_faces_df, paste0(bids_path, sub, '/ses-', ses, '/func/sub-MWMH',
-  sub, '_ses-', ses, '_task-faces.tsv'), row.names=FALSE, sep='\t')
+  sub, '_ses-', ses, '_task-faces_events.tsv'), row.names=FALSE, sep='\t')
