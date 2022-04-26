@@ -130,7 +130,7 @@ if (FALSE %in% sanity) {
 
 # Write out tsv to bids directory
 write.table(final_avoid_df, paste0(bids_path, sub, '/ses-', ses, '/func/sub-MWMH',
-  sub, '_ses-', ses, '_task-avoid_events.tsv'), row.names=FALSE, sep='\t')
+  sub, '_ses-', ses, '_task-avoid_events.tsv'), row.names=FALSE, sep='\t', quote=FALSE)
 
 # final_avoid_df should have 96*4 = 384 rows
 
@@ -308,4 +308,4 @@ if (FALSE %in% sanity) {
 
 # Write out tsv to bids directory
 write.table(final_faces_df, paste0(bids_path, sub, '/ses-', ses, '/func/sub-MWMH',
-  sub, '_ses-', ses, '_task-faces_events.tsv'), row.names=FALSE, sep='\t')
+  sub, '_ses-', ses, '_task-faces_events.tsv'), row.names=FALSE, sep='\t', quote=FALSE)

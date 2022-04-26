@@ -2,7 +2,7 @@
 ### far too many ways.
 ###
 ### Ellyn Butler
-### April 19, 2022 - April 23, 2022
+### April 19, 2022 - April 26, 2022
 
 import pydicom #https://github.com/pydicom/pydicom
 # https://pydicom.github.io/pydicom/stable/old/getting_started.html
@@ -11,6 +11,7 @@ import pandas as pd
 import numpy as np
 from datetime import datetime
 from nipype.interfaces.dcm2nii import Dcm2niix
+import json
 
 indir = '/projects/b1108/studies/mwmh/data/raw/neuroimaging/dicoms'
 outdir = '/projects/b1108/studies/mwmh/data/raw/neuroimaging/bids'
@@ -47,8 +48,8 @@ def curate_scan(sub, ses, scan, indir):
             if not os.path.isdir(bidsdir+'/'+modality):
                 os.mkdir(bidsdir+'/'+modality)
             convert_dicoms(dicomdir, bidsdir, modality)
-            json = os.popen('find '+bidsdir+'/'+modality+' -name "*.json"').read().split("\n")[0]
-            os.rename(json, bidsdir+'/'+modality+'/'+sub+'_'+ses+'_T1w.json')
+            filejson = os.popen('find '+bidsdir+'/'+modality+' -name "*.json"').read().split("\n")[0]
+            os.rename(filejson, bidsdir+'/'+modality+'/'+sub+'_'+ses+'_T1w.json')
             nifti = os.popen('find '+bidsdir+'/'+modality+' -name "*.nii.gz"').read().split("\n")[0]
             os.rename(nifti, bidsdir+'/'+modality+'/'+sub+'_'+ses+'_T1w.nii.gz')
         # DTI 9 (10-13 derived)
@@ -58,8 +59,8 @@ def curate_scan(sub, ses, scan, indir):
                 os.mkdir(bidsdir+'/'+modality)
             convert_dicoms(dicomdir, bidsdir, modality)
             # Rename files to be BIDS compliant
-            json = os.popen('find '+bidsdir+'/'+modality+' -name "*.json"').read().split("\n")[0]
-            os.rename(json, bidsdir+'/'+modality+'/'+sub+'_'+ses+'_'+modality+'.json')
+            filejson = os.popen('find '+bidsdir+'/'+modality+' -name "*.json"').read().split("\n")[0]
+            os.rename(filejson, bidsdir+'/'+modality+'/'+sub+'_'+ses+'_'+modality+'.json')
             nifti = os.popen('find '+bidsdir+'/'+modality+' -name "*.nii.gz"').read().split("\n")[0]
             os.rename(nifti, bidsdir+'/'+modality+'/'+sub+'_'+ses+'_'+modality+'.nii.gz')
             bvec = os.popen('find '+bidsdir+'/'+modality+' -name "*.bvec"').read().split("\n")[0]
@@ -72,10 +73,14 @@ def curate_scan(sub, ses, scan, indir):
             if not os.path.isdir(bidsdir+'/'+modality):
                 os.mkdir(bidsdir+'/'+modality)
             convert_dicoms(dicomdir, bidsdir, modality)
-            json = os.popen('find '+bidsdir+'/'+modality+' -name "*FACES*.json"').read().split("\n")[0]
-            if len(json) == 0:
-                json = os.popen('find '+bidsdir+'/'+modality+' -name "*MB2_task*.json"').read().split("\n")[0]
-            os.rename(json, bidsdir+'/'+modality+'/'+sub+'_'+ses+'_task-faces_bold.json')
+            filejson = os.popen('find '+bidsdir+'/'+modality+' -name "*FACES*.json"').read().split("\n")[0]
+            if len(filejson) == 0:
+                filejson = os.popen('find '+bidsdir+'/'+modality+' -name "*MB2_task*.json"').read().split("\n")[0]
+            json_obj = json.load(open(filejson, 'r'))
+            json_obj['TaskName'] = 'faces'
+            with open(filejson, 'w') as f:
+                json.dump(json_obj, f)
+            os.rename(filejson, bidsdir+'/'+modality+'/'+sub+'_'+ses+'_task-faces_bold.json')
             nifti = os.popen('find '+bidsdir+'/'+modality+' -name "*FACES*.nii.gz"').read().split("\n")[0]
             if len(nifti) == 0:
                 nifti = os.popen('find '+bidsdir+'/'+modality+' -name "*MB2_task*.nifti"').read().split("\n")[0]
@@ -86,10 +91,14 @@ def curate_scan(sub, ses, scan, indir):
             if not os.path.isdir(bidsdir+'/'+modality):
                 os.mkdir(bidsdir+'/'+modality)
             convert_dicoms(dicomdir, bidsdir, modality)
-            json = os.popen('find '+bidsdir+'/'+modality+' -name "*PASSIVE*.json"').read().split("\n")[0]
-            if len(json) == 0:
-                json = os.popen('find '+bidsdir+'/'+modality+' -name "*MB2_task*.json"').read().split("\n")[0]
-            os.rename(json, bidsdir+'/'+modality+'/'+sub+'_'+ses+'_task-avoid_bold.json')
+            filejson = os.popen('find '+bidsdir+'/'+modality+' -name "*PASSIVE*.json"').read().split("\n")[0]
+            if len(filejson) == 0:
+                filejson = os.popen('find '+bidsdir+'/'+modality+' -name "*MB2_task*.json"').read().split("\n")[0]
+            json_obj = json.load(open(filejson, 'r'))
+            json_obj['TaskName'] = 'avoid'
+            with open(filejson, 'w') as f:
+                json.dump(json_obj, f)
+            os.rename(filejson, bidsdir+'/'+modality+'/'+sub+'_'+ses+'_task-avoid_bold.json')
             nifti = os.popen('find '+bidsdir+'/'+modality+' -name "*PASSIVE*.nii.gz"').read().split("\n")[0]
             if len(nifti) == 0:
                 nifti = os.popen('find '+bidsdir+'/'+modality+' -name "*MB2_task*.nifti"').read().split("\n")[0]
@@ -100,8 +109,12 @@ def curate_scan(sub, ses, scan, indir):
             if not os.path.isdir(bidsdir+'/'+modality):
                 os.mkdir(bidsdir+'/'+modality)
             convert_dicoms(dicomdir, bidsdir, modality)
-            json = os.popen('find '+bidsdir+'/'+modality+' -name "*Mb8_rest_HCP*.json"').read().split("\n")[0]
-            os.rename(json, bidsdir+'/'+modality+'/'+sub+'_'+ses+'_task-rest_bold.json')
+            filejson = os.popen('find '+bidsdir+'/'+modality+' -name "*Mb8_rest_HCP*.json"').read().split("\n")[0]
+            json_obj = json.load(open(filejson, 'r'))
+            json_obj['TaskName'] = 'rest'
+            with open(filejson, 'w') as f:
+                json.dump(json_obj, f)
+            os.rename(filejson, bidsdir+'/'+modality+'/'+sub+'_'+ses+'_task-rest_bold.json')
             nifti = os.popen('find '+bidsdir+'/'+modality+' -name "*Mb8_rest_HCP*.nii.gz"').read().split("\n")[0]
             os.rename(nifti, bidsdir+'/'+modality+'/'+sub+'_'+ses+'_task-rest_bold.nii.gz')
 
