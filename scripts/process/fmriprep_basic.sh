@@ -18,15 +18,16 @@ SINGULARITYENV_TEMPLATEFLOW_HOME=/home/fmriprep/.cache/templateflow \
     -B /projects/b1108:/projects/b1108 \
     -B /projects/b1108/software/freesurfer_license/license.txt:/opt/freesurfer/license.txt \
     -B /projects/b1108/templateflow:/home/fmriprep/.cache/templateflow \
-    /home/erb9722/fmriprep_20.2.3.sif \
-    /projects/b1108/data/MWMH/bids_directory /projects/b1108/data/MWMH \
-    participant --participant-label MWMH117 \
+    /projects/b1108/software/singularity_images/fmriprep_21.0.2.sif \
+    /projects/b1108/studies/mwmh/data/raw/neuroimaging/bids \
+    /projects/b1108/studies/mwmh/data/processed/neuroimaging/fmriprep \
+    participant --participant-label MWMH378 \
     --fs-no-reconall \
-    -w /projects/b1108/data/MWMH/work \
+    -w /projects/b1108/studies/mwmh/data/processed/neuroimaging/work \
     --fs-license-file /opt/freesurfer/license.txt \
     --output-spaces MNI152NLin6Asym \
     --skull-strip-template OASIS30ANTs \
-    --bids-filter-file /projects/b1108/data/MWMH/config/ses-1_config.json
+    --bids-filter-file /projects/b1108/studies/mwmh/config/ses-1_config.json
 
 
 #sbatch -o /projects/b1108/data/MWMH/launch/fmriprep/test.txt /home/erb9722/studies/mwmh/scripts/process/fmriprep_basic.sh
