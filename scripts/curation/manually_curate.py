@@ -127,5 +127,7 @@ def curate_scan(sub, ses, scan, indir):
             nifti = os.popen('find '+bidsdir+'/'+modality+' -name "*Mb8_rest_HCP*.nii.gz"').read().split("\n")[0]
             os.rename(nifti, bidsdir+'/'+modality+'/'+sub+'_'+ses+'_task-rest_bold.nii.gz')
 
-
-curate_scan(sub, ses, scan, indir)
+scans = os.listdir(indir+sub+'/'+ses+'/SCANS/')
+scans = [item for item in scans if 'DICOM' in os.listdir(indir+sub+'/'+ses+'/SCANS/'+item)]
+for scan in scans:
+    curate_scan(sub, ses, scan, indir)

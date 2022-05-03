@@ -9,24 +9,21 @@ import re
 import numpy as np
 import glob
 
-indir = '/projects/b1108/studies/mwmh/data/raw/neuroimaging/dicoms'
-outdir = '/projects/b1108/studies/mwmh/data/raw/neuroimaging/bids'
+indir = '/projects/b1108/studies/mwmh/data/raw/neuroimaging/dicoms/'
+outdir = '/projects/b1108/studies/mwmh/data/raw/neuroimaging/bids/'
 launchdir = '/projects/b1108/studies/mwmh/data/raw/neuroimaging/launch/bids/'
 
 subjects = os.listdir(indir)
 subjects = [item for item in subjects if 'sub' in item]
 
 for sub in subjects:
-    sessions = os.listdir(indir+'/'+sub)
+    sessions = os.listdir(indir+sub)
     sessions = [item for item in sessions if 'ses' in item]
     for ses in sessions:
-        scans = os.listdir(indir+'/'+sub+'/'+ses+'/SCANS/')
-        scans = [item for item in scans if 'DICOM' in os.listdir(indir+'/'+sub+'/'+ses+'/SCANS/'+item)]
-        for scan in scans:
-            cmd = ['python3 /projects/b1108/studies/mwmh/scripts/curation/manually_curate.py -s',
-                    sub, '-ss', ses]
-            curate_script = launchdir+subj+'_'+ses+'_curate_run.sh'
-            os.system('cat /projects/b1108/studies/mwmh/scripts/curation/sbatch_info_manually_curate.sh > '+curate_script)
-            os.system('echo '+' '.join(cmd)+' >> '+curate_script)
-            os.system('chmod +x '+curate_script)
-            os.system('sbatch -o '+launchdir+subj+'_'+ses+'.txt'+' '+curate_script)
+        cmd = ['python3 /projects/b1108/studies/mwmh/scripts/curation/manually_curate.py -s',
+                sub, '-ss', ses]
+        curate_script = launchdir+subj+'_'+ses+'_curate_run.sh'
+        os.system('cat /projects/b1108/studies/mwmh/scripts/curation/sbatch_info_manually_curate.sh > '+curate_script)
+        os.system('echo '+' '.join(cmd)+' >> '+curate_script)
+        os.system('chmod +x '+curate_script)
+        os.system('sbatch -o '+launchdir+subj+'_'+ses+'.txt'+' '+curate_script)
