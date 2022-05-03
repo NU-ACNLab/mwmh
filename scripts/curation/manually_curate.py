@@ -2,7 +2,7 @@
 ### far too many ways.
 ###
 ### Ellyn Butler
-### April 19, 2022 - April 26, 2022
+### April 19, 2022 - May 3, 2022
 
 import pydicom #https://github.com/pydicom/pydicom
 # https://pydicom.github.io/pydicom/stable/old/getting_started.html
@@ -31,6 +31,9 @@ def curate_scan(sub, ses, scan, indir):
     dicomdir = indir+'/'+sub+'/'+ses+'/SCANS/'+scan+'/DICOM'
     dcm_path = os.popen('find '+dicomdir+' -name "*.dcm"').read().split("\n")[0]
     dicoms = os.popen('find '+dicomdir+' -name "*.dcm"').read().split("\n")[:-1]
+    if len(dcm_path) == 0:
+        dcm_path = os.popen('find '+dicomdir+' -regex ".*/[0-9]+"').read().split("\n")[0]
+        dicoms = os.popen('find '+dicomdir+' -regex ".*/[0-9]+"').read().split("\n")[:-1]
     ndicoms = len(dicoms)
     # If the sub outdir doesn't exist, make it
     if not os.path.isdir(outdir+'/'+sub):
