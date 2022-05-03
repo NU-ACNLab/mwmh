@@ -10,7 +10,6 @@ import numpy as np
 import glob
 
 indir = '/projects/b1108/studies/mwmh/data/raw/neuroimaging/dicoms/'
-outdir = '/projects/b1108/studies/mwmh/data/raw/neuroimaging/bids/'
 launchdir = '/projects/b1108/studies/mwmh/data/raw/neuroimaging/launch/bids/'
 
 subjects = os.listdir(indir)
@@ -22,8 +21,8 @@ for sub in subjects:
     for ses in sessions:
         cmd = ['python3 /projects/b1108/studies/mwmh/scripts/curation/manually_curate.py -s',
                 sub, '-ss', ses]
-        curate_script = launchdir+subj+'_'+ses+'_curate_run.sh'
+        curate_script = launchdir+sub+'_'+ses+'_curate_run.sh'
         os.system('cat /projects/b1108/studies/mwmh/scripts/curation/sbatch_info_manually_curate.sh > '+curate_script)
         os.system('echo '+' '.join(cmd)+' >> '+curate_script)
         os.system('chmod +x '+curate_script)
-        os.system('sbatch -o '+launchdir+subj+'_'+ses+'.txt'+' '+curate_script)
+        os.system('sbatch -o '+launchdir+sub+'_'+ses+'.txt'+' '+curate_script)

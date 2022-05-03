@@ -12,6 +12,7 @@ import numpy as np
 from datetime import datetime
 from nipype.interfaces.dcm2nii import Dcm2niix
 import json
+import argparse
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-i', default='/projects/b1108/studies/mwmh/data/raw/neuroimaging/dicoms')
