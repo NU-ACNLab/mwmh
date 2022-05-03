@@ -13,5 +13,5 @@ ellyn_subids <- unique(ellyn_df$subid)
 
 # Missing?
 
-ann_subids[!(ann_subids %in% ellyn_subids)]
-ellyn_subids[!(ellyn_subids %in% ann_subids)]
+ann_subids[!(ann_subids %in% ellyn_subids)] #"MWMH129" "MWMH308" "MWMH314" "MWMH001"
+ellyn_subids[!(ellyn_subids %in% ann_subids)] #"MWMH212" "MWMH270"
