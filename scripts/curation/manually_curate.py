@@ -42,7 +42,7 @@ def curate_scan(sub, ses, scan, indir):
     if not os.path.isdir(outdir+'/'+sub+'/'+ses):
         os.mkdir(outdir+'/'+sub+'/'+ses)
     bidsdir = outdir+'/'+sub+'/'+ses
-    if len(dcm_path) > 0:
+    if ndicoms > 10:
         dcm = pydicom.dcmread(dcm_path)
         # T1w image
         if (('l_epinav_ME2' in dcm.ProtocolName) or 'MPRAGE_SAG_0.8iso' in dcm.ProtocolName) and (ndicoms == 208) and (dcm.AcquisitionMatrix[1] == 320):
