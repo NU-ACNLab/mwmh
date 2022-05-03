@@ -13,11 +13,17 @@ from datetime import datetime
 from nipype.interfaces.dcm2nii import Dcm2niix
 import json
 
-indir = '/projects/b1108/studies/mwmh/data/raw/neuroimaging/dicoms'
-outdir = '/projects/b1108/studies/mwmh/data/raw/neuroimaging/bids'
+parser = argparse.ArgumentParser()
+parser.add_argument('-i', default='/projects/b1108/studies/mwmh/data/raw/neuroimaging/dicoms')
+parser.add_argument('-o', default='/projects/b1108/studies/mwmh/data/raw/neuroimaging/bids')
+parser.add_argument('-s')
+parser.add_argument('-ss')
+args = parser.parse_args()
 
-#sub = 'sub-MWMH378'
-#ses = 'ses-1'
+indir = args.i
+outdir = args.o
+sub = args.s
+ses = args.ss
 
 def convert_dicoms(dicomdir, bidsdir, modality):
     converter = Dcm2niix()
@@ -122,19 +128,4 @@ def curate_scan(sub, ses, scan, indir):
             os.rename(nifti, bidsdir+'/'+modality+'/'+sub+'_'+ses+'_task-rest_bold.nii.gz')
 
 
-
-
-
-
-subjects = os.listdir(indir)
-subjects = [item for item in subjects if 'sub' in item]
-
-#sub = 'sub-MWMH179'
-for sub in subjects:
-    sessions = os.listdir(indir+'/'+sub)
-    sessions = [item for item in sessions if 'ses' in item]
-    for ses in sessions:
-        scans = os.listdir(indir+'/'+sub+'/'+ses+'/SCANS/')
-        scans = [item for item in scans if 'DICOM' in os.listdir(indir+'/'+sub+'/'+ses+'/SCANS/'+item)]
-        for scan in scans:
-            curate_scan(sub, ses, scan, indir)
+curate_scan(sub, ses, scan, indir)
