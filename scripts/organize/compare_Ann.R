@@ -23,3 +23,12 @@ ellyn_subids[!(ellyn_subids %in% ann_subids)] #"MWMH212" "MWMH270"
 #            source e.g., /projects/b1108/ellyn/mwmh_zips/MWMH314CV1_20161128/7
 # "MWMH001": I have it, but the directory is empty in my reorganized tree
 #            source e.g., /projects/b1108/ellyn/mwmh_zips/MWMH001CV1/7
+
+
+# After fix
+
+ellyn_df2 <- read.csv('/projects/b1108/studies/mwmh/data/raw/neuroimaging/meta/params_2022-05-03.csv')
+
+ann_subids <- unique(ann_df$Subject)
+ellyn_subids2 <- unique(ellyn_df2$subid)
+ann_subids[!(ann_subids %in% ellyn_subids2)]
