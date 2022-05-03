@@ -15,3 +15,11 @@ ellyn_subids <- unique(ellyn_df$subid)
 
 ann_subids[!(ann_subids %in% ellyn_subids)] #"MWMH129" "MWMH308" "MWMH314" "MWMH001"
 ellyn_subids[!(ellyn_subids %in% ann_subids)] #"MWMH212" "MWMH270"
+
+# "MWMH129": Dicoms not labeled dicoms, so not caught by my script
+# "MWMH308": I have it, but the directory is empty in my reorganized tree
+#            source e.g., /projects/b1108/ellyn/mwmh_zips/MWMH308CV1_20161111/7/DICOM
+# "MWMH314": I have it, but the directory is empty in my reorganized tree
+#            source e.g., /projects/b1108/ellyn/mwmh_zips/MWMH314CV1_20161128/7
+# "MWMH001": I have it, but the directory is empty in my reorganized tree
+#            source e.g., /projects/b1108/ellyn/mwmh_zips/MWMH001CV1/7
