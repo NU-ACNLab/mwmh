@@ -2,7 +2,7 @@
 ### for all of the sequences, subjects and sessions
 ###
 ### Ellyn Butler
-### February 1, 2022 - April 20, 2022
+### February 1, 2022 - May 3, 2022
 
 import pydicom #https://github.com/pydicom/pydicom
 # https://pydicom.github.io/pydicom/stable/old/getting_started.html
