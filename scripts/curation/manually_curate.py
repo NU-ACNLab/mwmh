@@ -15,8 +15,8 @@ import json
 import argparse
 
 parser = argparse.ArgumentParser()
-parser.add_argument('-i', default='/projects/b1108/studies/mwmh/data/raw/neuroimaging/dicoms')
-parser.add_argument('-o', default='/projects/b1108/studies/mwmh/data/raw/neuroimaging/bids')
+parser.add_argument('-i', default='/projects/b1108/studies/mwmh/data/raw/neuroimaging/dicoms/')
+parser.add_argument('-o', default='/projects/b1108/studies/mwmh/data/raw/neuroimaging/bids/')
 parser.add_argument('-s')
 parser.add_argument('-ss')
 args = parser.parse_args()
