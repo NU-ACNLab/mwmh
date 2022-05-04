@@ -15,8 +15,8 @@ import json
 import argparse
 
 parser = argparse.ArgumentParser()
-parser.add_argument('-i', default='/projects/b1108/studies/mwmh/data/raw/neuroimaging/dicoms/')
-parser.add_argument('-o', default='/projects/b1108/studies/mwmh/data/raw/neuroimaging/bids/')
+parser.add_argument('-i', default='/projects/b1108/studies/mwmh/data/raw/neuroimaging/dicoms')
+parser.add_argument('-o', default='/projects/b1108/studies/mwmh/data/raw/neuroimaging/bids')
 parser.add_argument('-s')
 parser.add_argument('-ss')
 args = parser.parse_args()
@@ -93,7 +93,7 @@ def curate_scan(sub, ses, scan, indir):
             os.rename(filejson, bidsdir+'/'+modality+'/'+sub+'_'+ses+'_task-faces_bold.json')
             nifti = os.popen('find '+bidsdir+'/'+modality+' -name "*FACES*.nii.gz"').read().split("\n")[0]
             if len(nifti) == 0:
-                nifti = os.popen('find '+bidsdir+'/'+modality+' -name "*MB2_task*.nifti"').read().split("\n")[0]
+                nifti = os.popen('find '+bidsdir+'/'+modality+' -name "*MB2_task*.nii.gz"').read().split("\n")[0]
             os.rename(nifti, bidsdir+'/'+modality+'/'+sub+'_'+ses+'_task-faces_bold.nii.gz')
         # passive avoidance 17
         elif (('PASSIVE' in dcm.ProtocolName) or ('MB2_task' in dcm.ProtocolName)) and (ndicoms > 295) and (ndicoms < 305) and (dcm.SliceThickness < 1.8):
@@ -111,7 +111,7 @@ def curate_scan(sub, ses, scan, indir):
             os.rename(filejson, bidsdir+'/'+modality+'/'+sub+'_'+ses+'_task-avoid_bold.json')
             nifti = os.popen('find '+bidsdir+'/'+modality+' -name "*PASSIVE*.nii.gz"').read().split("\n")[0]
             if len(nifti) == 0:
-                nifti = os.popen('find '+bidsdir+'/'+modality+' -name "*MB2_task*.nifti"').read().split("\n")[0]
+                nifti = os.popen('find '+bidsdir+'/'+modality+' -name "*MB2_task*.nii.gz"').read().split("\n")[0]
             os.rename(nifti, bidsdir+'/'+modality+'/'+sub+'_'+ses+'_task-avoid_bold.nii.gz')
         # resting state 18
         elif ('Mb8_rest_HCP' in dcm.ProtocolName) and (dcm.SliceThickness == 2):
@@ -128,7 +128,7 @@ def curate_scan(sub, ses, scan, indir):
             nifti = os.popen('find '+bidsdir+'/'+modality+' -name "*Mb8_rest_HCP*.nii.gz"').read().split("\n")[0]
             os.rename(nifti, bidsdir+'/'+modality+'/'+sub+'_'+ses+'_task-rest_bold.nii.gz')
 
-scans = os.listdir(indir+sub+'/'+ses+'/SCANS/')
-scans = [item for item in scans if 'DICOM' in os.listdir(indir+sub+'/'+ses+'/SCANS/'+item)]
+scans = os.listdir(indir+'/'+sub+'/'+ses+'/SCANS/')
+scans = [item for item in scans if 'DICOM' in os.listdir(indir+'/'+sub+'/'+ses+'/SCANS/'+item)]
 for scan in scans:
     curate_scan(sub, ses, scan, indir)
