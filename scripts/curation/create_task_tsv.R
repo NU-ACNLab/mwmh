@@ -189,7 +189,11 @@ if (nrow(faces_df) > 10) {
                           intensity20=NA, intensity30=NA, intensity40=NA,
                           intensity50=NA, correct=NA, press=NA)
 
-  corr_gender_resp <- cor(faces_df$ImageDisplay2.RESP, faces_df$gender, use='complete.obs')
+  if (sum(!is.na(faces_df$ImageDisplay2.RESP)) > 1) {
+    corr_gender_resp <- cor(faces_df$ImageDisplay2.RESP, faces_df$gender, use='complete.obs')
+  } else {
+    corr_gender_resp <- 0
+  }
 
   j=0
   for (i in 1:nrow(faces_df)) {
