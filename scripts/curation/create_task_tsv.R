@@ -121,7 +121,7 @@ if (nrow(avoid_df) > 10) {
     j=j+3
   }
 
-  bids_path <- '/projects/b1108/studies/mwmh/data/raw/neuroimaging/bids/sub-MWMH'
+  bids_path <- '/projects/b1108/studies/mwmh/data/raw/neuroimaging/bids/sub-'
 
   # SANITY CHECK: Does the onset time of the i+1 row equal the onset + duration of i?
   sanity <- final_avoid_df[2:nrow(final_avoid_df), 'onset'] - (final_avoid_df[1:(nrow(final_avoid_df) - 1),'onset'] + final_avoid_df[1:(nrow(final_avoid_df) - 1), 'duration']) < .00001
@@ -131,7 +131,7 @@ if (nrow(avoid_df) > 10) {
   }
 
   # Write out tsv to bids directory
-  write.table(final_avoid_df, paste0(bids_path, sub, '/ses-', ses, '/func/sub-MWMH',
+  write.table(final_avoid_df, paste0(bids_path, sub, '/ses-', ses, '/func/sub-',
     sub, '_ses-', ses, '_task-avoid_events.tsv'), row.names=FALSE, sep='\t', quote=FALSE)
 
   # final_avoid_df should have 96*4 = 384 rows
@@ -309,6 +309,6 @@ if (nrow(faces_df) > 10) {
   }
 
   # Write out tsv to bids directory
-  write.table(final_faces_df, paste0(bids_path, sub, '/ses-', ses, '/func/sub-MWMH',
+  write.table(final_faces_df, paste0(bids_path, sub, '/ses-', ses, '/func/sub-',
     sub, '_ses-', ses, '_task-faces_events.tsv'), row.names=FALSE, sep='\t', quote=FALSE)
 }
