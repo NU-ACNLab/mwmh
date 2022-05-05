@@ -43,18 +43,16 @@ schedule_df[schedule_df$subid == 'MWMH320' & schedule_df$sesid == 1, ] #2016-12-
 subMWMH320_ses1_taskavoid_df[1, 'SessionDate'] #"2016-12-02"
 # ^ These dates match
 
-head(avoid_df[avoid_df$Subject == 320 & avoid_df$Session == 1, 1:15])
-# Looks like this subject isn't even in avoid_df. Not sure why E-Prime couldn't
-# merge it
+# Change subject label from 302 to 320
+subMWMH320_ses1_taskavoid_df[, 'Subject'] <- 320
 
 #### 3.)
 schedule_df[schedule_df$subid == 'MWMH376' & schedule_df$sesid == 1, ] #2017-04-03
 subMWMH376_ses1_taskavoid_df[1, 'SessionDate'] #"2017-04-03"
 # ^ These dates match
 
-head(avoid_df[avoid_df$Subject == 376 & avoid_df$Session == 1, 1:15])
-# Looks like this subject isn't even in avoid_df. Not sure why E-Prime couldn't
-# merge it
+# Change subject label from 376 to 367
+subMWMH376_ses1_taskavoid_df[, 'Subject'] <- 367
 
 ######## Check out sessions with conflicting sub ses labels on nurips #########
 
