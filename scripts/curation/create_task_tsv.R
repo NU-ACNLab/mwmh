@@ -155,9 +155,9 @@ if (nrow(avoid_df) > 10) {
 #################################### Faces ####################################
 
 faces_df <- read.csv(paste0(base_path, 'combined/faces_2022-05-05.csv'))
-if (nrow(faces_df) > 10) {
-  faces_df <- faces_df[faces_df$subid %in% sub & faces_df$sesid %in% ses, ]
+faces_df <- faces_df[faces_df$subid %in% sub & faces_df$sesid %in% ses, ]
 
+if (nrow(faces_df) > 10) {
   if (is.na(faces_df[1, 'gender'])) {
     faces_df <- faces_df[2:nrow(faces_df), ] # NOT SURE IF APPROPRIATE, but first and last rows have mostly NAs
   }
@@ -166,7 +166,6 @@ if (nrow(faces_df) > 10) {
   }
 
   row.names(faces_df) <- 1:nrow(faces_df)
-
 
   eprime_to_pulse <- faces_df[1, 'ImageDisplay2.OnsetTime'] - 14500 # THIS MIGHT BE CORRECT - SUSPICIOUS NA FIRST ROW
 
