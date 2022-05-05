@@ -12,6 +12,7 @@ ses = args[2] # e.g., 1
 
 base_path <- '/projects/b1108/studies/mwmh/data/processed/neuroimaging/behavioral/'
 
+bids_path <- '/projects/b1108/studies/mwmh/data/raw/neuroimaging/bids/sub-'
 
 #################################### Avoid ####################################
 
@@ -120,8 +121,6 @@ if (nrow(avoid_df) > 10) {
     final_avoid_df[i+j+3, 'lose50'] <- (avoid_df[i, 'Amount'] == -50)*final_avoid_df[i+j+3, 'feedback']
     j=j+3
   }
-
-  bids_path <- '/projects/b1108/studies/mwmh/data/raw/neuroimaging/bids/sub-'
 
   # SANITY CHECK: Does the onset time of the i+1 row equal the onset + duration of i?
   sanity <- final_avoid_df[2:nrow(final_avoid_df), 'onset'] - (final_avoid_df[1:(nrow(final_avoid_df) - 1),'onset'] + final_avoid_df[1:(nrow(final_avoid_df) - 1), 'duration']) < .00001

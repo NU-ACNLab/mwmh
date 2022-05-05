@@ -23,11 +23,11 @@ for sub in subjects:
     for ses in sessions:
         mods = os.listdir(indir+sub+'/'+ses)
         if 'func' in mods:
-            sub = sub.split('-')[1]
-            ses = ses.split('-')[1]
-            cmd = ['Rscript /projects/b1108/studies/mwmh/scripts/curation/create_task_tsv.R', sub, ses]
+            sublab = sub.split('-')[1]
+            seslab = ses.split('-')[1]
+            cmd = ['Rscript /projects/b1108/studies/mwmh/scripts/curation/create_task_tsv.R', sublab, seslab]
             tsv_script = launchdir+sub+'_'+ses+'_tsv_run.sh'
             os.system('cat /projects/b1108/studies/mwmh/scripts/curation/sbatch_info_manually_curate.sh > '+tsv_script)
             os.system('echo '+' '.join(cmd)+' >> '+tsv_script)
             os.system('chmod +x '+tsv_script)
-            os.system('sbatch -o '+launchdir+'sub-'+sub+'_ses-'+ses+'.txt'+' '+tsv_script)
+            os.system('sbatch -o '+launchdir+sub+'_'+ses+'.txt'+' '+tsv_script)
