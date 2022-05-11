@@ -55,7 +55,7 @@ for subdir in subdirs:
             '-B /projects/b1108/templateflow:/home/fmriprep/.cache/templateflow',
             '/projects/b1108/software/singularity_images/fmriprep_21.0.2.sif',
             indir, outdir, 'participant', '--participant-label', participant_label,
-            '-w /projects/b1108/studies/mwmh/data/processed/neuroimaging/work',
+            '-w /projects/b1108/studies/mwmh/data/processed/neuroimaging/work2',
             '--fs-license-file /opt/freesurfer/license.txt',
             '--output-spaces MNI152NLin6Asym', '--skull-strip-template OASIS30ANTs']
         fmriprep_script = launchdir+sub+'_fmriprep_run.sh'
