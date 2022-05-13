@@ -15,6 +15,7 @@ outdir = '/projects/b1108/studies/mwmh/data/processed/neuroimaging/fmriprep/'
 launchdir = '/projects/b1108/studies/mwmh/data/processed/neuroimaging/launch/fmriprep/'
 
 subdirs = glob.glob(indir + "sub-*")
+# subdirs = [subdirs[10], subdirs[35]]
 
 for subdir in subdirs:
     sub = subdir.split('/')[9]
