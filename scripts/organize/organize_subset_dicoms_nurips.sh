@@ -3,7 +3,7 @@
 ### BIDS-esque framework in the mwmh study directory
 ###
 ### Ellyn Butler
-### April 19, 2022 - April 20, 2022
+### April 19, 2022 - July 6, 2022
 
 indir=/projects/b1108/ellyn/mwmh_zips
 outdir=/projects/b1108/studies/mwmh/data/raw/neuroimaging/dicoms
