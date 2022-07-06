@@ -27,9 +27,15 @@ final_df[is.na(final_df)] <- 0
 
 ################################# Anna Missing #################################
 
-final_df[final_df$anna == 0, ]
-
+anna_missing <- final_df[final_df$anna == 0, ]
+write.csv(anna_missing, paste0('/projects/b1108/studies/mwmh/data/raw/demographic/anna_missing_', Sys.Date(), '.csv'), row.names=FALSE)
 
 ################################# Ellyn Missing ################################
 
-final_df[final_df$ellyn == 0, ]
+ellyn_missing <- final_df[final_df$ellyn == 0, ]
+write.csv(ellyn_missing, paste0('/projects/b1108/studies/mwmh/data/raw/demographic/ellyn_missing_', Sys.Date(), '.csv'), row.names=FALSE)
+
+### Do I have the dicoms? Yes, but not in this dataframe. So what the hell happened here?
+dicom_df <- read.csv('/projects/b1108/studies/mwmh/data/raw/neuroimaging/meta/params_2022-05-03.csv')
+dicom_df$subid_sesid <- paste(dicom_df$subid, dicom_df$sesid, sep='_')
+dicom_df2 <- dicom_df[match(unique(dicom_df$subid_sesid), dicom_df$subid_sesid),]

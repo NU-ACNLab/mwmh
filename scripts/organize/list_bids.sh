@@ -8,7 +8,7 @@
 bidsdir=/projects/b1108/studies/mwmh/data/raw/neuroimaging/bids/
 subdirs=`find ${bidsdir} -maxdepth 1 -name "sub-*"`
 
-echo "subid,sesid" >> /projects/b1108/studies/mwmh/data/raw/demographic/bids_subsesids_07-06-2022.csv
+echo "subid,sesid" > /projects/b1108/studies/mwmh/data/raw/demographic/bids_subsesids_07-06-2022.csv
 
 for subdir in ${subdirs}; do
   sub=`echo ${subdir} | cut -d '/' -f 10 | cut -d '-' -f 2`

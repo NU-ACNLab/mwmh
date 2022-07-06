@@ -26,7 +26,7 @@ for mwmhdir in ${mwmhdirs}; do
     mkdir ${outdir}/sub-${sub}/ses-${ses}
     mkdir ${outdir}/sub-${sub}/ses-${ses}/SCANS
   fi
-  if [ "$(ls -A ${outdir}/sub-${sub}/ses-${ses}/SCANS)" ]; then
-    cp -r ${mwmhdir} ${outdir}/sub-${sub}/ses-${ses}/SCANS
+  if [ ! "$(ls -A ${outdir}/sub-${sub}/ses-${ses}/SCANS)" ]; then
+    cp -r ${mwmhdir}/. ${outdir}/sub-${sub}/ses-${ses}/SCANS
   fi
 done

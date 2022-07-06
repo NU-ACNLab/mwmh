@@ -23,7 +23,6 @@ parser.add_argument('-s')
 parser.add_argument('-ss')
 args = parser.parse_args()
 
-bidsDir =
 inDir = args.i #inDir = '/Users/flutist4129/Documents/Northwestern/studies/mwmh/data/processed/neuroimaging/fmriprep/'
 outDir = args.o #outDir = '/Users/flutist4129/Documents/Northwestern/studies/mwmh/data/processed/neuroimaging/amygconn/'
 bidsDir = args.b #bidsDir = '/Users/flutist4129/Documents/Northwestern/studies/mwmh/data/raw/neuroimaging/bids/'
@@ -194,9 +193,9 @@ amyg_indices = labels_df[labels_df['region'] == 4].index
 amyg_corr = correlation_matrix[amyg_indices]
 amyg_ave_corr = (amyg_corr[0,] + amyg_corr[1,])/2 # average across right and left
 
-# Remove the elements corresponding to the amygdalae
-not_amyg_indices = labels_df[labels_df['region'] != 4].index
-amyg_ave_corr = amyg_ave_corr[not_amyg_indices]
+# Remove the elements corresponding to the amygdalae - do post hoc
+#not_amyg_indices = labels_df[labels_df['region'] != 4].index
+#amyg_ave_corr = amyg_ave_corr[not_amyg_indices]
 
 # Name columns
 amyg_cols = ['region'+str(x) for x in range(1,301)]
