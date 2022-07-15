@@ -1,7 +1,7 @@
 ### This script generates submission scripts for fmriprep for the first visit
 ###
 ### Ellyn Butler
-### May 5, 2022 - May 13, 2022
+### May 5, 2022 - July 15, 2022
 
 
 import os
@@ -35,7 +35,7 @@ for subdir in subdirs:
             '-B /projects/b1108/templateflow:/home/fmriprep/.cache/templateflow',
             '/projects/b1108/software/singularity_images/fmriprep_21.0.2.sif',
             indir, outdir, 'participant', '--participant-label',
-            participant_label, '--longitudinal',
+            participant_label, '--longitudinal', '--nprocs=1 --omp-nthreads=1',
             '-w /projects/b1108/studies/mwmh/data/processed/neuroimaging/work2',
             '--fs-license-file /opt/freesurfer/license.txt',
             '--output-spaces MNI152NLin6Asym', '--skull-strip-template OASIS30ANTs']
@@ -56,6 +56,7 @@ for subdir in subdirs:
             '-B /projects/b1108/templateflow:/home/fmriprep/.cache/templateflow',
             '/projects/b1108/software/singularity_images/fmriprep_21.0.2.sif',
             indir, outdir, 'participant', '--participant-label', participant_label,
+            '--nprocs=1 --omp-nthreads=1',
             '-w /projects/b1108/studies/mwmh/data/processed/neuroimaging/work2',
             '--fs-license-file /opt/freesurfer/license.txt',
             '--output-spaces MNI152NLin6Asym', '--skull-strip-template OASIS30ANTs']
