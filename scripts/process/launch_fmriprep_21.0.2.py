@@ -15,7 +15,7 @@ outdir = '/projects/b1108/studies/mwmh/data/processed/neuroimaging/fmriprep/'
 launchdir = '/projects/b1108/studies/mwmh/data/processed/neuroimaging/launch/fmriprep/'
 
 subdirs = glob.glob(indir + "sub-*")
-# subdirs = [subdirs[10], subdirs[35]]
+# subdirs = [subdirs[36]]
 # subdirs = ['/projects/b1108/studies/mwmh/data/raw/neuroimaging/bids/sub-MWMH221',
 #            '/projects/b1108/studies/mwmh/data/raw/neuroimaging/bids/sub-MWMH001']
 
@@ -42,7 +42,7 @@ for subdir in subdirs:
             '--fs-license-file /opt/freesurfer/license.txt',
             '--output-spaces MNI152NLin6Asym', '--skull-strip-template OASIS30ANTs']
         fmriprep_script = launchdir+sub+'_fmriprep_run.sh'
-        os.system('cat /projects/b1108/studies/mwmh/scripts/process/sbatchinfo_general_long.sh > '+fmriprep_script) #_long
+        os.system('cat /projects/b1108/studies/mwmh/scripts/process/sbatchinfo_general_extralong.sh > '+fmriprep_script) #_long
         os.system('echo '+' '.join(cmd)+' >> '+fmriprep_script)
         os.system('chmod +x '+fmriprep_script)
         os.system('sbatch -o '+launchdir+sub+'.txt'+' '+fmriprep_script)
