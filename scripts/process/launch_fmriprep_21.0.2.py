@@ -16,6 +16,8 @@ launchdir = '/projects/b1108/studies/mwmh/data/processed/neuroimaging/launch/fmr
 
 subdirs = glob.glob(indir + "sub-*")
 # subdirs = [subdirs[10], subdirs[35]]
+# subdirs = ['/projects/b1108/studies/mwmh/data/raw/neuroimaging/bids/sub-MWMH221',
+#            '/projects/b1108/studies/mwmh/data/raw/neuroimaging/bids/sub-MWMH001']
 
 for subdir in subdirs:
     sub = subdir.split('/')[9]
