@@ -9,6 +9,10 @@
 # TO DO: Make sure all the subject and session identifiers match up with the final
 # sample (e.g., after QA)
 
+
+
+
+
 dob_df <- read.csv('/Users/flutist4129/Documents/Northwestern/studies/mwmh/data/raw/demographics/MWMH_V1_DOB.csv')
 v1_df <- read.csv('/Users/flutist4129/Documents/Northwestern/studies/mwmh/data/raw/demographics/V1_Dates.csv')
 v2_df <- read.csv('/Users/flutist4129/Documents/Northwestern/studies/mwmh/data/raw/demographics/V2_Dates.csv')
@@ -71,8 +75,8 @@ mri_aft_lab_numses/numses
 mean(complete_df$days_mri_minus_lab)
 
 # Descriptive statistics for age at the mri visit
-summary(complete_df[complete_df$sesid == 1, 'age_mri'])
-summary(complete_df[complete_df$sesid == 2, 'age_mri'])
+summary(complete_df[complete_df$sesid == 1, 'age_mri']) #min=11.88, med=13.95, mean=13.96, max=15.34
+summary(complete_df[complete_df$sesid == 2, 'age_mri']) #min=13.93, med=15.98, mean=16.00, max=17.25
 
 
 
