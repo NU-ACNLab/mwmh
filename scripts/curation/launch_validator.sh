@@ -4,7 +4,7 @@
 #SBATCH --array=1                                         ## number of jobs to run "in parallel"
 #SBATCH --nodes=1                                         ## how many computers do you need
 #SBATCH --ntasks-per-node=1                               ## how many cpus or processors do you need on each computer
-#SBATCH --time=48:00:00                                   ## how long does this need to run (remember different partitions have restrictions on this param)
+#SBATCH --time=00:30:00                                   ## how long does this need to run (remember different partitions have restrictions on this param)
 #SBATCH --mem-per-cpu=10G                                 ## how much RAM do you need per CPU (this effects your FairShare score so be careful to not ask for more than you need))
 #SBATCH --job-name="validate bids"                        ## use the task id in the name of the job
 #SBATCH --mail-type=FAIL                                  ## you can receive e-mail alerts from SLURM when your job begins and when your job finishes (completed, failed, etc)
@@ -13,8 +13,12 @@
 singularity exec --writable-tmpfs --cleanenv \
   -B /projects/b1108/studies/mwmh/data/raw/neuroimaging/bids \
   /projects/b1108/software/singularity_images/validator_v1.9.3.sif \
-  bids-validator /projects/b1108/studies/mwmh/data/raw/neuroimaging/bids
+  bids-validator /projects/b1108/studies/mwmh/data/raw/neuroimaging/bids \
+  --verbose
 
 #MWMH219 MWMH379 MWMH112 MWMH196 MWMH225 MWMH275 MWMH293
-# sbatch -o /projects/b1108/studies/mwmh/launch/validate/tabulate.txt \
-# /projects/b1108/studies/mwmh/scripts/curation/launch_tabulate.sh
+# sbatch -o /projects/b1108/studies/mwmh/launch/validate/validate.txt \
+# /projects/b1108/studies/mwmh/scripts/curation/launch_validator.sh
+
+
+# job id: 6681648
