@@ -57,11 +57,29 @@ def curate_scan(sub, ses, scan, indir):
             modality = 'anat'
             if not os.path.isdir(bidsdir+'/'+modality):
                 os.mkdir(bidsdir+'/'+modality)
-            convert_dicoms(dicomdir, bidsdir, modality)
-            filejson = os.popen('find '+bidsdir+'/'+modality+' -name "*.json"').read().split("\n")[0]
-            os.rename(filejson, bidsdir+'/'+modality+'/'+sub+'_'+ses+'_T1w.json')
-            nifti = os.popen('find '+bidsdir+'/'+modality+' -name "*.nii.gz"').read().split("\n")[0]
-            os.rename(nifti, bidsdir+'/'+modality+'/'+sub+'_'+ses+'_T1w.nii.gz')
+            # Check if the files already exist
+            if os.path.exists(bidsdir+'/'+modality+'/'+sub+'_'+ses+'_T1w.json'):
+                oldjson = os.popen('find '+bidsdir+'/'+modality+' -name "*.json"').read().split("\n")[0]
+                oldjson = json.load(open(oldjson))
+                if int(oldjson['SeriesNumber']) < int(scan):
+                    # If they do, and the series number in the json header for the already
+                    # converted image is smaller, delete the old output, and convert
+                    # the new one.
+                    os.remove(bidsdir+'/'+modality+'/'+sub+'_'+ses+'_T1w.json')
+                    os.remove(bidsdir+'/'+modality+'/'+sub+'_'+ses+'_T1w.nii.gz')
+                    convert_dicoms(dicomdir, bidsdir, modality)
+                    filejson = os.popen('find '+bidsdir+'/'+modality+' -name "*.json"').read().split("\n")[0]
+                    os.rename(filejson, bidsdir+'/'+modality+'/'+sub+'_'+ses+'_T1w.json')
+                    nifti = os.popen('find '+bidsdir+'/'+modality+' -name "*.nii.gz"').read().split("\n")[0]
+                    os.rename(nifti, bidsdir+'/'+modality+'/'+sub+'_'+ses+'_T1w.nii.gz')
+                    # ^^^ THIS IS ASSUMING THAT A T1W IMAGE THAT WAS REDONE
+                    # WOULD BE BETTER THE SECOND TIME.
+            else:
+                convert_dicoms(dicomdir, bidsdir, modality)
+                filejson = os.popen('find '+bidsdir+'/'+modality+' -name "*.json"').read().split("\n")[0]
+                os.rename(filejson, bidsdir+'/'+modality+'/'+sub+'_'+ses+'_T1w.json')
+                nifti = os.popen('find '+bidsdir+'/'+modality+' -name "*.nii.gz"').read().split("\n")[0]
+                os.rename(nifti, bidsdir+'/'+modality+'/'+sub+'_'+ses+'_T1w.nii.gz')
         # DTI 9 (10-13 derived)
         elif ('DTI_MB4_68dir_1pt5mm_b1k' == dcm.SeriesDescription) and (ndicoms > 60) and (ndicoms < 70) and (dcm.SliceThickness == 1.5) and (dcm.RepetitionTime == 2500):
             modality = 'dwi'

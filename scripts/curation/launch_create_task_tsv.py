@@ -2,7 +2,7 @@
 ### events tsv files
 ###
 ### Ellyn Butler
-### May 5, 2022 - July 7, 2022
+### May 5, 2022 - July25, 2022
 
 
 import os
@@ -23,7 +23,7 @@ for sub in subjects:
     for ses in sessions:
         sesdir = indir+sub+'/'+ses
         # Below will rerun a couple (if avoid was not collected), but okay
-        if not os.path.isfile(sesdir+'/func/'+sub+'_'+ses+'_task-avoid_events.tsv'):
+        if not os.path.isfile(sesdir+'/func/'+sub+'_'+ses+'_task-avoid_events.tsv') or not os.path.isfile(sesdir+'/func/'+sub+'_'+ses+'_task-faces_events.tsv'):
             mods = os.listdir(sesdir)
             if 'func' in mods:
                 sublab = sub.split('-')[1]
