@@ -46,8 +46,8 @@ final_df$days_mri_minus_lab <- as.numeric(final_df$dov_mri - final_df$dov_lab)
 
 write.csv(final_df, paste0('/Users/flutist4129/Documents/Northwestern/studies/mwmh/data/processed/demographics/dob_dov_', Sys.Date(), '.csv'), row.names=FALSE)
 
-quest_df <- final_df[, c('subid', 'sesid', 'age_lab', 'age_mri', 'days_mri_minus_lab')]
-write.csv(final_df, paste0('/Users/flutist4129/Documents/Northwestern/studies/mwmh/data/processed/demographics/age_visits_', Sys.Date(), '.csv'), row.names=FALSE)
+quest_df <- final_df[, c('subid', 'sesid', 'dov_lab', 'dov_mri', 'age_lab', 'age_mri', 'days_mri_minus_lab')]
+write.csv(quest_df, paste0('/Users/flutist4129/Documents/Northwestern/studies/mwmh/data/processed/demographics/age_visits_', Sys.Date(), '.csv'), row.names=FALSE)
 
 
 ##### Basic description of dates of visits

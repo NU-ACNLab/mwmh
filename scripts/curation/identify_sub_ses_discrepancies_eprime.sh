@@ -53,7 +53,7 @@ for mwmhdir in ${mwmhdirsajay}; do
     sesid_edat=`echo ${edat} | cut -d "_" -f 6 | cut -d "-" -f 3 | cut -d. -f 1`
     task=`echo ${edat} | cut -d "_" -f 5`
     txt=`find ${mwmhdir} -name "*${task}*.txt"`
-    # Need to change the txt to be inside the file. Sigh
+    # Convert txt to be readable by bash (created on Windows)
     dos2unix ${txt}
     subid_txt=`cat ${txt} | grep -m 1 Subject | cut -d " " -f 2`
     subid_txt="MWMH"${subid_txt}
@@ -76,7 +76,7 @@ for mwmhdir in ${mwmhdirskay}; do
     sesid_edat=`echo ${edat} | cut -d "_" -f 4 | cut -d "-" -f 3 | cut -d. -f 1`
     task=`echo ${edat} | cut -d "_" -f 3`
     txt=`find ${mwmhdir} -name "*${task}*.txt"`
-    # Need to change the txt to be inside the file. Sigh
+    # Convert txt to be readable by bash (created on Windows)
     dos2unix ${txt}
     subid_txt=`cat ${txt} | grep -m 1 Subject | cut -d " " -f 2`
     subid_txt="MWMH"${subid_txt}
