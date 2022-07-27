@@ -1,94 +1,60 @@
-### This script checks that the dates from the edat2 files match the dates
-### from the MRI scheduling spreadsheet, and adjusts where there are conflicts
-### to match the scheduling spreadsheet.
+### This script corrects the incorrect subject and session identifiers, and then
+### combines the faces and the avoid data together to form two mega csvs.
+### See `identify_sub_ses_discrepancies_eprime.R` for detective work.
 ###
 ### Ellyn Butler
-### May 4, 2022
+### July 27, 2022
 
-base_dir <- '/projects/b1108/studies/mwmh/data/processed/neuroimaging/behavioral/combined/'
+base_dir <- '/projects/b1108/studies/mwmh/data/processed/neuroimaging/behavioral/'
 
-avoid_df <- read.csv(paste0(base_dir, 'task-avoid.csv'))
-avoid_df$SessionDate <- as.Date(avoid_df$SessionDate, '%m/%d/%y')
-faces_df <- read.csv(paste0(base_dir, 'task-faces.csv'))
-faces_df$SessionDate <- as.Date(faces_df$SessionDate, '%m/%d/%y')
+cor_avoid_df <- read.csv(paste0(base_dir, 'correct_task-avoid_07-27-2022.csv'))
+cor_faces_df <- read.csv(paste0(base_dir, 'correct_task-faces_07-27-2022.csv'))
+in_avoid_df <- read.csv(paste0(base_dir, 'incorrect_task-avoid_07-27-2022.csv'))
+in_faces_df <- read.csv(paste0(base_dir, 'incorrect_task-faces_07-27-2022.csv'))
 
-subMWMH298_ses2_taskfaces_df <- read.csv(paste0(base_dir, 'sub-MWMH298_ses-2_task-faces.csv'))
-subMWMH298_ses2_taskfaces_df$SessionDate <- as.Date(subMWMH298_ses2_taskfaces_df$SessionDate, '%m/%d/%y')
-subMWMH320_ses1_taskavoid_df <- read.csv(paste0(base_dir, 'sub-MWMH320_ses-1_task-avoid.csv'))
-subMWMH320_ses1_taskavoid_df$SessionDate <- as.Date(subMWMH320_ses1_taskavoid_df$SessionDate, '%m/%d/%y')
-subMWMH376_ses1_taskavoid_df <- read.csv(paste0(base_dir, 'sub-MWMH376_ses-1_task-avoid.csv'))
-subMWMH376_ses1_taskavoid_df$SessionDate <- as.Date(subMWMH376_ses1_taskavoid_df$SessionDate, '%m/%d/%y')
+################################ Correct labels ################################
 
-schedule_df <- read.csv('/projects/b1108/studies/mwmh/data/raw/scheduling/scheduling.csv')
-schedule_df$subid <- paste0('MWMH', schedule_df$subid)
-schedule_df$mri_date <- as.Date(schedule_df$mri_date, '%m/%d/%y')
+### 1)
+in_avoid_df[in_avoid_df$Subject == 302 & in_avoid_df$Session == 1, 'Subject'] <- 320
 
-################ Check three with odd eprime sub and ses labels ################
+### 2)
+in_faces_df[in_faces_df$Subject == 274 & in_faces_df$Session == 1, 'Session'] <- 2
 
-#### 1.)
-schedule_df[schedule_df$subid == 'MWMH298' & schedule_df$sesid == 2, ] #2018-09-15
-subMWMH298_ses2_taskfaces_df[1, 'SessionDate'] #"2018-09-15"
-# ^ These dates match
+### 3)
+in_faces_df[in_faces_df$Subject == 298 & in_faces_df$Session == 2, 'Subject'] <- 293
 
-head(faces_df[faces_df$Subject == 298 & faces_df$Session == 2, 1:15])
-# So the subject or session label is messed up in faces_df
+### 4)
+in_avoid_df[in_avoid_df$Subject == 106 & in_avoid_df$Session == 1, 'Session'] <- 2
 
-# Who might this be?
-schedule_df[schedule_df$mri_date %in% unique(faces_df[faces_df$Subject == 298 & faces_df$Session == 2, 'SessionDate']),]
-# Looks like it is MWMH293 ses 2
-faces_df[faces_df$Subject == 298 & faces_df$Session == 2, 'Subject'] <- 293
+### 5)
+in_avoid_df[in_avoid_df$Subject == 288 & in_avoid_df$Session == 1, 'Subject'] <- 236
+in_faces_df[in_faces_df$Subject == 288 & in_faces_df$Session == 1, 'Subject'] <- 236
 
-#### 2.)
-schedule_df[schedule_df$subid == 'MWMH320' & schedule_df$sesid == 1, ] #2016-12-02
-subMWMH320_ses1_taskavoid_df[1, 'SessionDate'] #"2016-12-02"
-# ^ These dates match
+### 6)
+in_avoid_df[in_avoid_df$Subject == 137 & in_avoid_df$Session == 1, 'Session'] <- 2
+in_faces_df[in_faces_df$Subject == 137 & in_faces_df$Session == 1, 'Session'] <- 2
 
-# Change subject label from 302 to 320
-subMWMH320_ses1_taskavoid_df[, 'Subject'] <- 320
+### 7)
+in_avoid_df[in_avoid_df$Subject == 135 & in_avoid_df$Session == 1, 'Session'] <- 2
+in_faces_df[in_faces_df$Subject == 135 & in_faces_df$Session == 1, 'Session'] <- 2
 
-#### 3.)
-schedule_df[schedule_df$subid == 'MWMH376' & schedule_df$sesid == 1, ] #2017-04-03
-subMWMH376_ses1_taskavoid_df[1, 'SessionDate'] #"2017-04-03"
-# ^ These dates match
+### 8)
+in_avoid_df[in_avoid_df$Subject == 290 & in_avoid_df$Session == 1, 'Subject'] <- 311
+in_faces_df[in_faces_df$Subject == 290 & in_faces_df$Session == 1, 'Subject'] <- 311
 
-# Change subject label from 376 to 367
-subMWMH376_ses1_taskavoid_df[, 'Subject'] <- 367
+### 9)
+in_avoid_df[in_avoid_df$Subject == 367 & in_avoid_df$Session == 1, 'Subject'] <- 376
+in_faces_df[in_avoid_df$Subject == 367 & in_avoid_df$Session == 1, 'Subject'] <- 376
 
-######## Check out sessions with conflicting sub ses labels on nurips #########
-
-# MWMH114, 2, 2017-07-17
-head(avoid_df[avoid_df$Subject == 114 & avoid_df$Session == 2, 'SessionDate']) #"2017-07-17"... Check
-head(faces_df[faces_df$Subject == 114 & faces_df$Session == 2, 'SessionDate']) #"2017-07-17"... Check
-
-# MWMH115, 2, 2017-06-05
-head(avoid_df[avoid_df$Subject == 115 & avoid_df$Session == 2, 'SessionDate']) #"2017-06-05"... Check
-head(faces_df[faces_df$Subject == 115 & faces_df$Session == 2, 'SessionDate']) #"2017-06-05"... Check
-
-# MWMH121, 2, 2018-06-26
-head(avoid_df[avoid_df$Subject == 121 & avoid_df$Session == 2, 'SessionDate']) #"2018-06-26"... Check
-head(faces_df[faces_df$Subject == 121 & faces_df$Session == 2, 'SessionDate']) #"2018-06-26"... Check
-
-# MWMH258, 2, 2018-08-27
-head(avoid_df[avoid_df$Subject == 258 & avoid_df$Session == 2, 'SessionDate']) #"2018-08-27"... Check
-head(faces_df[faces_df$Subject == 258 & faces_df$Session == 2, 'SessionDate']) #"2018-08-27"... Check
-
-# MWMH304, 1, 2016-10-27... doesn't have task files, and doesn't have task imaging data
-head(avoid_df[avoid_df$Subject == 304 & avoid_df$Session == 1, 'SessionDate'])
-head(faces_df[faces_df$Subject == 304 & faces_df$Session == 1, 'SessionDate'])
-
-# MWMH325, 1, 2016-11-21
-head(avoid_df[avoid_df$Subject == 325 & avoid_df$Session == 1, 'SessionDate']) #"2016-11-21"... Check
-head(faces_df[faces_df$Subject == 325 & faces_df$Session == 1, 'SessionDate']) #"2016-11-21"... Check
-
-################################################################################
+### 10)
+in_avoid_df[in_avoid_df$Subject == 131 & in_avoid_df$Session == 1, 'Session'] <- 2
+in_faces_df[in_avoid_df$Subject == 131 & in_avoid_df$Session == 1, 'Session'] <- 2
 
 
-#### Merge back in sessions that original had to be excluded
-faces_df <- rbind(faces_df, subMWMH298_ses2_taskfaces_df)
-subMWMH320_ses1_taskavoid_df$RuntimeCapabilities <- NA
-subMWMH320_ses1_taskavoid_df <- subMWMH320_ses1_taskavoid_df[, names(avoid_df)]
-avoid_df <- rbind(avoid_df, subMWMH320_ses1_taskavoid_df)
-avoid_df <- rbind(avoid_df, subMWMH376_ses1_taskavoid_df)
+############################### Merge and export ###############################
+
+avoid_df <- rbind(cor_avoid_df, in_avoid_df)
+faces_df <- rbind(cor_faces_df, in_faces_df)
 
 #### Create friendly subjects and session ids
 # faces

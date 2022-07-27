@@ -2,7 +2,7 @@
 ### a tsv compliant with BIDS
 ###
 ### Ellyn Butler
-### March 29, 2022 - May 5, 2022
+### March 29, 2022 - July 27, 2022
 
 
 # TO DO: Turn these into command line arguments for job submission
@@ -16,7 +16,7 @@ bids_path <- '/projects/b1108/studies/mwmh/data/raw/neuroimaging/bids/sub-'
 
 #################################### Avoid ####################################
 
-avoid_df <- read.csv(paste0(base_path, 'combined/avoid_2022-05-05.csv'))
+avoid_df <- read.csv(paste0(base_path, 'avoid_2022-07-27.csv'))
 avoid_df <- avoid_df[avoid_df$subid %in% sub & avoid_df$sesid %in% ses, ]
 
 if (nrow(avoid_df) > 10) {
@@ -153,7 +153,7 @@ if (nrow(avoid_df) > 10) {
 
 #################################### Faces ####################################
 
-faces_df <- read.csv(paste0(base_path, 'combined/faces_2022-05-05.csv'))
+faces_df <- read.csv(paste0(base_path, 'faces_2022-07-27.csv'))
 faces_df <- faces_df[faces_df$subid %in% sub & faces_df$sesid %in% ses, ]
 
 if (nrow(faces_df) > 10) {

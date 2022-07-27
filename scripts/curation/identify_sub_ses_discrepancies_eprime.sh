@@ -86,4 +86,7 @@ for mwmhdir in ${mwmhdirskay}; do
   done
 done
 
-# Couldn't find sub-278_ses-1 across any of these three sources.
+
+##### COULD NOT FIND ACROSS THREE SOURCES
+# 1) sub-MWMH278_ses-1
+# 2) sub-MWMH358_ses-1_task-faces edat 
