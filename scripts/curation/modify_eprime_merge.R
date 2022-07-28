@@ -3,12 +3,12 @@
 ### See `identify_sub_ses_discrepancies_eprime.R` for detective work.
 ###
 ### Ellyn Butler
-### July 27, 2022
+### July 27, 2022 - July 28, 2022
 
 base_dir <- '/projects/b1108/studies/mwmh/data/processed/neuroimaging/behavioral/'
 
-cor_avoid_df <- read.csv(paste0(base_dir, 'correct_task-avoid_07-27-2022.csv'))
-cor_faces_df <- read.csv(paste0(base_dir, 'correct_task-faces_07-27-2022.csv'))
+cor_avoid_df <- read.csv(paste0(base_dir, 'correct_task-avoid_07-28-2022.csv'))
+cor_faces_df <- read.csv(paste0(base_dir, 'correct_task-faces_07-28-2022.csv'))
 in_avoid_df <- read.csv(paste0(base_dir, 'incorrect_task-avoid_07-27-2022.csv'))
 in_faces_df <- read.csv(paste0(base_dir, 'incorrect_task-faces_07-27-2022.csv'))
 
@@ -44,11 +44,11 @@ in_faces_df[in_faces_df$Subject == 290 & in_faces_df$Session == 1, 'Subject'] <-
 
 ### 9)
 in_avoid_df[in_avoid_df$Subject == 367 & in_avoid_df$Session == 1, 'Subject'] <- 376
-in_faces_df[in_avoid_df$Subject == 367 & in_avoid_df$Session == 1, 'Subject'] <- 376
+in_faces_df[in_faces_df$Subject == 367 & in_faces_df$Session == 1, 'Subject'] <- 376
 
 ### 10)
 in_avoid_df[in_avoid_df$Subject == 131 & in_avoid_df$Session == 1, 'Session'] <- 2
-in_faces_df[in_avoid_df$Subject == 131 & in_avoid_df$Session == 1, 'Session'] <- 2
+in_faces_df[in_faces_df$Subject == 131 & in_faces_df$Session == 1, 'Session'] <- 2
 
 
 ############################### Merge and export ###############################
@@ -58,6 +58,7 @@ faces_df <- rbind(cor_faces_df, in_faces_df)
 
 #### Create friendly subjects and session ids
 # faces
+faces_df$subid <- NA
 for (sub in unique(faces_df$Subject)) {
   if (sub < 10) {
     faces_df[faces_df$Subject == sub, 'subid'] <- paste0('MWMH00', sub)
@@ -68,9 +69,10 @@ for (sub in unique(faces_df$Subject)) {
   }
 }
 faces_df$sesid <- faces_df$Session
-faces_df <- faces_df[, c('subid', 'sesid', names(faces_df)[!(faces_df %in% c('subid', 'sesid'))])]
+faces_df <- faces_df[, c('subid', 'sesid', names(faces_df)[!(names(faces_df) %in% c('subid', 'sesid'))])]
 
 # avoid
+avoid_df$subid <- NA
 for (sub in unique(avoid_df$Subject)) {
   if (sub < 10) {
     avoid_df[avoid_df$Subject == sub, 'subid'] <- paste0('MWMH00', sub)
@@ -81,7 +83,7 @@ for (sub in unique(avoid_df$Subject)) {
   }
 }
 avoid_df$sesid <- avoid_df$Session
-avoid_df <- avoid_df[, c('subid', 'sesid', names(avoid_df)[!(avoid_df %in% c('subid', 'sesid'))])]
+avoid_df <- avoid_df[, c('subid', 'sesid', names(avoid_df)[!(names(avoid_df) %in% c('subid', 'sesid'))])]
 
 #### Write out data, dated
 write.csv(faces_df, paste0(base_dir, 'faces_', Sys.Date(), '.csv'), row.names=FALSE)

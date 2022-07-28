@@ -85,16 +85,35 @@ def curate_scan(sub, ses, scan, indir):
             modality = 'dwi'
             if not os.path.isdir(bidsdir+'/'+modality):
                 os.mkdir(bidsdir+'/'+modality)
-            convert_dicoms(dicomdir, bidsdir, modality)
             # Rename files to be BIDS compliant
-            filejson = os.popen('find '+bidsdir+'/'+modality+' -name "*.json"').read().split("\n")[0]
-            os.rename(filejson, bidsdir+'/'+modality+'/'+sub+'_'+ses+'_'+modality+'.json')
-            nifti = os.popen('find '+bidsdir+'/'+modality+' -name "*.nii.gz"').read().split("\n")[0]
-            os.rename(nifti, bidsdir+'/'+modality+'/'+sub+'_'+ses+'_'+modality+'.nii.gz')
-            bvec = os.popen('find '+bidsdir+'/'+modality+' -name "*.bvec"').read().split("\n")[0]
-            os.rename(bvec, bidsdir+'/'+modality+'/'+sub+'_'+ses+'_'+modality+'.bvec')
-            bval = os.popen('find '+bidsdir+'/'+modality+' -name "*.bval"').read().split("\n")[0]
-            os.rename(bval, bidsdir+'/'+modality+'/'+sub+'_'+ses+'_'+modality+'.bval')
+            # Check if the files already exist
+            if os.path.exists(bidsdir+'/'+modality+'/'+sub+'_'+ses+'_dwi.json'):
+                oldjson = os.popen('find '+bidsdir+'/'+modality+' -name "*.json"').read().split("\n")[0]
+                oldjson = json.load(open(oldjson))
+                if int(oldjson['SeriesNumber']) < int(scan):
+                    os.remove(bidsdir+'/'+modality+'/'+sub+'_'+ses+'_dwi.json')
+                    os.remove(bidsdir+'/'+modality+'/'+sub+'_'+ses+'_dwi.nii.gz')
+                    os.remove(bidsdir+'/'+modality+'/'+sub+'_'+ses+'_dwi.bvec')
+                    os.remove(bidsdir+'/'+modality+'/'+sub+'_'+ses+'_dwi.bval')
+                    convert_dicoms(dicomdir, bidsdir, modality)
+                    filejson = os.popen('find '+bidsdir+'/'+modality+' -name "*.json"').read().split("\n")[0]
+                    os.rename(filejson, bidsdir+'/'+modality+'/'+sub+'_'+ses+'_'+modality+'.json')
+                    nifti = os.popen('find '+bidsdir+'/'+modality+' -name "*.nii.gz"').read().split("\n")[0]
+                    os.rename(nifti, bidsdir+'/'+modality+'/'+sub+'_'+ses+'_'+modality+'.nii.gz')
+                    bvec = os.popen('find '+bidsdir+'/'+modality+' -name "*.bvec"').read().split("\n")[0]
+                    os.rename(bvec, bidsdir+'/'+modality+'/'+sub+'_'+ses+'_'+modality+'.bvec')
+                    bval = os.popen('find '+bidsdir+'/'+modality+' -name "*.bval"').read().split("\n")[0]
+                    os.rename(bval, bidsdir+'/'+modality+'/'+sub+'_'+ses+'_'+modality+'.bval')
+            else:
+                convert_dicoms(dicomdir, bidsdir, modality)
+                filejson = os.popen('find '+bidsdir+'/'+modality+' -name "*.json"').read().split("\n")[0]
+                os.rename(filejson, bidsdir+'/'+modality+'/'+sub+'_'+ses+'_'+modality+'.json')
+                nifti = os.popen('find '+bidsdir+'/'+modality+' -name "*.nii.gz"').read().split("\n")[0]
+                os.rename(nifti, bidsdir+'/'+modality+'/'+sub+'_'+ses+'_'+modality+'.nii.gz')
+                bvec = os.popen('find '+bidsdir+'/'+modality+' -name "*.bvec"').read().split("\n")[0]
+                os.rename(bvec, bidsdir+'/'+modality+'/'+sub+'_'+ses+'_'+modality+'.bvec')
+                bval = os.popen('find '+bidsdir+'/'+modality+' -name "*.bval"').read().split("\n")[0]
+                os.rename(bval, bidsdir+'/'+modality+'/'+sub+'_'+ses+'_'+modality+'.bval')
         # faces 16 (15 for 181 1)
         elif (('FACES' in dcm.ProtocolName) or ('MB2_task' in dcm.ProtocolName)) and (ndicoms < 205) and (ndicoms > 195) and (dcm.SliceThickness < 1.8):
             modality = 'func'

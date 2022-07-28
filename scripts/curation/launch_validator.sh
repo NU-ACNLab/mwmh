@@ -17,7 +17,7 @@ singularity exec --writable-tmpfs --cleanenv \
   --verbose
 
 #MWMH219 MWMH379 MWMH112 MWMH196 MWMH225 MWMH275 MWMH293
-# sbatch -o /projects/b1108/studies/mwmh/launch/validate/validate2.txt \
+# sbatch -o /projects/b1108/studies/mwmh/launch/validate/validate3.txt \
 # /projects/b1108/studies/mwmh/scripts/curation/launch_validator.sh
 
 

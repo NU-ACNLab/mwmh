@@ -16,7 +16,7 @@ bids_path <- '/projects/b1108/studies/mwmh/data/raw/neuroimaging/bids/sub-'
 
 #################################### Avoid ####################################
 
-avoid_df <- read.csv(paste0(base_path, 'avoid_2022-07-27.csv'))
+avoid_df <- read.csv(paste0(base_path, 'avoid_2022-07-28.csv'))
 avoid_df <- avoid_df[avoid_df$subid %in% sub & avoid_df$sesid %in% ses, ]
 
 if (nrow(avoid_df) > 10) {
@@ -129,6 +129,9 @@ if (nrow(avoid_df) > 10) {
     stop('The onsets and durations are not matching up')
   }
 
+  # Use the required NA value (n/a)
+  final_avoid_df[is.na(final_avoid_df)] <- 'n/a'
+
   # Write out tsv to bids directory
   write.table(final_avoid_df, paste0(bids_path, sub, '/ses-', ses, '/func/sub-',
     sub, '_ses-', ses, '_task-avoid_events.tsv'), row.names=FALSE, sep='\t', quote=FALSE)
@@ -153,7 +156,7 @@ if (nrow(avoid_df) > 10) {
 
 #################################### Faces ####################################
 
-faces_df <- read.csv(paste0(base_path, 'faces_2022-07-27.csv'))
+faces_df <- read.csv(paste0(base_path, 'faces_2022-07-28.csv'))
 faces_df <- faces_df[faces_df$subid %in% sub & faces_df$sesid %in% ses, ]
 
 if (nrow(faces_df) > 10) {
@@ -310,6 +313,9 @@ if (nrow(faces_df) > 10) {
   if (FALSE %in% sanity) {
     stop('The onsets and durations are not matching up')
   }
+
+  # Use the required NA value (n/a)
+  final_faces_df[is.na(final_faces_df)] <- 'n/a'
 
   # Write out tsv to bids directory
   write.table(final_faces_df, paste0(bids_path, sub, '/ses-', ses, '/func/sub-',
