@@ -1,10 +1,10 @@
 %This script runs Caterina's motion calc functions
 %
 % Ellyn Butler
-% July 28, 2022 - August 1, 2022
+% July 28, 2022 - July 31, 2022
 
 %datafile = '/projects/b1108/studies/mwmh/data/processed/neuroimaging/lists/test_list_for_motioncalc.xlsx'
-datafile = '/Users/flutist4129/Documents/Northwestern/studies/mwmh/data/processed/neuroimaging/lists/test_list_for_motioncalc_local.xlsx'
+datafile = '/Users/flutist4129/Documents/Northwestern/studies/mwmh/data/processed/neuroimaging/lists/test_list_for_motioncalc.xlsx'
 
 df = readtable(datafile)
 
@@ -30,20 +30,4 @@ for i = 1:numdatas
         mkdir(outputdir);
     end
 
-    % load motion data
-    prefix = sprintf('sub-%s_ses-%d_task-%s_space-%s',subject,df.sess(i),df.task{i},df.space{i});
-    confounds = bids.util.tsvread([inputdir prefix '_desc-confounds_timeseries.tsv']);
     
-    % make a single matrix organized as we want
-    mot_data_orig = [];
-    for m = 1:length(mvm_fields)
-        mot_data_orig = [mot_data_orig confounds.(mvm_fields{m})];
-    end    
-
-
-
-
-
-
-
-
