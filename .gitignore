@@ -14,3 +14,4 @@ plots/*
 *handbooks/*
 *launch/*
 *__pycache__*
+*.asv*
