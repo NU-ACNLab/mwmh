@@ -4,11 +4,13 @@
 % July 28, 2022 - August 1, 2022
 
 % load paths
-addpath('/Users/flutist4129/Documents/Northwestern/bids/bids-matlab')
-addpath('/Users/flutist4129/Documents/Northwestern/gratton/GrattonLab-General-Repo/motion_calc_utilities')
+%addpath('/Users/flutist4129/Documents/Northwestern/bids/bids-matlab')
+addpath('/projects/b1108/software/bids-matlab')
+%addpath('/Users/flutist4129/Documents/Northwestern/gratton/GrattonLab-General-Repo/motion_calc_utilities')
+addpath('/projects/b1108/GrattonLab-General-Repo/motion_calc_utilities')
 
-%datafile = '/projects/b1108/studies/mwmh/data/processed/neuroimaging/lists/test_list_for_motioncalc.xlsx'
-datafile = '/Users/flutist4129/Documents/Northwestern/studies/mwmh/data/processed/neuroimaging/lists/test_list_for_motioncalc_local.xlsx'
+datafile = '/projects/b1108/studies/mwmh/data/processed/neuroimaging/lists/test_list_for_motioncalc.xlsx'
+%datafile = '/Users/flutist4129/Documents/Northwestern/studies/mwmh/data/processed/neuroimaging/lists/test_list_for_motioncalc_local.xlsx'
 
 df = readtable(datafile)
 
@@ -107,7 +109,7 @@ for i = 1:numdatas
     
     close('all');
     clear mot_data;  
-    
+
     clear good_run_FD run_frame_nums_FD run_frame_per_FD;
     clear good_run_fFD run_frame_nums_fFD run_frame_per_fFD;
 end
