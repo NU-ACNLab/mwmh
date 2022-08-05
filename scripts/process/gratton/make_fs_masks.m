@@ -64,7 +64,7 @@ system(['module load fsl; fslmaths ' anat_dir WMprobseg  ' -thr ' num2str(WMprob
 
 %%% erode cerebral WM mask to avoid possible gray matter contamination %%%
 %!!!!!!!!!! Line below is a problem
-system(['module load singularity; singularity exec -B /projects/b1108:/projects/b1108 /projects/b1108/software/singularity_images/afni_make_build_AFNI_22.2.04.sif 3dresample -dxyz ' voxdim ' ' voxdim ' ' voxdim ' -prefix ' suboutdir '/' WMmaskname(1:end-7) '_res-' voxdim '.nii.gz -input ' suboutdir '/' WMmaskname]);
+system(['module load singularity; singularity exec --containall -B /projects/b1108:/projects/b1108 /projects/b1108/software/singularity_images/afni_make_build_AFNI_22.2.04.sif 3dresample -dxyz ' voxdim ' ' voxdim ' ' voxdim ' -prefix ' suboutdir '/' WMmaskname(1:end-7) '_res-' voxdim '.nii.gz -input ' suboutdir '/' WMmaskname]);
 system(['module load fsl; fslmaths ' suboutdir '/' WMmaskname(1:end-7) '_res-' voxdim '.nii.gz -bin ' suboutdir '/' WMmaskname(1:end-7) '_res-' voxdim '_ero0.nii.gz']);
 
 iter = 1;
