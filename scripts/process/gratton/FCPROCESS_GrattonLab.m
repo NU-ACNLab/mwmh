@@ -344,8 +344,8 @@ switch switches.regressiontype
             
             % need to resample the maskfiles to res02 space 
             masks_string = [QC(i).topDir '/' QC(i).confoundsFolder '/masks/sub-' QC(i).subjectID '/' ]
-            
-            fnames = resample_masks(anat_string,masks_string,QC(i),space); 
+
+            fnames = resample_masks(anat_string,masks_string,QC(i),space,inres); 
             QC(i).WMmaskfile = [masks_string '/sub-' QC(i).subjectID '_space-' space '_label-WM_probseg_0.9mask_res-2_ero3.nii.gz']; %AD - replacing probseg file with output of make_fs_masks.m 
             QC(i).CSFmaskfile = fnames.CSFmaskfile;
             QC(i).WBmaskfile = fnames.WBmaskfile;
