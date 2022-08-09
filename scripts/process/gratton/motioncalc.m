@@ -31,7 +31,7 @@ for i = 1:numdatas
     subject = df.sub{i}
     % get in and output dirs
     inputdir = [df.topDir{i} '/' df.dataFolder{i} '/fmriprep/sub-' subject '/ses-' num2str(df.sess(i)) '/func/'];
-    outputdir = [df.topDir{i} '/' df.dataFolder{i} '/fcon/sub-' subject '/ses-' num2str(df.sess(i)) '/'];
+    outputdir = [df.topDir{i} '/' df.dataFolder{i} '/motion/sub-' subject '/ses-' num2str(df.sess(i)) '/'];
     if ~exist(outputdir)
         mkdir(outputdir);
     end

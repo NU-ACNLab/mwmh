@@ -1,6 +1,6 @@
 % this function puts the structural mask into the resolution of the output
 % space, which is assumed to be 2x2x2
-function fnames = resample_masks(anat_string,QC,space)
+function fnames = resample_masks(masks_string,QC,space)
     type_names = {'CSF','WB','GREY'}; % AD - removed WM mask resampling; using make_fs_masks.m output {'WM','CSF','WB','GREY'}
     types = {'label-CSF_probseg','desc-brain_mask','label-GM_probseg'}; %{'label-WM_probseg','label-CSF_probseg','desc-brain_mask','label-GM_probseg'}
     
@@ -12,7 +12,7 @@ function fnames = resample_masks(anat_string,QC,space)
         
         thisName = ['sub-' QC.subjectID '_space-' space '_res-2_' types{t} '.nii.gz'];
         thisName_orig = ['sub-' QC.subjectID '_space-' space '_' types{t} '.nii.gz'];
-        fnames.([type_names{t} 'maskfile']) = [anat_string thisName];
+        fnames.([type_names{t} 'maskfile']) = [masks_string thisName];
         
         % only make them if they don't exist
         if ~exist(fnames.([type_names{t} 'maskfile']))
