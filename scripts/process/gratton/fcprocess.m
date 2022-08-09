@@ -44,6 +44,10 @@ function FCPROCESS_GrattonLab(datafile,outdir,varargin)
 %       example call: FCPROCESS_GrattonLab('EXAMPLESUB_DATALIST.xlsx','/projects/b1081/iNetworks/Nifti/derivatives/preproc_FCProc/','defaults2')
 
 % Added on 08/03/2022 
+addpath('/projects/b1108/studies/mwmh/scripts/process/gratton/')
+addpath('/projects/b1108/software/bids-matlab')
+addpath('/projects/b1081/Scripts/Scripts_general/NIfTI_20140122')
+
 datafile = '/projects/b1108/studies/mwmh/data/processed/neuroimaging/lists/test_list_for_motioncalc.xlsx'
 outdir = '/projects/b1108/studies/mwmh/data/processed/neuroimaging/fcon'
 
@@ -173,6 +177,7 @@ for i = 1:numdatas
     end
 end
  
+varargin = {'defaults2'}
 
 %% SET SWITCHES
 if length(varargin) > 0
@@ -224,11 +229,6 @@ fprintf('switches.order (1 is typical): %g\n',switches.order);
 fprintf('switches.doblur (1=yes;0=no): %d\n',switches.doblur);
 fprintf('switches.blurkernel (in mm; 4 is typical for data in 222): %d\n',switches.blurkernel);
 
-% cont=input('\nDo you wish to continue with these settings? (1=yes) ' );
-% if cont~=1
-%     error('Quitting');
-% end
-
 tic
 
 
@@ -242,7 +242,6 @@ fprintf('PREPARING OUTPUT DIRECTORIES\n');
 fprintf('LINKING BOLD DATA\n');
 %pause(2);
 for i=1:numdatas
-    
     % prepare target subject directory
     QC(i).subdir_out = sprintf('%s/sub-%s/',outdir,QC(i).subjectID);
     if ~exist(QC(i).subdir_out)
@@ -303,7 +302,7 @@ for i=1:numdatas
 end
 
 
-%% COMPUTE DEFINED VOXELS FOR THE BOLD RUNS
+%% COMPUTE DEFINED VOXELS FOR THE BOLD RUNS.............
 
 % CG edits: this previously used 4dfp compute_defined_4dfp function
 % Now, using fmriprep output masks and combining the BOLD brain masks into
@@ -313,8 +312,8 @@ end
 % data, since these masks tend to be a bit conservative.
 for i=1:numdatas
     dfnd_name_out = [QC(i).sessdir_out QC(i).naming_str '_desc-AllRunUnionMask.nii.gz']; 
-    % ^ ERROR: Brace indexing is not supported for variables of this type.
-    dfndvoxels = load_nii_wrapper(boldmasknii(i))
+    tmp_boldmasknii = boldmasknii(i);
+    dfndvoxels = load_nii_wrapper(tmp_boldmasknii{1});
 end
 
 
@@ -344,7 +343,7 @@ switch switches.regressiontype
             QC(i).GLMmaskfile = ['/projects/b1081/Atlases/templateflow/tpl-' space '/tpl-' space '_res-02_desc-brain_mask_dilate3.nii.gz']; %CG = primary mask we will use
             
             % need to resample the maskfiles to res02 space 
-            fnames = resample_masks(anat_string,QC(i),space);
+            fnames = resample_masks(anat_string,QC(i),space); 
             QC(i).WMmaskfile = [anat_string '/sub-' QC(i).subjectID '_space-' space '_label-WM_probseg_0.9mask_res-2_ero3.nii.gz']; %AD - replacing probseg file with output of make_fs_masks.m 
             QC(i).CSFmaskfile = fnames.CSFmaskfile;
             QC(i).WBmaskfile = fnames.WBmaskfile;
@@ -1933,103 +1932,7 @@ function switches = get_input_from_user()
 save_out_maskfile(boldmasknii{1},dfndvoxels,outname);
 
 
-function save_out_maskfile(input_template,out_data,outname)
-outfile = load_nii(input_template); % for header info
-img_dims = size(outfile.img);
-outfile.img = reshape(out_data,img_dims);
-outfile.prefix = outname;
-save_nii(outfile,outname);
-
-
-function fnames = resample_masks(anat_string,QC,space)
-
-type_names = {'CSF','WB','GREY'}; % AD - removed WM mask resampling; using make_fs_masks.m output {'WM','CSF','WB','GREY'}
-types = {'label-CSF_probseg','desc-brain_mask','label-GM_probseg'}; %{'label-WM_probseg','label-CSF_probseg','desc-brain_mask','label-GM_probseg'}
-
-%system('module load singularity/latest');
-currentDir = pwd;
-cd(anat_string);
-
-for t = 1:length(types)
-    
-    thisName = ['sub-' QC.subjectID '_space-' space '_res-2_' types{t} '.nii.gz'];
-    thisName_orig = ['sub-' QC.subjectID '_space-' space '_' types{t} '.nii.gz'];
-    fnames.([type_names{t} 'maskfile']) = [anat_string thisName];
-    
-   
-    % only make them if they don't exist
-    if ~exist(fnames.([type_names{t} 'maskfile']))
-        %system(['module load singularity; singularity run /projects/b1081/singularity_images/afni_latest.sif 3dresample -dxyz 2 2 2 -prefix ' thisName ' -input ' thisName_orig]);
-        system(['module load singularity; singularity exec -B /projects/b1081:/projects/b1081 /projects/b1081/singularity_images/afni_latest.sif 3dresample -dxyz 2 2 2 -prefix ' thisName ' -input ' thisName_orig]);
-    end
-end
 
 cd(currentDir);
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function [H,f,s,c,tau,w] = LSTransform(t,h,TH,Tr,ofac,hifac)
-%LSTRANSFORM  Fills up missing samples in time-series with estimates.
-%   [H, F, S, C, TAU, W] = LSTRANSFORM(T, H, TH, TR, OFAC, HIFAC) takes
-%   the signal in H and samples new data points given the frequecy content
-%   of H at points TH. TR is the sampling resolution (this argument is
-%   currently not used), OFAC is the oversampling factor, and HIFAC is the
-%   highest allowed frequency.
-%
-%   H must be NrOfTimePoints-by-NrOfSamples matrix.
-%
-%   Example:
-%
-%   rdata = randn(512, 200);
-%   allidx = (1:size(rdata, 1))';
-%   badidx = ceil(numel(allidx) .* rand(10, 1));
-%   goodidx = allidx;
-%   goodidx(badidx) = [];
-%   repdata = LSTRANSFORM(goodidx, rdata(goodidx, :), allidx, 1, 4, 1);
 
-%Input t is a column vector listing the time points for which observations
-%are present.  Input h is a matrix with observations in columns and the
-%number of rows equals the number the time points.  For our purposes number
-%of voxels = number of columns.  Ofac = oversampling frequency (generally
-%>=4), hifac = highest frequency allowed.  hifac = 1 means 1*nyquist limit
-%is highest frequency sampled.  
-%Lasted edited:  Anish Mitra, October 25 2012
-
-% double precision
-D = double(h);
-
-% number of time points
-N = size(D, 1);
-
-% total time span
-t = t(:);
-T = max(t) - min(t);
-
-% calculate sampling frequencies
-f = (1 / (T * ofac) : 1 / (T * ofac) : hifac * N / (2 * T))';
-
-% angular frequencies and constant offsets
-w = 2 * pi * f;
-wt = w * t';
-tau = atan2(sum(sin(2 .* wt), 2), sum(cos(2 * wt), 2)) ./ (2 * w);
-wtau = wt - repmat(w .* tau, 1, length(t));
-
-% spectral power sin and cosine terms
-cterm = cos(wtau);
-sterm = sin(wtau);
-
-% compute numerator and denominator for cosines
-numerator = cterm * D;
-denominator = sum(cterm .* cterm,2);
-c = diag(1 ./ denominator) * numerator;
-
-% repeat the above for Sine term
-numerator = sterm * D;
-denominator = sum(sterm .* sterm,2);
-s = diag(1 ./ denominator) * numerator;
-
-% the inverse function to re-construct the original time series
-prod = TH(:) * w';
-H = sin(prod) * s + cos(prod) * c;
-
-% normalize the reconstructed spectrum, needed when ofac > 1
-H = H * diag(std(h) ./ std(H));
