@@ -1,6 +1,6 @@
 % this function puts the structural mask into the resolution of the output
 % space, which is assumed to be 2x2x2
-function fnames = resample_masks(anat_stringmasks_string,QC,space)
+function fnames = resample_masks(anat_string,masks_string,QC,space)
     type_names = {'CSF','WB','GREY'}; % AD - removed WM mask resampling; using make_fs_masks.m output {'WM','CSF','WB','GREY'}
     types = {'label-CSF_probseg','desc-brain_mask','label-GM_probseg'}; %{'label-WM_probseg','label-CSF_probseg','desc-brain_mask','label-GM_probseg'}
     
