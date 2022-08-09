@@ -20,4 +20,11 @@ function fnames = resample_masks(anat_string,masks_string,QC,space)
         end
     end
     [status,ero3_wmmask] = system(['find ' masks_string ' -name "*_ero3.nii.gz"'])
-    system(['module load singularity; singularity exec --containall -B /projects/b1108:/projects/b1108 /projects/b1108/software/singularity_images/afni_make_build_AFNI_22.2.04.sif 3dresample -dxyz 2 2 2 -prefix ' masks_string thisName ' -input ' ero3_wmmask]);
+    pathel = strsplit(ero3_wmmask, '/')
+    filename = pathel{11}
+    filenameel = strsplit(filename, '_')
+    inres = filenameel{6}
+    outres = 'res-2'
+    outName = strrep(ero3_wmmask, inres, outres)
+    outName = strtrim(outName)
+    system(['module load singularity; singularity exec --containall -B /projects/b1108:/projects/b1108 /projects/b1108/software/singularity_images/afni_make_build_AFNI_22.2.04.sif 3dresample -dxyz 2 2 2 -prefix ' outName ' -input ' ero3_wmmask]);
