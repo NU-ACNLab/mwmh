@@ -6,7 +6,7 @@ function fnames = resample_masks(masks_string,QC,space)
     
     %system('module load singularity/latest');
     currentDir = pwd;
-    cd(anat_string);
+    cd(masks_string);
     
     for t = 1:length(types)
         
