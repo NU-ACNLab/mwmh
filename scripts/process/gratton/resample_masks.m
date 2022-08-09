@@ -16,6 +16,6 @@ function fnames = resample_masks(masks_string,QC,space)
         
         % only make them if they don't exist
         if ~exist(fnames.([type_names{t} 'maskfile']))
-            system(['module load singularity; singularity exec --containall -B /projects/b1108:/projects/b1108 /projects/b1108/software/singularity_images/afni_make_build_AFNI_22.2.04.sif 3dresample -dxyz 2 2 2 -prefix ' anat_string thisName ' -input ' anat_string thisName_orig]);
+            system(['module load singularity; singularity exec --containall -B /projects/b1108:/projects/b1108 /projects/b1108/software/singularity_images/afni_make_build_AFNI_22.2.04.sif 3dresample -dxyz 2 2 2 -prefix ' masks_string thisName ' -input ' masks_string thisName_orig]);
         end
     end
