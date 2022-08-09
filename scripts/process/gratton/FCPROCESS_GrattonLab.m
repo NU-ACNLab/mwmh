@@ -333,7 +333,7 @@ switch switches.regressiontype
         % set basic names
         for i=1:numdatas
             
-            %anat_string = [QC(i).topDir '/' QC(i).confoundsFolder '/fmriprep/sub-' QC(i).subjectID '/anat/'];
+            anat_string = [QC(i).topDir '/' QC(i).confoundsFolder '/fmriprep/sub-' QC(i).subjectID '/anat/'];
             
             % CG - usually would be a general mask across subjects, but
             % this mask below seems overly conservative. I made a less
@@ -343,9 +343,9 @@ switch switches.regressiontype
             QC(i).GLMmaskfile = ['/projects/b1081/Atlases/templateflow/tpl-' space '/tpl-' space '_res-02_desc-brain_mask_dilate3.nii.gz']; %CG = primary mask we will use
             
             % need to resample the maskfiles to res02 space 
-            masks_string = [QC(i).topDir '/' QC(i).confoundsFolder '/masks/sub-' QC(i).subjectID ]
+            masks_string = [QC(i).topDir '/' QC(i).confoundsFolder '/masks/sub-' QC(i).subjectID '/' ]
             
-            fnames = resample_masks(masks_string,QC(i),space); 
+            fnames = resample_masks(anat_string,masks_string,QC(i),space); 
             QC(i).WMmaskfile = [masks_string '/sub-' QC(i).subjectID '_space-' space '_label-WM_probseg_0.9mask_res-2_ero3.nii.gz']; %AD - replacing probseg file with output of make_fs_masks.m 
             QC(i).CSFmaskfile = fnames.CSFmaskfile;
             QC(i).WBmaskfile = fnames.WBmaskfile;

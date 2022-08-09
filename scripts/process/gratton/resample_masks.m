@@ -1,6 +1,6 @@
 % this function puts the structural mask into the resolution of the output
 % space, which is assumed to be 2x2x2
-function fnames = resample_masks(masks_string,QC,space)
+function fnames = resample_masks(anat_stringmasks_string,QC,space)
     type_names = {'CSF','WB','GREY'}; % AD - removed WM mask resampling; using make_fs_masks.m output {'WM','CSF','WB','GREY'}
     types = {'label-CSF_probseg','desc-brain_mask','label-GM_probseg'}; %{'label-WM_probseg','label-CSF_probseg','desc-brain_mask','label-GM_probseg'}
     
@@ -16,6 +16,6 @@ function fnames = resample_masks(masks_string,QC,space)
         
         % only make them if they don't exist
         if ~exist(fnames.([type_names{t} 'maskfile']))
-            system(['module load singularity; singularity exec --containall -B /projects/b1108:/projects/b1108 /projects/b1108/software/singularity_images/afni_make_build_AFNI_22.2.04.sif 3dresample -dxyz 2 2 2 -prefix ' masks_string thisName ' -input ' masks_string thisName_orig]);
+            system(['module load singularity; singularity exec --containall -B /projects/b1108:/projects/b1108 /projects/b1108/software/singularity_images/afni_make_build_AFNI_22.2.04.sif 3dresample -dxyz 2 2 2 -prefix ' masks_string thisName ' -input ' anat_string thisName_orig]);
         end
     end
