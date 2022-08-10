@@ -49,7 +49,8 @@ addpath('/projects/b1108/software/bids-matlab')
 addpath('/projects/b1081/Scripts/Scripts_general/NIfTI_20140122')
 
 datafile = '/projects/b1108/studies/mwmh/data/processed/neuroimaging/lists/test_list_for_motioncalc.xlsx'
-outdir = '/projects/b1108/studies/mwmh/data/processed/neuroimaging/fcon'
+outdir = '/projects/b1108/studies/mwmh/data/processed/neuroimaging/fcon/'
+motdir = '/projects/b1108/studies/mwmh/data/processed/neuroimaging/motion/'
 
 %% IMPORTANT VARIABLES
 tmasktype = 'regular'; %'ones' or something else (ones = take everything except short periods at the start of each scan
@@ -121,6 +122,7 @@ for i = 1:numdatas
     sesoutdir = [outdir '/sub-' subid2 '/ses-' sesid];
     data_fstring1 = sprintf('%s/%s/fmriprep/sub-%s/ses-%d/func/',QC(i).topDir,QC(i).dataFolder,subid{1},df.sess(i));
     conf_fstring1 = sprintf('%s/%s/fmriprep/sub-%s/ses-%d/func/',QC(i).topDir,QC(i).confoundsFolder,subid{1},df.sess(i));
+    mot_fstring1 = sprintf('%s/sub-%s/ses-%d/',motdir,subid{1},df.sess(i));
     all_fstring2 = sprintf('sub-%s_ses-%d_task-%s',subid{1},df.sess(i),QC(i).condition);
 
     if QC(i).residuals == 0 % the typical case
@@ -131,13 +133,14 @@ for i = 1:numdatas
     boldavg_fname = [conf_fstring1 all_fstring2 '_space-' space '_boldref.nii.gz']; %referent for alignment
     boldmask_fname = [conf_fstring1 all_fstring2 '_space-' space '_desc-brain_mask.nii.gz']; %fmriprep mask
     confounds_fname = [conf_fstring1 all_fstring2 '_desc-confounds_timeseries.tsv']; %if using the fmriprep regressor
-    tmask_fname = [sesoutdir '/' all_fstring2 '_desc-tmask_' QC(i).FDtype '.txt']; %assume this is in confounds folder
-        % TO DO ^ strcat not behaving the same way
+    %tmask_fname = [sesoutdir '/' all_fstring2 '_desc-tmask_' QC(i).FDtype '.txt']; %assume this is in confounds folder
+    tmask_fname = [mot_fstring1 '/' all_fstring2 '_desc-tmask_' QC(i).FDtype '.txt'];
+    % TO DO ^ strcat not behaving the same way
     boldnii{i} = bolddata_fname;
     boldavgnii{i} = boldavg_fname;
     boldmasknii{i} = boldmask_fname;
     boldconf{i} = confounds_fname;
-    boldtmask{i} = tmask_fname;
+    boldtmask{i} = tmask_fname; %!!!!!!!!!
     boldmot_folder{i} = sesoutdir; % in this case, just give path/start so I can load different versions
         
     if ~exist(bolddata_fname)
@@ -255,6 +258,9 @@ for i=1:numdatas
     else
         warning('Sess output folder already existed; new results will be added to this folder and mixed');
     end
+
+    % get motion input dir for this session
+    QC(i).motdir_in=sprintf('%s/sub-%s/ses-%d/',motdir,QC(i).subjectID,QC(i).session);
     
     % make links to atlas and seed data
     QC(i).subatlasdir_out=[QC(i).subdir_out '/anat/']; %directory with anatomical info CG = changed to BIDS-like
@@ -269,8 +275,6 @@ for i=1:numdatas
         system([ 'ln -s ' mprnii{i,1} ' ' tmprnii{i,1}]);
     end
 
-    % cycle through each BOLD run
-        
     % CG: keep structure more akin to BIDS
     % prepare and enter targetsubbolddir
     if QC(i).residuals ~= 0
@@ -287,7 +291,7 @@ for i=1:numdatas
     tboldavgnii{i} = [QC(i).sessdir_out all_fstring '_space-' space '_' res '_boldref.nii.gz'];
     tboldmasknii{i} = [QC(i).sessdir_out all_fstring '_space-' space '_' res '_desc-brain_mask.nii.gz'];
     tboldconf{i} = [QC(i).sessdir_out all_fstring '_desc-confounds_timeseries.tsv'];
-    tboldmot_folder{i} = [QC(i).sessdir_out 'FD_outputs'];
+    tboldmot_folder{i} = QC(i).motdir_in; 
 
     system(['ln -s ' boldnii{i} ' ' tboldnii{i}]);
     system(['ln -s ' boldmasknii{i} ' ' tboldmasknii{i}]);
@@ -296,9 +300,9 @@ for i=1:numdatas
         
     % only 1 FD_outputs folder per session (not per run), so only link this if it is not yet linked. Somehow this was previously 
     % creating infinite FD_outputs folders linked within each other
-    if ~exist(tboldmot_folder{i}, 'dir')
-        system(['ln -s ' boldmot_folder{i} ' ' tboldmot_folder{i}]);
-    end
+    %if ~exist(tboldmot_folder{i}, 'dir')
+    %    system(['ln -s ' boldmot_folder{i} ' ' tboldmot_folder{i}]);
+    %end
 end
 
 
@@ -343,9 +347,13 @@ switch switches.regressiontype
             QC(i).GLMmaskfile = ['/projects/b1081/Atlases/templateflow/tpl-' space '/tpl-' space '_res-02_desc-brain_mask_dilate3.nii.gz']; %CG = primary mask we will use
             
             % need to resample the maskfiles to res02 space 
-            masks_string = [QC(i).topDir '/' QC(i).confoundsFolder '/masks/sub-' QC(i).subjectID '/' ]
+            masks_string = [QC(i).topDir '/' QC(i).confoundsFolder '/masks/sub-' QC(i).subjectID '/' ];
 
-            fnames = resample_masks(anat_string,masks_string,QC(i),space); 
+            thisName = ['sub-' QC(i).subjectID '_space-' space '_res-2_label-CSF_probseg.nii.gz'];
+            thisName = [masks_string '/' thisName];
+            if ~exist(thisName, 'file')
+                fnames = resample_masks(anat_string,masks_string,QC(i),space); 
+            end
             QC(i).WMmaskfile = [masks_string '/sub-' QC(i).subjectID '_space-' space '_label-WM_probseg_0.9mask_res-2_ero3.nii.gz']; %AD - replacing probseg file with output of make_fs_masks.m 
             QC(i).CSFmaskfile = fnames.CSFmaskfile;
             QC(i).WBmaskfile = fnames.WBmaskfile;
@@ -440,40 +448,33 @@ end
 
 %% CALCULATE SUBJECT MOVEMENT
 for i=1:numdatas
-    %for j=1:size(QC(i).runs,1)
+    fprintf('LOADING MOTION\t%d\tsub-%s\tses-%d\n',i,QC(i).subjectID,QC(i).session);
         
-        %cd(QC(i).subbolddir{j});
-        fprintf('LOADING MOTION\t%d\tsub-%s\tsess-%d\n',i,QC(i).subjectID,QC(i).session);
+    if QC(i).residuals ~= 0
+        % load motion and alignment estimates from FD folder
+        mot_fstring = sprintf('sub-%s_ses-%d_task-%s',QC(i).subjectID,QC(i).session,QC(i).condition);
+        mvm{i} = table2array(readtable([tboldmot_folder{i} '/' mot_fstring '_desc-mvm.txt']));        
+        mvm_filt{i} = table2array(readtable([tboldmot_folder{i} '/' mot_fstring '_desc-mvm_filt.txt']));
+        FD{i} = table2array(readtable([tboldmot_folder{i} '/' mot_fstring '_desc-FD.txt']));        
+        fFD{i} = table2array(readtable([tboldmot_folder{i} '/' mot_fstring '_desc-fFD.txt']));
+    else
+        % load motion and alignment estimates from FD folder
+        mvm{i} = table2array(readtable([tboldmot_folder{i} '/' QC(i).naming_str '_desc-mvm.txt']));        
+        mvm_filt{i} = table2array(readtable([tboldmot_folder{i} '/' QC(i).naming_str '_desc-mvm_filt.txt']));
+        FD{i} = table2array(readtable([tboldmot_folder{i} '/' QC(i).naming_str '_desc-FD.txt']));        
+        fFD{i} = table2array(readtable([tboldmot_folder{i} '/' QC(i).naming_str '_desc-fFD.txt'])); 
+    end
         
+    % get diffed and detrended mvm params for nuisance regression
+    d = size(mvm{i});
+    ddt_mvm{i} = [zeros(1,d(2)); diff(mvm{i})]; % put 0 at the start by default
+    mvm_detrend{i} = demean_detrend(mvm{i}')'; 
+    ddt_mvm_detrend{i} = demean_detrend(ddt_mvm{i}')';
         
-        if QC(i).residuals ~= 0
-            % load motion and alignment estimates from FD folder
-            mot_fstring = sprintf('sub-%s_ses-%d_task-%s',QC(i).subjectID,QC(i).session,QC(i).condition);
-            mvm{i} = table2array(readtable([tboldmot_folder{i} '/' mot_fstring '_desc-mvm.txt']));        
-            mvm_filt{i} = table2array(readtable([tboldmot_folder{i} '/' mot_fstring '_desc-mvm_filt.txt']));
-            FD{i} = table2array(readtable([tboldmot_folder{i} '/' mot_fstring '_desc-FD.txt']));        
-            fFD{i} = table2array(readtable([tboldmot_folder{i} '/' mot_fstring '_desc-fFD.txt']));
-        else
-            % load motion and alignment estimates from FD folder
-            mvm{i} = table2array(readtable([tboldmot_folder{i} '/' QC(i).naming_str '_desc-mvm.txt']));        
-            mvm_filt{i} = table2array(readtable([tboldmot_folder{i} '/' QC(i).naming_str '_desc-mvm_filt.txt']));
-            FD{i} = table2array(readtable([tboldmot_folder{i} '/' QC(i).naming_str '_desc-FD.txt']));        
-            fFD{i} = table2array(readtable([tboldmot_folder{i} '/' QC(i).naming_str '_desc-fFD.txt'])); 
-        end
-        
-        % get diffed and detrended mvm params for nuisance regression
-        d = size(mvm{i});
-        ddt_mvm{i} = [zeros(1,d(2)); diff(mvm{i})]; % put 0 at the start by default
-        mvm_detrend{i} = demean_detrend(mvm{i}')'; 
-        ddt_mvm_detrend{i} = demean_detrend(ddt_mvm{i}')';
-        
-        ddt_mvm_filt{i} = [zeros(1,d(2)); diff(mvm_filt{i})]; % put 0 at the start by default
-        mvm_filt_detrend{i} = demean_detrend(mvm_filt{i}')'; 
-        ddt_mvm_filt_detrend{i} = demean_detrend(ddt_mvm_filt{i}')';
-        %error('stopped here. check dimensionality here and in future use (tsXmot)');
-        
-    %end
-    
+    ddt_mvm_filt{i} = [zeros(1,d(2)); diff(mvm_filt{i})]; % put 0 at the start by default
+    mvm_filt_detrend{i} = demean_detrend(mvm_filt{i}')'; 
+    ddt_mvm_filt_detrend{i} = demean_detrend(ddt_mvm_filt{i}')';
+
     % STORE TOTAL DATA FOR EACH SUBJECT
     
     % store the total movement data
@@ -502,6 +503,17 @@ for i=1:numdatas
     QC(i).fFD=[QC(i).fFD; fFD{i}];
     
     QC(i).switches=switches;
+end
+
+%% DEFINE RUN BORDERS... Q: what is happening here?
+for i=1:numdatas
+    trpos=0;
+    tr(i).tot=numel(QC(i).FD);
+    tr(i).runtrs=numel(FD{i});
+    tr(i).start(1:2)=[trpos+1 trpos+tr(i).runtrs];
+    trpos=trpos+tr(i).runtrs;
+    QC(i).runborders(:) = [tr(i).start(1:2)];
+    dlmwrite([QC(i).sessdir_out 'runborders.txt'],QC(i).runborders,'\t');
 end
 
 
@@ -535,8 +547,8 @@ for i=1:numdatas
     QC(i).CSFMASK_glmmask = QC(i).CSFMASK(logical(QC(i).GLMMASK));
     QC(i).WMMASK_glmmask = QC(i).WMMASK(logical(QC(i).GLMMASK));
     QC(i).GMMASK_glmmask = QC(i).GMMASK(logical(QC(i).GLMMASK));
-    QC(i).WBMASK_glmmask = QC(i).WBMASK(logical(QC(i).GLMMASK));
-    QC(i).GLMMASK_glmmask = QC(i).GLMMASK(logical(QC(i).GLMMASK));
+    QC(i).WBMASK_glmmask = QC(i).WBMASK(logical(QC(i).GLMMASK)); %what is this mask of?
+    QC(i).GLMMASK_glmmask = QC(i).GLMMASK(logical(QC(i).GLMMASK)); %what is this mask of?
     
     %%%
     % THE PROCESSING BEGINS
@@ -781,69 +793,8 @@ for i=1:numdatas
                     tempimg(:,QC(i).runborders(j,2):QC(i).runborders(j,3))=temprun;
                     toc;
                 %end
-        
-        
-        
-%         %%%%% PREVIOUS VERSION, CG implemented edits to do all runs at once
-%                 fprintf('\tINTERPOLATE full set\n');
-%                   tic;
-%             temprun=tempimg;
-%             ofac=8;
-%             hifac=1;
-%             TRtimes=([1:size(temprun,2)]')*QC(i).TR;
-%             TRtimes=([1:size(temprun,2)]')*QC(i).TR;
-%             
-%             if numel(TRtimes)<150
-%                 voxbinsize=5000;
-%             elseif (numel(TRtimes)>=150 && numel(TRtimes)<500)
-%                 voxbinsize=500;
-%             elseif numel(TRtimes)>=500
-%                 voxbinsize=50;
-%             end
-%             fprintf('INTERPOLATION VOXBINSIZE: %d\n',voxbinsize);
-%             voxbin=1:voxbinsize:size(temprun,1);
-%             voxbin=[voxbin size(temprun,1)];
-% 
-%             temprun=temprun';
-%             tempanish=zeros(size(temprun,1),size(temprun,2));
-%             
-%             % gotta bin by voxels: 5K is ~15GB, 15K is ~40GB at standard
-%             % run lengths. 5K is ~15% slower but saves 2/3 RAM, so that's
-%             % the call.
-%             disp(['size ' num2str(size(voxbin))])
-%             matlabpool open 4
-%             %for v = 1:numel(voxbin)-1 % this takes huge RAM if all voxels
-%             parfor v = 1:numel(voxbin)-1 % this takes huge RAM if all voxels
-%                 %temp = temprun(~~QC(i).runtmask{j},voxbin(v):voxbin(v+1));
-%                 temp = temprun(~~QC(i).tmask,voxbin(v):voxbin(v+1));
-%                 %tempanish_piece{v}=getTransform(TRtimes(~~QC(i).runtmask{j}),temp,TRtimes,QC(i).TR,ofac,hifac);
-%                 tempanish_piece{v}=getTransform(TRtimes(~~QC(i).tmask),temp,TRtimes,QC(i).TR,ofac,hifac);
-%                 tempanish(:,voxbin(v):voxbin(v+1))=LSTransform(TRtimes(~~QC(i).runtmask{j}),temprun(~~QC(i).runtmask{j},voxbin(v):voxbin(v+1)),TRtimes,QC(i).TR,ofac,hifac);
-% 
-%             end
-%             matlabpool close
-%             
-%             for v = 1:numel(voxbin)-1
-%                 tempanish(:,voxbin(v):voxbin(v+1)) = tempanish_piece{v};
-%             end
-%             clear tempanish_piece;
-%             
-%             tempanish=tempanish';
-%             temprun=temprun';
-%             
-%             %temprun(:,~QC(i).runtmask{j})=tempanish(:,~QC(i).runtmask{j});
-%             temprun(:,~QC(i).tmask)=tempanish(:,~QC(i).tmask);
-%             %tempimg(:,QC(i).runborders(j,2):QC(i).runborders(j,3))=temprun;
-%             tempimg=temprun;
-%             toc;
-%         %%% CG added piece - END
-        
 
-        
-        %[QC]=tempimgsignals(QC,i,tempimg,switches,stage);
         QC(i).process{stage}=ending;
-        %QC(i).tc(:,:,stage)=gettcs(roimasks,tempimg);
-        %dlmwrite(['total_DV_' LASTCONC{stage} '.txt'],QC(i).DV_GLM(:,stage));
         if bigstuff
             tmptcs=single(tempimg(QC(i).GMMASK_glmmask,:));
             QC(i).GMtcs(:,:,stage)=tmptcs(1:skipvox:end,:);
@@ -900,10 +851,7 @@ for i=1:numdatas
             toc;
         end
         
-        %[QC]=tempimgsignals(QC,i,tempimg,switches,stage);
         QC(i).process{stage}=ending;
-        %QC(i).tc(:,:,stage)=gettcs(roimasks,tempimg);
-        %dlmwrite(['total_DV_' LASTCONC{stage} '.txt'],QC(i).DV_GLM(:,stage));
         if bigstuff
             tmptcs=single(tempimg(QC(i).GMMASK_glmmask,:));
             QC(i).GMtcs(:,:,stage)=tmptcs(1:skipvox:end,:);
@@ -939,8 +887,7 @@ for i=1:numdatas
     for j=1:size(QC(i).runs,1)
         LASTIMG{i,j,stage}=[ LASTIMG{i,j,stage-1} '_' ending ];
     end
-    %LASTCONC{stage}=[LASTCONC{stage-1} '_' ending];
-    
+
     % for each BOLD run
     for j=1:size(QC(i).runs,1)
         fprintf('\tDEMEAN DETREND\trun%d\n',QC(i).runs(j,:));
@@ -955,10 +902,7 @@ for i=1:numdatas
         toc;
     end
     
-    %[QC]=tempimgsignals(QC,i,tempimg,switches,stage);
     QC(i).process{stage}=ending;
-    %QC(i).tc(:,:,stage)=gettcs(roimasks,tempimg);
-    %dlmwrite(['total_DV_' LASTCONC{stage} '.txt'],QC(i).DV_GLM(:,stage));
     if bigstuff
         tmptcs=single(tempimg(QC(i).GMMASK_glmmask,:));
         QC(i).GMtcs(:,:,stage)=tmptcs(1:skipvox:end,:);
@@ -985,8 +929,6 @@ for i=1:numdatas
     tempimg_out = reshape(tempimg_out,dims_bold);
     clear tempimg tmpavg d;
     
-    %write_4dfpimg(tempimg_out,[ QC(i).vcnum '_' allends '.4dfp.img'],'bigendian');
-    %write_4dfpifh([ QC(i).vcnum '_' allends '.4dfp.img'],size(tempimg_out,2),'bigendian');
     % save a separate file for each run so not too huge
     for j = 1:length(QC(i).runs)
         outdat = load_nii(tboldnii{i,j});

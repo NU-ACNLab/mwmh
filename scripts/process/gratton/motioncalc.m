@@ -1,13 +1,14 @@
 %This script runs Caterina's motion calc functions
 %
 % Ellyn Butler
-% July 28, 2022 - August 1, 2022
+% July 28, 2022 - August 9, 2022
 
 % load paths
 %addpath('/Users/flutist4129/Documents/Northwestern/bids/bids-matlab')
 addpath('/projects/b1108/software/bids-matlab')
 %addpath('/Users/flutist4129/Documents/Northwestern/gratton/GrattonLab-General-Repo/motion_calc_utilities')
 addpath('/projects/b1108/GrattonLab-General-Repo/motion_calc_utilities')
+addpath('/projects/b1108/studies/mwmh/scripts/process/gratton')
 
 datafile = '/projects/b1108/studies/mwmh/data/processed/neuroimaging/lists/test_list_for_motioncalc.xlsx'
 %datafile = '/Users/flutist4129/Documents/Northwestern/studies/mwmh/data/processed/neuroimaging/lists/test_list_for_motioncalc_local.xlsx'
