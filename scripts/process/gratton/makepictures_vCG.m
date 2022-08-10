@@ -34,7 +34,7 @@ subplot(10,1,3)
 %set(a(2),'color',[0 .5 0]);
 %axis(h(1)); hold on;
 plot(pointindex,QC.global_signal,'g');
-hline(0,'k');
+yline(0,'k');
 xlim([0 numpts]);
 ylim(rylimz);
 ylabel('G:GS');
@@ -43,7 +43,7 @@ ylabel('G:GS');
 subplot(10,1,4:5)
 plot([1:numpts],QC.FD,'Color',[1 0.8 0.8],'LineWidth',0.1); hold on;
 plot([1:numpts],QC.fFD,'r','LineWidth',1.5);
-hline(0.1,'k');
+yline(0.1,'k');
 xlim([0 numpts]);
 ylim([0 1])
 ylabel('mm, R:fFD, M=FD');
