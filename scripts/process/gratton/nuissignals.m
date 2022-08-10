@@ -15,7 +15,7 @@ for cn = 1:length(conf_names)
 end
 
 % load confounds signals from fmriprep
-confounds = bids.util.tsvread(tboldconf);
+confounds = bids.util.tsvread(tboldconf{i});
 for cn = 1:length(conf_names)
     temp_confounds=demean_detrend(confounds.(conf_names{cn})');           
     QC(i).(conf_names{cn}) = [QC(i).(conf_names{cn}); temp_confounds'];
