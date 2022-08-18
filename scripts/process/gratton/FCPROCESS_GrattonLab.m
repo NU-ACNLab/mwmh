@@ -48,9 +48,9 @@ addpath('/projects/b1108/studies/mwmh/scripts/process/gratton/')
 addpath('/projects/b1108/software/bids-matlab')
 addpath('/projects/b1081/Scripts/Scripts_general/NIfTI_20140122')
 
-datafile = '/projects/b1108/studies/mwmh/data/processed/neuroimaging/lists/test_list_for_motioncalc.xlsx'
-outdir = '/projects/b1108/studies/mwmh/data/processed/neuroimaging/fcon/'
-motdir = '/projects/b1108/studies/mwmh/data/processed/neuroimaging/motion/'
+datafile = '/projects/b1108/studies/mwmh/data/processed/neuroimaging/lists/test_list_for_motioncalc.xlsx';
+outdir = '/projects/b1108/studies/mwmh/data/processed/neuroimaging/fcon/';
+motdir = '/projects/b1108/studies/mwmh/data/processed/neuroimaging/motion/';
 
 %% IMPORTANT VARIABLES
 tmasktype = 'regular'; %'ones' or something else (ones = take everything except short periods at the start of each scan
@@ -79,10 +79,10 @@ for i=1:numdatas
         error('can not recognize subject data type')
     end
 
-    subid = char(df.sub(i))
-    sesid = num2str(df.sess(i))
+    subid = char(df.sub(i));
+    sesid = num2str(df.sess(i));
 
-    sesoutdir = [outdir '/sub-' subid '/ses-' sesid]
+    sesoutdir = [outdir '/sub-' subid '/ses-' sesid];
     % TO DO ^ strcat not behaving the same way
     
     QC(i).session = df.sess(i); %session ID
@@ -532,9 +532,14 @@ switch tmasktype
         for i=1:numdatas
             fprintf('GETTING TMASK FILES\t%d\tsub-%s\tses-%d\n',i,QC(i).subjectID,QC(i).session);
             
-            QC(i).tmask = [];
+            % August 18, 2022: Don't understand this code, so redid
+            % Also, not sure what the difference is between runtmask and
+            % tmask
+            %QC(i).tmask = [];
+            %QC(i).runtmask = table2array(readtable([boldtmask{i}])); 
+            %QC(i).tmask=[QC(i).tmask]; %!!!!!!!! How could it be anything except empty?
             QC(i).runtmask = table2array(readtable([boldtmask{i}])); 
-                QC(i).tmask=[QC(i).tmask];
+            QC(i).tmask = QC(i).runtmask; 
         end
 end
 
@@ -565,7 +570,7 @@ for i=1:numdatas
     
     % obtain the raw images (and mode 1000 normalize them)
     tempimg = bolds2mat(bolds,tr(i).tot,tr(i).start,QC(i).GLMMASK,QC(i).WBMASK); 
-    aa = tempimg
+    aa = tempimg;
     % August 15, 2022: sum(isnan(tempimg)) : 0
 
     % save out average raw image for SNR mask later
@@ -608,8 +613,8 @@ for i=1:numdatas
     %temprun=tempimg(:,QC(i).runborders(1):QC(i).runborders(2));
     %size(tempimg) >>> 316559        1028
     %size(temprun) >>> 1        1028
-    tempimg=demean_detrend(tempimg,QC(i).runtmask);
-    bb = tempimg
+    tempimg=demean_detrend(tempimg,QC(i).runtmask); %Still good: sum(isnan(tempimg))
+    bb = tempimg; 
     %tempimg=temprun; %GETTING SCREWED UP HERE???(:,QC(i).runborders(1):QC(i).runborders(2))
     %size(tempimg) >>> 316559        1028
     toc;
@@ -723,8 +728,8 @@ for i=1:numdatas
         close;
         
         tic
-        [tempimg zb regsz]=regress_nuisance(tempimg,QC(i).nuisanceregressors,QC(i).tmask);
-        cc = tempimg
+        [tempimg zb regsz]=regress_nuisance(tempimg,QC(i).nuisanceregressors,QC(i).tmask); % falling apart here
+        cc = tempimg; % All good now: sum(isnan(tempimg))
         toc
         
         QC(i).nuisanceregressors_ZSCORE=regsz;
@@ -798,8 +803,9 @@ for i=1:numdatas
                     temprun=temprun';
 
                     temprun(:,~QC(i).runtmask)=tempanish(:,~QC(i).runtmask);
-                    tempimg=temprun; %(QC(i).runborders(1):QC(i).runborders(2))
-                    dd = tempimg
+                    tempimg=temprun; % sum(isnan(tempimg))
+                    %(QC(i).runborders(1):QC(i).runborders(2))
+                    dd = tempimg; % All good: sum(isnan(tempimg))
                     % NEXT PLACE TEMPIMG GETS MODIFIED
                     toc;
                 %end
@@ -854,8 +860,8 @@ for i=1:numdatas
             [temprun]=filtfilt(butta,buttb,double(temprun)); %ERROR: NaNs in temp run are screwing this up
             temprun = temprun(pad+1:end-pad, 1:size_temprun(2));
             temprun=temprun';
-            tempimg=temprun;
-            ee = tempimg
+            tempimg=temprun; % All good: sum(isnan(tempimg))
+            ee = tempimg;
             toc;
         %end
         
@@ -868,7 +874,7 @@ for i=1:numdatas
         end
         %makepictures(QC(i),stage,switches,[-20:20:20],[0:10:20],10);
         makepictures_vCG(QC(i),stage,[-20:20:20],[0:50:100],200);    
-        saveas(gcf,[QC(i).sessdir_out QC(i).naming_str{1}(1:end-6) '_stage-' num2str(stage) '-' allends '.tiff'],'tiff');
+        saveas(gcf,[QC(i).sessdir_out QC(i).naming_str(1:end-6) '_stage-' num2str(stage) '-' allends '.tiff'],'tiff');
         close(gcf);
         
         % create temporal mask based on filter properties
@@ -879,7 +885,7 @@ for i=1:numdatas
             QC(i).runfiltertmask=QC(i).runtmask;
             QC(i).runfiltertmask(1:filtertrim)=0;
             QC(i).runfiltertmask(end-filtertrim+1:end)=0;
-            QC(i).runfiltertmask{=QC(i).runfiltertmask & QC(i).runtmask;
+            QC(i).runfiltertmask=QC(i).runfiltertmask & QC(i).runtmask;
             QC(i).filtertmask=[QC(i).filtertmask; QC(i).runfiltertmask];
         %end
         
@@ -906,8 +912,8 @@ for i=1:numdatas
         else
             temprun=demean_detrend(temprun,QC(i).runtmask);
         end
-        tempimg=temprun;
-        ff = tempimg
+        tempimg=temprun; % All good: sum(isnan(tempimg))
+        ff = tempimg;
         toc;
     %end
     
@@ -920,7 +926,7 @@ for i=1:numdatas
     end
     %makepictures(QC(i),stage,switches,[-20:20:20],[0:10:20],10);
     makepictures_vCG(QC(i),stage,[-20:20:20],[0:50:100],200);    
-    saveas(gcf,[QC(i).sessdir_out QC(i).naming_str{1}(1:end-6) '_stage-' num2str(stage) '-' allends '.tiff'],'tiff');
+    saveas(gcf,[QC(i).sessdir_out QC(i).naming_str '_stage-' num2str(stage) '-' allends '.tiff'],'tiff');
     close(gcf);
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -949,7 +955,7 @@ for i=1:numdatas
     %end
     
     % save QC file per session
-    QC_outname = [QC(i).sessdir_out QC(i).naming_str{1}(1:end-6) 'QC.mat']; % TO DO: Edit call to naming_str?
+    QC_outname = [QC(i).sessdir_out QC(i).naming_str 'QC.mat']; % TO DO: Edit call to naming_str?
     QCsub = QC(i);
     save(QC_outname,'QCsub','-v7.3');
     clear QCsub;

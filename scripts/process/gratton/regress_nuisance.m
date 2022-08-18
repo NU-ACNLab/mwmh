@@ -18,7 +18,7 @@ newregs=(newregs-repmat(zmean,[size(newregs,1) 1]))./(repmat(zstd,[size(newregs,
 % now we have z-scored, detrended good and all regressors.
 
 % demean and detrend the desired data
-zmdtimg=tempimg(:,logical(tot_tmask));
+zmdtimg=tempimg(:,logical(tot_tmask)); %!!!!!!!! There's nothing in here. Why? tmask is empty
 [zmdtimg zmdtbetas]=demean_detrend(zmdtimg);
 
 % calculate betas on the good data
