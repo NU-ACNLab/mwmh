@@ -99,7 +99,7 @@ for i = 1:numdatas
     % apply tmask to timeseries and calculate correlations
     corrmat = paircorr_mod(sess_roi_timeseries_concat(:,logical(tmask_concat))'); %WHERE IS THIS FUNC??
     
-    fout_str = sprintf('%s/sub-%s_sess-%d_task-%s_corrmat_%s',outDir,subInfo(i).subjectID,subInfo(i).session,subInfo(i).condition,atlas);
+    fout_str = sprintf('%s/sub-%s_ses-%d_task-%s_corrmat_%s',outDir,subInfo(i).subjectID,subInfo(i).session,subInfo(i).condition,atlas);
     
     figure_corrmat_GrattonLab(corrmat,atlas_params,-1,1);
     saveas(gcf,[fout_str '.tiff'],'tiff');
