@@ -42,8 +42,8 @@ load better_jet_colormap.mat; % assume this is in the same folder
 colormap(better_jet_colormap_diff);
 
 % put lines between the networks
-vline_new(atlas_params.transitions,'k',3);
-hline_new(atlas_params.transitions,'k',3);
+xline_new(atlas_params.transitions,'k',3);
+yline_new(atlas_params.transitions,'k',3);
 tickpos = atlas_params.centers;
 ax = axis;
 
