@@ -12,6 +12,7 @@ function fcimage_corrmat_volume(datafile,FCdir,atlas)
 addpath('/projects/b1108/studies/mwmh/scripts/process/gratton/')
 addpath('/projects/b1108/software/bids-matlab')
 addpath('/projects/b1081/Scripts/Scripts_general')
+addpath('/projects/b1081/Scripts/Scripts_general/general_plotting')
 
 % August 18, 2022: for testing
 datafile = '/projects/b1108/studies/mwmh/data/processed/neuroimaging/lists/test_list_for_motioncalc.xlsx';
