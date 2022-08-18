@@ -11,12 +11,13 @@ function fcimage_corrmat_volume(datafile,FCdir,atlas)
 % Added August 18, 2022
 addpath('/projects/b1108/studies/mwmh/scripts/process/gratton/')
 addpath('/projects/b1108/software/bids-matlab')
-addpath('/projects/b1081/Scripts/Scripts_general/NIfTI_20140122')
+addpath('/projects/b1081/Scripts/Scripts_general')
 
 % August 18, 2022: for testing
 datafile = '/projects/b1108/studies/mwmh/data/processed/neuroimaging/lists/test_list_for_motioncalc.xlsx';
 FCdir = '/projects/b1108/studies/mwmh/data/processed/neuroimaging/fcon/';
 atlas = 'Seitzman300'
+motdir = '/projects/b1108/studies/mwmh/data/processed/neuroimaging/motion/';
 
 %% Directory information
 atlas_dir = '/projects/b1081/Atlases/';
@@ -87,16 +88,16 @@ for i = 1:numdatas
         sess_roi_timeseries_concat = [sess_roi_timeseries_concat sess_roi_timeseries];
         
         % tmask file:
-        tmaskFile = sprintf('%s/sub-%s/ses-%d/func/FD_outputs/sub-%s_ses-%d_task-%s_run-%d_desc-tmask_%s.txt',...
-            FCdir,subInfo(i).subjectID,subInfo(i).session,...
-            subInfo(i).subjectID,subInfo(i).session,subInfo(i).condition,subInfo(i).runs(j),subInfo(i).FDtype);
-        tmask{j} = table2array(readtable(tmaskFile));
-        tmask_concat = [tmask_concat; tmask{j}];
+        tmaskFile = sprintf('%s/sub-%s/ses-%d/sub-%s_ses-%d_task-%s_desc-tmask_%s.txt',...
+            motdir,subInfo(i).subjectID,subInfo(i).session,...
+            subInfo(i).subjectID,subInfo(i).session,subInfo(i).condition,subInfo(i).FDtype);
+        tmask = table2array(readtable(tmaskFile));
+        tmask_concat = [tmask_concat; tmask];
                 
     %end
     
     % apply tmask to timeseries and calculate correlations
-    corrmat = paircorr_mod(sess_roi_timeseries_concat(:,logical(tmask_concat))');
+    corrmat = paircorr_mod(sess_roi_timeseries_concat(:,logical(tmask_concat))'); %WHERE IS THIS FUNC??
     
     fout_str = sprintf('%s/sub-%s_sess-%d_task-%s_corrmat_%s',outDir,subInfo(i).subjectID,subInfo(i).session,subInfo(i).condition,atlas);
     
