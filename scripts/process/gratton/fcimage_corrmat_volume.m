@@ -8,8 +8,12 @@ function fcimage_corrmat_volume(datafile,FCdir,atlas)
 % CG - 03.26.2020
 %%%%%%%%%%%%%%%%%
 
+% Added August 18, 2022
+addpath('/projects/b1108/studies/mwmh/scripts/process/gratton/')
+addpath('/projects/b1108/software/bids-matlab')
+addpath('/projects/b1081/Scripts/Scripts_general/NIfTI_20140122')
 
-% for testing
+% August 18, 2022: for testing
 datafile = '/projects/b1108/studies/mwmh/data/processed/neuroimaging/lists/test_list_for_motioncalc.xlsx';
 FCdir = '/projects/b1108/studies/mwmh/data/processed/neuroimaging/fcon/';
 atlas = 'Seitzman300'
@@ -69,18 +73,18 @@ for i = 1:numdatas
         mkdir(outDir);
     end
     
-    for j = 1:length(subInfo(i).runs)
+    %for j = 1:length(subInfo(i).runs)
         
-        fprintf('Run: %d\n',subInfo(i).runs(j));
+        %fprintf('Run: %d\n',subInfo(i).runs(j));
         
         % FCprocessed file:
-        procFile = sprintf('%s/sub-%s/ses-%d/func/sub-%s_ses-%d_task-%s_run-%d_fmriprep_zmdt_resid_ntrpl_bpss_zmdt.nii.gz',...
+        procFile = sprintf('%s/sub-%s/ses-%d/func/sub-%s_ses-%d_task-%s_fmriprep_zmdt_resid_ntrpl_bpss_zmdt.nii.gz',...
             FCdir,subInfo(i).subjectID,subInfo(i).session,...
-            subInfo(i).subjectID,subInfo(i).session,subInfo(i).condition,subInfo(i).runs(j));
+            subInfo(i).subjectID,subInfo(i).session,subInfo(i).condition);
         sess_data = load_nii_wrapper(procFile); %vox by timepoints
         
-        sess_roi_timeseries{j} = roi_average_timecourse(sess_data,roi_data);
-        sess_roi_timeseries_concat = [sess_roi_timeseries_concat sess_roi_timeseries{j}];
+        sess_roi_timeseries = roi_average_timecourse(sess_data,roi_data);
+        sess_roi_timeseries_concat = [sess_roi_timeseries_concat sess_roi_timeseries];
         
         % tmask file:
         tmaskFile = sprintf('%s/sub-%s/ses-%d/func/FD_outputs/sub-%s_ses-%d_task-%s_run-%d_desc-tmask_%s.txt',...
@@ -89,7 +93,7 @@ for i = 1:numdatas
         tmask{j} = table2array(readtable(tmaskFile));
         tmask_concat = [tmask_concat; tmask{j}];
                 
-    end
+    %end
     
     % apply tmask to timeseries and calculate correlations
     corrmat = paircorr_mod(sess_roi_timeseries_concat(:,logical(tmask_concat))');
@@ -108,18 +112,4 @@ end
 
 end
 
-function roi_ts_avg = roi_average_timecourse(bold_data,roi_data)
 
-nrois = unique(roi_data);
-nrois = nrois(nrois>0); % assume 0 is not an ROI
-
-for nr = 1:length(nrois)
-    roi_vox = bold_data(roi_data==nrois(nr),:);
-    roi_ts_avg(nr,:) = nanmean(roi_vox,1);
-    num_nans = sum(isnan(roi_vox(:)));
-    if num_nans>0
-        warning(sprintf('ROI %03d contains nans',nrois));
-    end
-end
-
-end
