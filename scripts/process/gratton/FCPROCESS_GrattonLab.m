@@ -141,7 +141,7 @@ for i = 1:numdatas
     boldmasknii{i} = boldmask_fname;
     boldconf{i} = confounds_fname;
     boldtmask{i} = tmask_fname; %!!!!!!!!!
-    boldmot_folder{i} = sesoutdir; % in this case, just give path/start so I can load different versions
+    boldmot_folder{i} = mot_fstring1; % in this case, just give path/start so I can load different versions (wtf was I saying here)... sesoutdir?
         
     if ~exist(bolddata_fname)
         error(['Data does not exist. Check paths and FMRIPREP output for: ' bolddata_fname]);
@@ -256,7 +256,7 @@ for i=1:numdatas
     if ~exist(QC(i).sessdir_out) %only make it if it doesn't exist to account for running different task types
         mkdir(QC(i).sessdir_out);
     else
-        warning('Sess output folder already existed; new results will be added to this folder and mixed');
+        warning('Ses output folder already existed; new results will be added to this folder and mixed');
     end
 
     % get motion input dir for this session
@@ -354,6 +354,8 @@ switch switches.regressiontype
             if ~exist(thisName, 'file')
                 fnames = resample_masks(anat_string,masks_string,QC(i),space); 
             end
+            % ^ make sure to delete the file <thisName> before rerunning
+            % and to delete the res-2 images
             QC(i).WMmaskfile = [masks_string '/sub-' QC(i).subjectID '_space-' space '_label-WM_probseg_0.9mask_res-2_ero3.nii.gz']; %AD - replacing probseg file with output of make_fs_masks.m 
             QC(i).CSFmaskfile = fnames.CSFmaskfile;
             QC(i).WBmaskfile = fnames.WBmaskfile;
@@ -513,7 +515,7 @@ for i=1:numdatas
     tr(i).start(1:2)=[trpos+1 trpos+tr(i).runtrs];
     trpos=trpos+tr(i).runtrs;
     QC(i).runborders(:) = [tr(i).start(1:2)];
-    dlmwrite([QC(i).sessdir_out 'runborders.txt'],QC(i).runborders,'\t');
+    dlmwrite([QC(i).sessdir_out QC(i).naming_str '_runborders.txt'],QC(i).runborders,'\t');
 end
 
 
@@ -562,8 +564,10 @@ for i=1:numdatas
     bolds = tboldnii{i}(1:end-7);
     
     % obtain the raw images (and mode 1000 normalize them)
-    tempimg = bolds2mat(bolds,tr(i).tot,tr(i).start,QC(i).GLMMASK,QC(i).WBMASK);
-    
+    tempimg = bolds2mat(bolds,tr(i).tot,tr(i).start,QC(i).GLMMASK,QC(i).WBMASK); 
+    aa = tempimg
+    % August 15, 2022: sum(isnan(tempimg)) : 0
+
     % save out average raw image for SNR mask later
     tempimg_avg = zeros(size(QC(i).GLMMASK));
     tempimg_avg(logical(QC(i).GLMMASK)) = squeeze(mean(tempimg,2));
@@ -586,7 +590,7 @@ for i=1:numdatas
         QC(i).CSFtcs(:,:,stage)=single(tempimg(QC(i).CSFMASK_glmmask,:));
     end
     makepictures_vCG(QC(i),stage,[700:200:1300],[0:50:100],200);    
-    saveas(gcf,[QC(i).sessdir_out QC(i).naming_str{1}(1:end-6) '_stage-' num2str(stage) '-' allends '.tiff'],'tiff');
+    saveas(gcf,[QC(i).sessdir_out QC(i).naming_str '_stage-' num2str(stage) '-' allends '.tiff'],'tiff');
     close(gcf);
     
     
@@ -597,14 +601,17 @@ for i=1:numdatas
     stage=stage+1;
     ending='zmdt';
     allends=[allends '_' ending];
-    for j=1:size(QC(i).runs,1)
-        LASTIMG{i,j,stage}=[ LASTIMG{i,j,stage-1} '_' ending ];
-    end
+    LASTIMG{i,stage}=[ LASTIMG{i,stage-1} '_' ending ];
+    
 
     tic;
-    temprun=tempimg(:,QC(i).runborders(2):QC(i).runborders(3));
-    temprun=demean_detrend(temprun,QC(i).runtmask);
-    tempimg(:,QC(i).runborders(2):QC(i).runborders(3))=temprun;
+    %temprun=tempimg(:,QC(i).runborders(1):QC(i).runborders(2));
+    %size(tempimg) >>> 316559        1028
+    %size(temprun) >>> 1        1028
+    tempimg=demean_detrend(tempimg,QC(i).runtmask);
+    bb = tempimg
+    %tempimg=temprun; %GETTING SCREWED UP HERE???(:,QC(i).runborders(1):QC(i).runborders(2))
+    %size(tempimg) >>> 316559        1028
     toc;
     
     QC(i).process{stage}=ending;
@@ -615,7 +622,7 @@ for i=1:numdatas
         QC(i).CSFtcs(:,:,stage)=single(tempimg(QC(i).CSFMASK_glmmask,:));
     end
     makepictures_vCG(QC(i),stage,[-20:20:20],[0:50:100],200);    
-    saveas(gcf,[QC(i).sessdir_out QC(i).naming_str{1}(1:end-6) '_stage-' num2str(stage) '-' allends '.tiff'],'tiff');
+    saveas(gcf,[QC(i).sessdir_out QC(i).naming_str '_stage-' num2str(stage) '-' allends '.tiff'],'tiff');
     close(gcf);
     
     %%%%%%%%%%%%%%%%%%%%%%%%
@@ -699,24 +706,25 @@ for i=1:numdatas
         
         QC(i).nuisanceregressors=[QC(i).mvmregs QC(i).sigregs];
         QC(i).nuisanceregressorlabels=[QC(i).mvmlabels QC(i).siglabels];
-        dlmwrite([QC(i).sessdir_out 'total_nuisance_regressors.txt'],QC(i).nuisanceregressors,'\t');
+        dlmwrite([QC(i).sessdir_out QC(i).naming_str '_total_nuisance_regressors.txt'],QC(i).nuisanceregressors,'\t');
         
         figure('Visible','Off');
         subplot(8,1,8);
         imagesc(zscore(QC(i).nuisanceregressors)',[-2 2]); ylabel('REGS');
-        saveas(gcf,[QC(i).sessdir_out 'total_nuisance_regressors.tiff'],'tiff');
+        saveas(gcf,[QC(i).sessdir_out QC(i).naming_str '_total_nuisance_regressors.tiff'],'tiff');
         
         % write the correlations of the nuisance regressors
         clf;
         h=imagesc(triu(corrcoef(QC(i).nuisanceregressors),1),[-.5 1]);
         colorbar;
-        saveas(gcf,[QC(i).sessdir_out 'total_nuisance_regressors_correlations.tiff'],'tiff');
+        saveas(gcf,[QC(i).sessdir_out QC(i).naming_str '_total_nuisance_regressors_correlations.tiff'],'tiff');
         close;
-        dlmwrite([QC(i).sessdir_out 'total_nuisance_regressors_correlations.txt'],corrcoef(QC(i).nuisanceregressors),'\t');
+        dlmwrite([QC(i).sessdir_out QC(i).naming_str '_total_nuisance_regressors_correlations.txt'],corrcoef(QC(i).nuisanceregressors),'\t');
         close;
         
         tic
         [tempimg zb regsz]=regress_nuisance(tempimg,QC(i).nuisanceregressors,QC(i).tmask);
+        cc = tempimg
         toc
         
         QC(i).nuisanceregressors_ZSCORE=regsz;
@@ -728,8 +736,8 @@ for i=1:numdatas
             QC(i).WMtcs(:,:,stage)=single(tempimg(QC(i).WMMASK_glmmask,:));
             QC(i).CSFtcs(:,:,stage)=single(tempimg(QC(i).CSFMASK_glmmask,:));
         end
-        makepictures_vCG(QC(i),stage,[-20:20:20],[0:50:100],200);    
-        saveas(gcf,[QC(i).sessdir_out QC(i).naming_str{1}(1:end-6) '_stage-' num2str(stage) '-' allends '.tiff'],'tiff');
+        makepictures_vCG(QC(i),stage,[-20:20:20],[0:50:100],200); %Unrecognized field name "global_signal".
+        saveas(gcf,[QC(i).sessdir_out QC(i).naming_str '_stage-' num2str(stage) '-' allends '.tiff'],'tiff');
         close(gcf);
         
     end
@@ -752,7 +760,7 @@ for i=1:numdatas
                 %for j=1:numel(QC(i).runs)
                     %fprintf('\tINTERPOLATE\trun%d\n',QC(i).runs(j));
                     tic;
-                    temprun=tempimg(:,QC(i).runborders(j,2):QC(i).runborders(j,3));
+                    temprun=tempimg; %tempimg(QC(i).runborders(1):QC(i).runborders(2))
                     ofac=8;
                     hifac=1;
                     TRtimes=([1:size(temprun,2)]')*QC(i).TR;
@@ -782,15 +790,17 @@ for i=1:numdatas
 %<BAS> Added code from Gaurav Patel's coding wiz: speeds up interpolation
 %      25x. Answer is the same as the original (getTransform) within
 %      rounding error.
-                        tempanish(:,voxbin(v):voxbin(v+1))=LSTransform(TRtimes(~~QC(i).runtmask{j}),temprun(~~QC(i).runtmask{j},voxbin(v):voxbin(v+1)),TRtimes,QC(i).TR,ofac,hifac);
+                        tempanish(:,voxbin(v):voxbin(v+1))=LSTransform(TRtimes(~~QC(i).runtmask),temprun(~~QC(i).runtmask,voxbin(v):voxbin(v+1)),TRtimes,QC(i).TR,ofac,hifac);
 %</BAS>
                     end
 
                     tempanish=tempanish';
                     temprun=temprun';
 
-                    temprun(:,~QC(i).runtmask{j})=tempanish(:,~QC(i).runtmask{j});
-                    tempimg(:,QC(i).runborders(j,2):QC(i).runborders(j,3))=temprun;
+                    temprun(:,~QC(i).runtmask)=tempanish(:,~QC(i).runtmask);
+                    tempimg=temprun; %(QC(i).runborders(1):QC(i).runborders(2))
+                    dd = tempimg
+                    % NEXT PLACE TEMPIMG GETS MODIFIED
                     toc;
                 %end
 
@@ -803,7 +813,7 @@ for i=1:numdatas
         end
         %makepictures(QC(i),stage,switches,[-20:20:20],[0:50:100],50);
         makepictures_vCG(QC(i),stage,[-20:20:20],[0:50:100],200);    
-        saveas(gcf,[QC(i).sessdir_out QC(i).naming_str{1}(1:end-6) '_stage-' num2str(stage) '-' allends '.tiff'],'tiff');
+        saveas(gcf,[QC(i).sessdir_out QC(i).naming_str '_stage-' num2str(stage) '-' allends '.tiff'],'tiff');
         close(gcf);
     end
     
@@ -816,10 +826,7 @@ for i=1:numdatas
         stage=stage+1;
         ending='bpss';
         allends=[allends '_' ending];
-        for j=1:size(QC(i).runs,1)
-            LASTIMG{i,j,stage}=[ LASTIMG{i,j,stage-1} '_' ending ];
-        end
-        %LASTCONC{stage}=[LASTCONC{stage-1} '_' ending];
+        LASTIMG{i,stage}=[ LASTIMG{i,stage-1} '_' ending ];
         
         filtorder=switches.order;
         switch switches.temporalfiltertype
@@ -835,21 +842,22 @@ for i=1:numdatas
                 [butta buttb]=butter(filtorder,[hipasscutoff lopasscutoff]);
         end
         
-        aa = tempimg;
-        for j=1:size(QC(i).runs,1)
-            fprintf('\tTEMPORAL FILTER\trun%d\n',QC(i).runs(j,:));
+        %for j=1:size(QC(i).runs,1)
+            fprintf('TEMPORAL FILTER\n');
             tic;
-            temprun=tempimg(:,QC(i).runborders(j,2):QC(i).runborders(j,3));
+            temprun=tempimg; %TO DO: Somehow back to NaNs here.
+            %NOTE: tempimg seems to be all NaNs `sum(~isnan(tempimg))`
             temprun=temprun';
             size_temprun = size(temprun);
-            pad = 1000;
+            pad = 1000; %QUESTION: Why such a thick pad? Only have 1028
             temprun = cat(1, zeros(pad, size_temprun(2)), temprun, zeros(pad, size_temprun(2)));
-            [temprun]=filtfilt(butta,buttb,double(temprun));
+            [temprun]=filtfilt(butta,buttb,double(temprun)); %ERROR: NaNs in temp run are screwing this up
             temprun = temprun(pad+1:end-pad, 1:size_temprun(2));
             temprun=temprun';
-            tempimg(:,QC(i).runborders(j,2):QC(i).runborders(j,3))=temprun;
+            tempimg=temprun;
+            ee = tempimg
             toc;
-        end
+        %end
         
         QC(i).process{stage}=ending;
         if bigstuff
@@ -867,13 +875,13 @@ for i=1:numdatas
         filtertrim=15; % TRs at beginning and end of run to ignore due to IIR zero-phase filter
         QC(i).filtertmask=[];
         
-        for j=1:size(QC(i).runs,1)
-            QC(i).runfiltertmask{j}=QC(i).runtmask{j};
-            QC(i).runfiltertmask{j}(1:filtertrim)=0;
-            QC(i).runfiltertmask{j}(end-filtertrim+1:end)=0;
-            QC(i).runfiltertmask{j}=QC(i).runfiltertmask{j} & QC(i).runtmask{j};
-            QC(i).filtertmask=[QC(i).filtertmask; QC(i).runfiltertmask{j}];
-        end
+        %for j=1:size(QC(i).runs,1)
+            QC(i).runfiltertmask=QC(i).runtmask;
+            QC(i).runfiltertmask(1:filtertrim)=0;
+            QC(i).runfiltertmask(end-filtertrim+1:end)=0;
+            QC(i).runfiltertmask{=QC(i).runfiltertmask & QC(i).runtmask;
+            QC(i).filtertmask=[QC(i).filtertmask; QC(i).runfiltertmask];
+        %end
         
     end
     
@@ -884,23 +892,24 @@ for i=1:numdatas
     stage=stage+1;
     ending='zmdt';
     allends=[allends '_' ending];
-    for j=1:size(QC(i).runs,1)
-        LASTIMG{i,j,stage}=[ LASTIMG{i,j,stage-1} '_' ending ];
-    end
+    %for j=1:size(QC(i).runs,1)
+        LASTIMG{i,stage}=[ LASTIMG{i,stage-1} '_' ending ];
+   % end
 
     % for each BOLD run
-    for j=1:size(QC(i).runs,1)
-        fprintf('\tDEMEAN DETREND\trun%d\n',QC(i).runs(j,:));
+    %for j=1:size(QC(i).runs,1)
+        fprintf('\tDEMEAN DETREND\n');
         tic;
-        temprun=tempimg(:,QC(i).runborders(j,2):QC(i).runborders(j,3));
+        temprun=tempimg;
         if switches.dobandpass
-            temprun=demean_detrend(temprun,QC(i).runfiltertmask{j});
+            temprun=demean_detrend(temprun,QC(i).runfiltertmask);
         else
-            temprun=demean_detrend(temprun,QC(i).runtmask{j});
+            temprun=demean_detrend(temprun,QC(i).runtmask);
         end
-        tempimg(:,QC(i).runborders(j,2):QC(i).runborders(j,3))=temprun;
+        tempimg=temprun;
+        ff = tempimg
         toc;
-    end
+    %end
     
     QC(i).process{stage}=ending;
     if bigstuff
@@ -930,17 +939,17 @@ for i=1:numdatas
     clear tempimg tmpavg d;
     
     % save a separate file for each run so not too huge
-    for j = 1:length(QC(i).runs)
-        outdat = load_nii(tboldnii{i,j});
-        outdat.img = tempimg_out(:,:,:,tr(i).start(j,1):tr(i).start(j,2));
-        out_fname = [QC(i).sessdir_out QC(i).naming_str{j} '_' allends '.nii.gz'];
+    %for j = 1:length(QC(i).runs)
+        outdat = load_nii(tboldnii{i});
+        outdat.img = tempimg_out(:,:,:,tr(i).start(1):tr(i).start(2));
+        out_fname = [QC(i).sessdir_out QC(i).naming_str '_' allends '.nii.gz'];
         outdat.fileprefix = out_fname;
         save_nii(outdat,out_fname);
         clear outdat;
-    end
+    %end
     
     % save QC file per session
-    QC_outname = [QC(i).sessdir_out QC(i).naming_str{1}(1:end-6) 'QC.mat'];
+    QC_outname = [QC(i).sessdir_out QC(i).naming_str{1}(1:end-6) 'QC.mat']; % TO DO: Edit call to naming_str?
     QCsub = QC(i);
     save(QC_outname,'QCsub','-v7.3');
     clear QCsub;
