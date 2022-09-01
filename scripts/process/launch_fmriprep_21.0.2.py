@@ -16,16 +16,16 @@ launchdir = '/projects/b1108/studies/mwmh/data/processed/neuroimaging/launch/fmr
 workdir = '/projects/b1108/studies/mwmh/data/processed/neuroimaging/work2/'
 
 subdirs = glob.glob(indir + "sub-*")
-# 1 - launched September 1, 2022
+# 1 - launched September 1, 2022, finished ___
 #subdirs = subdirs[0:50]
 # 2
-subdirs = subdirs[50:100]
+subdirs = subdirs[0:100]
 # 3
-subdirs = subdirs[100:150]
+subdirs = subdirs[0:150]
 # 4
-subdirs = subdirs[150:200]
+subdirs = subdirs[0:200]
 # 5
-subdirs = subdirs[200:267]
+subdirs = subdirs[0:267]
 # subdirs = [subdirs[36]]
 # subdirs = ['/projects/b1108/studies/mwmh/data/raw/neuroimaging/bids/sub-MWMH221',
 #            '/projects/b1108/studies/mwmh/data/raw/neuroimaging/bids/sub-MWMH001']

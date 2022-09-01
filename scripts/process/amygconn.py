@@ -156,18 +156,9 @@ masker_faces = NiftiLabelsMasker(labels_img=labels_img,
                         )
 # Run masker on all scans
 rest_time_series = masker_rest.fit_transform(rest_img, confounds=confounds_rest_df)
-avoid_time_series = masker_avoid.fit_transform(avoid_img, confounds=confounds_avoid_df)
-faces_time_series = masker_faces.fit_transform(faces_img, confounds=confounds_faces_df)
+avoid_time_series = masker_avoid.fit_transform(avoid_img, confounds=confounds_avoid_df) # TO DO: Update confounds file to include task params
+faces_time_series = masker_faces.fit_transform(faces_img, confounds=confounds_faces_df) # TO DO: Update confounds file to include task params
 
-############################### Regress out task ###############################
-# TO DO: need to use NiftiLabelsMasker to do everything but the masking so that
-# I can model the task after post processing, and then apply the masker again
-# to only get the times series from the ROIs
-
-# AVOID
-
-
-# FACES
 
 ################################# Connectivity #################################
 # Write out time series
@@ -178,14 +169,17 @@ np.savetxt(outDir+sub+'/'+ses+'/'+sub+'_'+ses+'_task-avoid_atlas-seitz_timeserie
 np.savetxt(outDir+sub+'/'+ses+'/'+sub+'_'+ses+'_task-faces_atlas-seitz_timeseries.csv',
     faces_time_series, delimiter=',')
 
-time_series = [rest_time_series, avoid_time_series, faces_time_series]
-
 correlation_measure = ConnectivityMeasure(kind='correlation')
-correlation_matrix = correlation_measure.fit_transform(time_series)[0]
+rest_corr_matrix = correlation_measure.fit_transform(rest_time_series)[0]
+avoid_corr_matrix = correlation_measure.fit_transform(avoid_time_series)[0]
+faces_corr_matrix = correlation_measure.fit_transform(faces_time_series)[0]
+
+# Average correlation matrices... CHECK WORKS
+corr_matrix = (rest_corr_matrix + avoid_corr_matrix + faces_corr_matrix)/3
 
 # Write out correlation matrix
 np.savetxt(outDir+sub+'/'+ses+'/'+sub+'_'+ses+'_atlas-seitz_corrmat.csv',
-    correlation_matrix, delimiter=',')
+    corr_matrix, delimiter=',')
 
 ##### Write out average amygdala connectivity
 # Get amygdalae indices and average connectivity
