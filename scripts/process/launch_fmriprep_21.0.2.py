@@ -16,6 +16,16 @@ launchdir = '/projects/b1108/studies/mwmh/data/processed/neuroimaging/launch/fmr
 workdir = '/projects/b1108/studies/mwmh/data/processed/neuroimaging/work2/'
 
 subdirs = glob.glob(indir + "sub-*")
+# 1 - launched September 1, 2022
+#subdirs = subdirs[0:50]
+# 2
+subdirs = subdirs[50:100]
+# 3
+subdirs = subdirs[100:150]
+# 4
+subdirs = subdirs[150:200]
+# 5
+subdirs = subdirs[200:267]
 # subdirs = [subdirs[36]]
 # subdirs = ['/projects/b1108/studies/mwmh/data/raw/neuroimaging/bids/sub-MWMH221',
 #            '/projects/b1108/studies/mwmh/data/raw/neuroimaging/bids/sub-MWMH001']
@@ -26,7 +36,7 @@ for subdir in subdirs:
         os.mkdir(outdir+sub)
     #unprocessed_sessions = np.setdiff1d(os.listdir(indir+sub), os.listdir(outdir+sub))
     # Check if the subject has already finished processing
-    if not os.path.exists(outdir+sub+'_.html'):
+    if not os.path.exists(outdir+sub+'.html'):
         sessions = os.listdir(indir+sub)
         if len(sessions) > 1:
             for ses in sessions:
@@ -73,4 +83,4 @@ for subdir in subdirs:
     else:
         # delete working directory
         participant_label = sub.split('-')[1]
-        os.rmdir(workdir+'fmriprep_wf/single_subject_'+participant_label+'_wf')
+        shutil.rmtree(workdir+'fmriprep_wf/single_subject_'+participant_label+'_wf')
