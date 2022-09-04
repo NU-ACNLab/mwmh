@@ -121,6 +121,7 @@ raw_faces_img = nib.load(fileFaces)
 faces_img = raw_faces_img.slicer[:,:,:,5:]
 
 # read docs: detrend, low_pass, high_pass (should depend on TR?)
+# TO DO (September 1, 2022): Figure out how to censor and interpolate within NiftiLabelsMasker
 masker_rest = NiftiLabelsMasker(labels_img=labels_img,
                             labels=labels_list,
                             mask_img=mask_img,
