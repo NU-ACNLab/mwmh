@@ -1,7 +1,7 @@
 ### This script conducts the post-processing steps after fmriprep
 ###
 ### Ellyn Butler
-### November 22, 2021 - December 12, 2021
+### November 22, 2021 - September 5, 2022
 
 import os
 import json
@@ -65,6 +65,13 @@ confounds_faces_path = os.path.join(funcInDir, [x for x in fList if ('task-faces
 confounds_faces_df = pd.read_csv(confounds_faces_path, sep='\t')
 os.makedirs(os.path.join(outDir, sub, ses), exist_ok=True)
 
+# Write out motion summary scores
+
+
+# Quit out if motion threshold(s) exceeded (TBD values), and create a txt in
+# output directory stating that motion was too large too continue
+
+
 # Load task events for avoid and faces
 bidsSubDir = os.path.join(bidsDir, sub)
 bidsSesDir = os.path.join(bidsSubDir, ses)
@@ -120,6 +127,10 @@ avoid_img = raw_avoid_img.slicer[:,:,:,6:]
 raw_faces_img = nib.load(fileFaces)
 faces_img = raw_faces_img.slicer[:,:,:,5:]
 
+
+# Run task models and obtain residuals
+
+
 # read docs: detrend, low_pass, high_pass (should depend on TR?)
 # TO DO (September 1, 2022): Figure out how to censor and interpolate within NiftiLabelsMasker
 masker_rest = NiftiLabelsMasker(labels_img=labels_img,
@@ -133,6 +144,7 @@ masker_rest = NiftiLabelsMasker(labels_img=labels_img,
                             verbose=5,
                             t_r=param_rest_df['RepetitionTime']
                         )
+# Pass in output from nilearn.glm.first_level.FirstLevelModel below
 masker_avoid = NiftiLabelsMasker(labels_img=labels_img,
                             labels=labels_list,
                             mask_img=mask_img,
@@ -155,10 +167,13 @@ masker_faces = NiftiLabelsMasker(labels_img=labels_img,
                             verbose=5,
                             t_r=param_faces_df['RepetitionTime']
                         )
+
+# Create temporal masks
+
 # Run masker on all scans
-rest_time_series = masker_rest.fit_transform(rest_img, confounds=confounds_rest_df)
-avoid_time_series = masker_avoid.fit_transform(avoid_img, confounds=confounds_avoid_df) # TO DO: Update confounds file to include task params
-faces_time_series = masker_faces.fit_transform(faces_img, confounds=confounds_faces_df) # TO DO: Update confounds file to include task params
+rest_time_series = masker_rest.fit_transform(rest_img, confounds=confounds_rest_df, sample_mask=)
+avoid_time_series = masker_avoid.fit_transform(avoid_img, confounds=confounds_avoid_df, sample_mask=)
+faces_time_series = masker_faces.fit_transform(faces_img, confounds=confounds_faces_df, sample_mask=)
 
 
 ################################# Connectivity #################################
@@ -188,10 +203,6 @@ amyg_indices = labels_df[labels_df['region'] == 4].index
 amyg_corr = correlation_matrix[amyg_indices]
 amyg_ave_corr = (amyg_corr[0,] + amyg_corr[1,])/2 # average across right and left
 
-# Remove the elements corresponding to the amygdalae - do post hoc
-#not_amyg_indices = labels_df[labels_df['region'] != 4].index
-#amyg_ave_corr = amyg_ave_corr[not_amyg_indices]
-
 # Name columns
 amyg_cols = ['region'+str(x) for x in range(1,301)]
 amyg_df = pd.DataFrame(columns = amyg_cols)
@@ -203,6 +214,20 @@ cols.extend(amyg_cols)
 amyg_df = amyg_df[cols]
 
 amyg_df.to_csv(outDir+sub+'/'+ses+'/'+sub+'_'+ses+'_atlas-seitz_amygcorr.csv', index=False)
+
+
+# Generate reports
+# `generate_report`: https://nilearn.github.io/dev/modules/generated/nilearn.glm.first_level.FirstLevelModel.html?highlight=fit_transform#nilearn.glm.first_level.FirstLevelModel.fit_transform
+
+
+
+
+
+
+
+
+
+
 
 # Make a large figure, masking the main diagonal for visualization:
 #np.fill_diagonal(correlation_matrix, 0)

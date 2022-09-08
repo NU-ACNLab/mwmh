@@ -18,14 +18,9 @@ workdir = '/projects/b1108/studies/mwmh/data/processed/neuroimaging/work2/'
 subdirs = glob.glob(indir + "sub-*")
 # 1 - launched September 1, 2022, finished September 3, 2022
 #subdirs = subdirs[0:50]
-# 2 - launched September 3, 2022, finished September 4, 2022
+# 2 - launched September 3, 2022, finished September 8, 2022
 #subdirs = subdirs[0:100]
-# 3
-subdirs = subdirs[0:150]
-# 4
-subdirs = subdirs[0:200]
-# 5
-subdirs = subdirs[0:267]
+
 # subdirs = [subdirs[36]]
 # subdirs = ['/projects/b1108/studies/mwmh/data/raw/neuroimaging/bids/sub-MWMH221',
 #            '/projects/b1108/studies/mwmh/data/raw/neuroimaging/bids/sub-MWMH001']
