@@ -12,6 +12,7 @@ import numpy as np
 from nilearn.input_data import NiftiLabelsMasker
 from nilearn.connectome import ConnectivityMeasure
 from nilearn import plotting
+from nilearn.glm.first_level import FirstLevelModel
 import sys, getopt
 import argparse
 
@@ -65,13 +66,6 @@ confounds_faces_path = os.path.join(funcInDir, [x for x in fList if ('task-faces
 confounds_faces_df = pd.read_csv(confounds_faces_path, sep='\t')
 os.makedirs(os.path.join(outDir, sub, ses), exist_ok=True)
 
-# Write out motion summary scores
-
-
-# Quit out if motion threshold(s) exceeded (TBD values), and create a txt in
-# output directory stating that motion was too large too continue
-
-
 # Load task events for avoid and faces
 bidsSubDir = os.path.join(bidsDir, sub)
 bidsSesDir = os.path.join(bidsSubDir, ses)
@@ -87,52 +81,82 @@ param_faces_file = open(os.path.join(funcInDir, sub+'_'+ses+'_task-faces_space-M
 param_faces_df = json.load(param_faces_file)
 
 #### Calculate confounds
+# https://www.sciencedirect.com/science/article/pii/S1053811917302288
+# Model 8
 confound_vars = ['trans_x','trans_y','trans_z',
                  'rot_x','rot_y','rot_z',
                  'global_signal', 'csf',
                  'white_matter']
-derivative_columns = ['{}_derivative1'.format(c) for c
+deriv_vars = ['{}_derivative1'.format(c) for c
                      in confound_vars]
-power_columns = ['{}_derivative1_power2'.format(c) for c
+power_vars = ['{}_power2'.format(c) for c
                      in confound_vars]
-final_confounds = confound_vars + derivative_columns + power_columns
+power_deriv_vars = ['{}_derivative1_power2'.format(c) for c
+                     in confound_vars]
+final_confounds = confound_vars + deriv_vars + power_vars + power_deriv_vars
 
 ## REST
-confounds_rest_df = confounds_rest_df.loc[5:] # drop the first 5 TRs from confounds df
+#confounds_rest_df = confounds_rest_df.loc[5:] # drop the first 5 TRs from confounds df
 confounds_rest_df = confounds_rest_df[final_confounds]
 
 ## AVOID (onset: 12)
-confounds_avoid_df = confounds_avoid_df.loc[6:] # drop the first 6 TRs from confounds df
+#confounds_avoid_df = confounds_avoid_df.loc[6:] # drop the first 6 TRs from confounds df
 confounds_avoid_df = confounds_avoid_df[final_confounds]
 # subtract off 6 TRs*RT 2 = 12 from the onset column
-events_avoid_df['onset'] = events_avoid_df['onset'] - 12
+#events_avoid_df['onset'] = events_avoid_df['onset'] - 12
 
 ## FACES (onset: 14.5)
-confounds_faces_df = confounds_faces_df.loc[5:] # drop the first 5 TRs from confounds df
+#confounds_faces_df = confounds_faces_df.loc[5:] # drop the first 5 TRs from confounds df
 confounds_faces_df = confounds_faces_df[final_confounds]
 # subtract off 5 TRs*RT 2 = 10 from the onset column
-events_faces_df['onset'] = events_faces_df['onset'] - 10
+#events_faces_df['onset'] = events_faces_df['onset'] - 10
 
-#### Remove first X TRs
+#### Remove first X TRs (September 20, 2022: Stop doing this)
 #https://carpentries-incubator.github.io/SDC-BIDS-fMRI/05-data-cleaning-with-nilearn/index.html
 # REST: Remove first 5 TRs
-raw_rest_img = nib.load(fileRest)
-rest_img = raw_rest_img.slicer[:,:,:,5:]
+rest_img = nib.load(fileRest)
+#rest_img = raw_rest_img.slicer[:,:,:,5:]
 
 # AVOID: Remove first 6 TRs
-raw_avoid_img = nib.load(fileAvoid)
-avoid_img = raw_avoid_img.slicer[:,:,:,6:]
+avoid_img = nib.load(fileAvoid)
+#avoid_img = raw_avoid_img.slicer[:,:,:,6:]
 
 # FACES: Remove first 5 TRs
-raw_faces_img = nib.load(fileFaces)
-faces_img = raw_faces_img.slicer[:,:,:,5:]
+faces_img = nib.load(fileFaces)
+#faces_img = raw_faces_img.slicer[:,:,:,5:]
 
 
 # Run task models and obtain residuals
+# https://nilearn.github.io/dev/modules/generated/nilearn.glm.first_level.FirstLevelModel.html
+# https://nilearn.github.io/dev/auto_examples/00_tutorials/plot_single_subject_single_run.html#sphx-glr-auto-examples-00-tutorials-plot-single-subject-single-run-py
+avoid_categ = events_avoid_df.iloc[:, 3:].idxmax(axis=1)
+events_categ_avoid_df = events_avoid_df.iloc[:, 0:2]
+events_categ_avoid_df['trial_type'] = avoid_categ
+
+avoid_model = FirstLevelModel(param_avoid_df['RepetitionTime'],
+                              noise_model='ar1',
+                              standardize=False,
+                              hrf_model='spm + derivative + dispersion',
+                              drift_model='cosine')
+avoid_glm = avoid_model.fit(avoid_img, events_categ_avoid_df)
+avoid_res = avoid_glm.residuals()
+
+faces_categ = events_faces_df.iloc[:, 3:].idxmax(axis=1)
+events_categ_faces_df = events_faces_df.iloc[:, 0:2]
+events_categ_faces_df['trial_type'] = faces_categ
+
+faces_model = FirstLevelModel(param_faces_df['RepetitionTime'],
+                              noise_model='ar1',
+                              standardize=False,
+                              hrf_model='spm + derivative + dispersion',
+                              drift_model='cosine')
+faces_glm = faces_model.fit(faces_img, events_categ_faces_df)
+faces_res = faces_glm.residuals()
+
 
 
 # read docs: detrend, low_pass, high_pass (should depend on TR?)
-# TO DO (September 1, 2022): Figure out how to censor and interpolate within NiftiLabelsMasker
+# TO DO (September 1, 2022): Figure out if interpolation/temporal filtering happens
 masker_rest = NiftiLabelsMasker(labels_img=labels_img,
                             labels=labels_list,
                             mask_img=mask_img,
@@ -144,7 +168,6 @@ masker_rest = NiftiLabelsMasker(labels_img=labels_img,
                             verbose=5,
                             t_r=param_rest_df['RepetitionTime']
                         )
-# Pass in output from nilearn.glm.first_level.FirstLevelModel below
 masker_avoid = NiftiLabelsMasker(labels_img=labels_img,
                             labels=labels_list,
                             mask_img=mask_img,
@@ -168,12 +191,17 @@ masker_faces = NiftiLabelsMasker(labels_img=labels_img,
                             t_r=param_faces_df['RepetitionTime']
                         )
 
-# Create temporal masks
+# Create temporal censoring masks
+#https://nilearn.github.io/dev/auto_examples/03_connectivity/plot_signal_extraction.html#sphx-glr-auto-examples-03-connectivity-plot-signal-extraction-py
+##https://nilearn.github.io/stable/modules/generated/nilearn.interfaces.fmriprep.load_confounds.html
+
+
+
 
 # Run masker on all scans
-rest_time_series = masker_rest.fit_transform(rest_img, confounds=confounds_rest_df, sample_mask=)
-avoid_time_series = masker_avoid.fit_transform(avoid_img, confounds=confounds_avoid_df, sample_mask=)
-faces_time_series = masker_faces.fit_transform(faces_img, confounds=confounds_faces_df, sample_mask=)
+rest_time_series = masker_rest.fit_transform(rest_img, confounds=confounds_rest_df, sample_mask=rest_sample_mask)
+avoid_time_series = masker_avoid.fit_transform(avoid_res, confounds=confounds_avoid_df, sample_mask=avoid_sample_mask)
+faces_time_series = masker_faces.fit_transform(faces_res, confounds=confounds_faces_df, sample_mask=faces_sample_mask)
 
 
 ################################# Connectivity #################################
