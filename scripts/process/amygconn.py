@@ -126,14 +126,31 @@ faces_img = nib.load(fileFaces)
 #faces_img = raw_faces_img.slicer[:,:,:,5:]
 
 
-# Run task models and obtain residuals
+##################### Run task models and obtain residuals #####################
 # https://nilearn.github.io/dev/modules/generated/nilearn.glm.first_level.FirstLevelModel.html
 # https://nilearn.github.io/dev/auto_examples/00_tutorials/plot_single_subject_single_run.html#sphx-glr-auto-examples-00-tutorials-plot-single-subject-single-run-py
-avoid_categ = events_avoid_df.iloc[:, 3:].idxmax(axis=1)
-events_categ_avoid_df = events_avoid_df.iloc[:, 0:2]
-events_categ_avoid_df['trial_type'] = avoid_categ
 
+### avoid
+
+cols = ['fix1', 'fix2', 'approach', 'avoid', 'nothing', 'gain50', 'gain10',
+       'lose10', 'lose50']
+for col in cols:
+    events_avoid_df[col] = events_avoid_df[col].map(str)
+
+categ = events_avoid_df.apply(lambda x: ''.join(x[cols]),axis=1)
+events_categ_avoid_df = events_avoid_df.iloc[:, 0:2]
+events_categ_avoid_df['trial_type'] = categ
+#categ.unique()
+
+
+#https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.replace.html
+events_categ_avoid_df = events_categ_avoid_df.replace({'trial_type': {'000100000':'avoid',
+                            '100000000':'fix1', '000000100':'gain10',
+                            '010000000':'fix2', '001000000':'approach',
+                            '000000010':'lose10', '000001000':'gain50',
+                            '000000001':'lose50'}})
 avoid_model = FirstLevelModel(param_avoid_df['RepetitionTime'],
+                              mask_img=mask_img,
                               noise_model='ar1',
                               standardize=False,
                               hrf_model='spm + derivative + dispersion',
@@ -141,11 +158,14 @@ avoid_model = FirstLevelModel(param_avoid_df['RepetitionTime'],
 avoid_glm = avoid_model.fit(avoid_img, events_categ_avoid_df)
 avoid_res = avoid_glm.residuals()
 
+### faces
+
 faces_categ = events_faces_df.iloc[:, 3:].idxmax(axis=1)
 events_categ_faces_df = events_faces_df.iloc[:, 0:2]
 events_categ_faces_df['trial_type'] = faces_categ
 
 faces_model = FirstLevelModel(param_faces_df['RepetitionTime'],
+                              mask_img=mask_img,
                               noise_model='ar1',
                               standardize=False,
                               hrf_model='spm + derivative + dispersion',
@@ -153,7 +173,7 @@ faces_model = FirstLevelModel(param_faces_df['RepetitionTime'],
 faces_glm = faces_model.fit(faces_img, events_categ_faces_df)
 faces_res = faces_glm.residuals()
 
-
+############################# Create masker objects ############################
 
 # read docs: detrend, low_pass, high_pass (should depend on TR?)
 # TO DO (September 1, 2022): Figure out if interpolation/temporal filtering happens
