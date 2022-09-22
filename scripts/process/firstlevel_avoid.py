@@ -3,7 +3,7 @@
 ### https://nilearn.github.io/dev/auto_examples/04_glm_first_level/plot_adhd_dmn.html#sphx-glr-auto-examples-04-glm-first-level-plot-adhd-dmn-py
 ###
 ### Ellyn Butler
-### September 20, 2022 - September 21, 2022
+### September 20, 2022 - September 22, 2022
 
 import os
 import json
@@ -13,6 +13,9 @@ from nilearn.glm.first_level import make_first_level_design_matrix
 from nilearn.plotting import plot_design_matrix
 from nilearn.glm.first_level import FirstLevelModel
 import numpy as np
+import matplotlib.pyplot as plt
+from nilearn.plotting import plot_contrast_matrix
+from nilearn import plotting
 
 sub = 'sub-MWMH378'
 ses = 'ses-1'
@@ -28,7 +31,7 @@ os.makedirs(os.path.join(outDir, sub, ses), exist_ok=True)
 bidsDir = '/Users/flutist4129/Documents/Northwestern/studies/mwmh/data/raw/neuroimaging/bids/'
 
 fList = os.listdir(funcInDir)
-imageAvoid = [x for x in fList if ('preproc_bold.nii.gz' in x and 'task-avoid' in x)][0]
+imageAvoid = [x for x in fList if ('preproc_bold.nii.gz' in x and 'task-avoid' in x)][0] #'sub-MWMH378_ses-1_task-avoid_space-MNI152NLin6Asym_desc-preproc_bold.nii.gz'
 fileAvoid = os.path.join(funcInDir, imageAvoid)
 
 bidsSubDir = os.path.join(bidsDir, sub)
@@ -40,7 +43,7 @@ param_avoid_df = json.load(param_avoid_file)
 
 avoid_img = nib.load(fileAvoid)
 
-imageMask = [x for x in fList if ('brain_mask.nii.gz' in x)][0]
+imageMask = [x for x in fList if ('brain_mask.nii.gz' in x)][0] #'sub-MWMH378_ses-1_task-avoid_space-MNI152NLin6Asym_desc-brain_mask.nii.gz'
 fileMask = os.path.join(funcInDir, imageMask)
 mask_img = nib.load(fileMask)
 
@@ -97,19 +100,39 @@ def pad_vector(contrast_, n_columns):
     return np.hstack((contrast_, np.zeros(n_columns - len(contrast_))))
 
 contrasts = {'approach_minus_avoid': pad_vector([1, 0, 0, -1], n_columns),
+             'gain_minus_lose': pad_vector([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, -1, 0, 0, -1], n_columns)
             }
 
-def plot_contrast(first_level_model):
-    """ Given a first model, specify, estimate and plot the main contrasts"""
-    design_matrix = first_level_model.design_matrices_[0]
-    # Call the contrast specification within the function
-    contrasts = make_localizer_contrasts(design_matrix)
-    fig = plt.figure(figsize=(11, 3))
-    # compute the per-contrast z-map
-    for index, (contrast_id, contrast_val) in enumerate(contrasts.items()):
-        ax = plt.subplot(1, len(contrasts), 1 + index)
-        z_map = first_level_model.compute_contrast(
-            contrast_val, output_type='z_score')
-        plotting.plot_stat_map(
-            z_map, display_mode='z', threshold=3.0, title=contrast_id,
-            axes=ax, cut_coords=1)
+### Approach minus avoid
+plot_contrast_matrix(contrasts['approach_minus_avoid'], design_matrix=design_matrix,
+                        output_file=outDir+sub+'/'+ses+'/'+sub+'_'+ses+'_approach_minus_avoid_contrast_matrix.pdf')
+
+approach_minus_avoid_z_map = avoid_model.compute_contrast(
+    contrasts['approach_minus_avoid'], output_type='z_score')
+
+plotting.plot_stat_map(approach_minus_avoid_z_map, threshold=3.0,
+              display_mode='z', cut_coords=3, title='Approach minus Avoid (Z>3)',
+              output_file=outDir+sub+'/'+ses+'/'+sub+'_'+ses+'_approach_minus_avoid_zmap.pdf')
+# TO DO: Unthresholded indicated that the mask may not fit the brain well... vmPFC cut off
+
+### Gain minus lose
+plot_contrast_matrix(contrasts['gain_minus_lose'], design_matrix=design_matrix,
+                        output_file=outDir+sub+'/'+ses+'/'+sub+'_'+ses+'_gain_minus_lose_contrast_matrix.pdf')
+
+gain_minus_lose_z_map = avoid_model.compute_contrast(
+    contrasts['gain_minus_lose'], output_type='z_score')
+
+plotting.plot_stat_map(gain_minus_lose_z_map, threshold=3.0,
+              display_mode='z', cut_coords=3, title='Gain minus Lose (Z>3)',
+              output_file=outDir+sub+'/'+ses+'/'+sub+'_'+ses+'_gain_minus_lose_zmap.pdf')
+
+
+
+
+
+
+
+
+
+
+#
