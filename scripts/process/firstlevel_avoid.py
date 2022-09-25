@@ -100,7 +100,8 @@ def pad_vector(contrast_, n_columns):
     return np.hstack((contrast_, np.zeros(n_columns - len(contrast_))))
 
 contrasts = {'approach_minus_avoid': pad_vector([1, 0, 0, -1], n_columns),
-             'gain_minus_lose': pad_vector([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, -1, 0, 0, -1], n_columns)
+             'gain_minus_lose': pad_vector([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, -1, 0, 0, -1], n_columns),
+             'gain_minus_fix': pad_vector([0, 0, 0, 0, 0, 0, -1, 0, 0, -1, 0, 0, 1, 0, 0, 1], n_columns)
             }
 
 ### Approach minus avoid
@@ -126,7 +127,16 @@ plotting.plot_stat_map(gain_minus_lose_z_map, threshold=3.0,
               display_mode='z', cut_coords=3, title='Gain minus Lose (Z>3)',
               output_file=outDir+sub+'/'+ses+'/'+sub+'_'+ses+'_gain_minus_lose_zmap.pdf')
 
+### Gain minus fix (Greg's "reward" contrast)
+plot_contrast_matrix(contrasts['gain_minus_fix'], design_matrix=design_matrix,
+              output_file=outDir+sub+'/'+ses+'/'+sub+'_'+ses+'_gain_minus_fix_contrast_matrix.pdf')
 
+gain_minus_fix_z_map = avoid_model.compute_contrast(
+    contrasts['gain_minus_fix'], output_type='z_score')
+
+plotting.plot_stat_map(gain_minus_fix_z_map, threshold=3.0,
+              display_mode='z', cut_coords=3, title='Gain minus Fix (Z>3)',
+              output_file=outDir+sub+'/'+ses+'/'+sub+'_'+ses+'_gain_minus_fix_zmap.pdf')
 
 
 
