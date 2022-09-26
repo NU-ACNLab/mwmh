@@ -211,17 +211,25 @@ masker_faces = NiftiLabelsMasker(labels_img=labels_img,
                             t_r=param_faces_df['RepetitionTime']
                         )
 
-# Create temporal censoring masks
+### Create temporal censoring masks
 #https://nilearn.github.io/dev/auto_examples/03_connectivity/plot_signal_extraction.html#sphx-glr-auto-examples-03-connectivity-plot-signal-extraction-py
 ##https://nilearn.github.io/stable/modules/generated/nilearn.interfaces.fmriprep.load_confounds.html
 
 
+### Censor the TRs where fFD > .1 (put NAs in their place)
 
 
-# Run masker on all scans
-rest_time_series = masker_rest.fit_transform(rest_img, confounds=confounds_rest_df, sample_mask=rest_sample_mask)
-avoid_time_series = masker_avoid.fit_transform(avoid_res, confounds=confounds_avoid_df, sample_mask=avoid_sample_mask)
-faces_time_series = masker_faces.fit_transform(faces_res, confounds=confounds_faces_df, sample_mask=faces_sample_mask)
+### Interpolate over these TRs using a power spectrum matching algorithm
+#https://pylians3.readthedocs.io/en/master/interpolation.html
+
+
+### Run masker on all scans
+rest_time_series = masker_rest.fit_transform(rest_img_interp, confounds=confounds_rest_df) #, sample_mask=rest_sample_mask
+avoid_time_series = masker_avoid.fit_transform(avoid_res_interp, confounds=confounds_avoid_df)
+faces_time_series = masker_faces.fit_transform(faces_res_interp, confounds=confounds_faces_df)
+
+### Censor volumes identified as having fFD > .1 (the ones that have now been interpolated)
+
 
 
 ################################# Connectivity #################################
