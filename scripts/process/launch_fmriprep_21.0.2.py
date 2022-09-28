@@ -16,15 +16,6 @@ launchdir = '/projects/b1108/studies/mwmh/data/processed/neuroimaging/launch/fmr
 workdir = '/projects/b1108/studies/mwmh/data/processed/neuroimaging/work2/'
 
 subdirs = glob.glob(indir + "sub-*")
-# 1 - launched September 1, 2022, finished September 3, 2022
-#subdirs = subdirs[0:50]
-# 2 - launched September 3, 2022, finished September 8, 2022
-#subdirs = subdirs[0:100]
-
-# subdirs = [subdirs[36]]
-# subdirs = ['/projects/b1108/studies/mwmh/data/raw/neuroimaging/bids/sub-MWMH221',
-#            '/projects/b1108/studies/mwmh/data/raw/neuroimaging/bids/sub-MWMH001']
-
 
 for subdir in subdirs:
     sub = subdir.split('/')[9]
@@ -44,6 +35,7 @@ for subdir in subdirs:
                     shutil.rmtree(subworkdir)
                 shutil.rmtree(outdir+sub)
                 os.mkdir(outdir+sub)
+                print(sub)
         # run!
         if len(sessions) > 1:
             for ses in sessions:
@@ -100,6 +92,7 @@ for subdir in subdirs:
                 # delete faulty output
                 shutil.rmtree(outdir+sub)
                 os.mkdir(outdir+sub)
+                print(sub)
                 # delete old log
                 os.remove(txtlog)
                 sessions = os.listdir(indir+sub)

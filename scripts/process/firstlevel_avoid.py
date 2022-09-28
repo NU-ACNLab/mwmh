@@ -17,8 +17,12 @@ import matplotlib.pyplot as plt
 from nilearn.plotting import plot_contrast_matrix
 from nilearn import plotting
 
-sub = 'sub-MWMH378'
-ses = 'ses-1'
+#sub = 'sub-MWMH378'
+#ses = 'ses-1'
+#sub = 'sub-MWMH190'
+#ses = 'ses-1'
+sub = 'sub-MWMH270'
+ses = 'ses-2'
 
 inDir = '/Users/flutist4129/Documents/Northwestern/studies/mwmh/data/processed/neuroimaging/fmriprep/'
 subInDir = os.path.join(inDir, sub)
@@ -82,9 +86,10 @@ avoid_model = FirstLevelModel(param_avoid_df['RepetitionTime'],
                               hrf_model='spm + derivative + dispersion',
                               drift_model='cosine')
 avoid_glm = avoid_model.fit(avoid_img, events_categ_avoid_df)
-avoid_glm.generate_report()
+#WHAT IS GOING ON HERE? UserWarning: Mean values of 0 observed.The data have probably been centered.Scaling might not work as expected?
+#avoid_glm.generate_report() #missing 1 required positional argument: 'contrasts'
 design_matrix = avoid_model.design_matrices_[0]
-plot_design_matrix(design_matrix, output_file=outDir+sub+'/'+ses+'/'+sub+'_'+ses+'_design_matrix.pdf')
+plot_design_matrix(design_matrix, output_file=outDir+sub+'/'+ses+'/'+sub+'_'+ses+'_task-avoid_design_matrix.pdf')
 
 #design_matrices = make_first_level_design_matrix(frame_times, events,
 #                          drift_model='polynomial', drift_order=3)
@@ -106,37 +111,37 @@ contrasts = {'approach_minus_avoid': pad_vector([1, 0, 0, -1], n_columns),
 
 ### Approach minus avoid
 plot_contrast_matrix(contrasts['approach_minus_avoid'], design_matrix=design_matrix,
-                        output_file=outDir+sub+'/'+ses+'/'+sub+'_'+ses+'_approach_minus_avoid_contrast_matrix.pdf')
+                        output_file=outDir+sub+'/'+ses+'/'+sub+'_'+ses+'_task-avoid_approach_minus_avoid_contrast_matrix.pdf')
 
 approach_minus_avoid_z_map = avoid_model.compute_contrast(
     contrasts['approach_minus_avoid'], output_type='z_score')
 
 plotting.plot_stat_map(approach_minus_avoid_z_map, threshold=3.0,
               display_mode='z', cut_coords=3, title='Approach minus Avoid (Z>3)',
-              output_file=outDir+sub+'/'+ses+'/'+sub+'_'+ses+'_approach_minus_avoid_zmap.pdf')
+              output_file=outDir+sub+'/'+ses+'/'+sub+'_'+ses+'_task-avoid_approach_minus_avoid_zmap.pdf')
 # TO DO: Unthresholded indicated that the mask may not fit the brain well... vmPFC cut off
 
 ### Gain minus lose
 plot_contrast_matrix(contrasts['gain_minus_lose'], design_matrix=design_matrix,
-                        output_file=outDir+sub+'/'+ses+'/'+sub+'_'+ses+'_gain_minus_lose_contrast_matrix.pdf')
+                        output_file=outDir+sub+'/'+ses+'/'+sub+'_'+ses+'_task-avoid_gain_minus_lose_contrast_matrix.pdf')
 
 gain_minus_lose_z_map = avoid_model.compute_contrast(
     contrasts['gain_minus_lose'], output_type='z_score')
 
 plotting.plot_stat_map(gain_minus_lose_z_map, threshold=3.0,
               display_mode='z', cut_coords=3, title='Gain minus Lose (Z>3)',
-              output_file=outDir+sub+'/'+ses+'/'+sub+'_'+ses+'_gain_minus_lose_zmap.pdf')
+              output_file=outDir+sub+'/'+ses+'/'+sub+'_'+ses+'_task-avoid_gain_minus_lose_zmap.pdf')
 
 ### Gain minus fix (Greg's "reward" contrast)
 plot_contrast_matrix(contrasts['gain_minus_fix'], design_matrix=design_matrix,
-              output_file=outDir+sub+'/'+ses+'/'+sub+'_'+ses+'_gain_minus_fix_contrast_matrix.pdf')
+              output_file=outDir+sub+'/'+ses+'/'+sub+'_'+ses+'_task-avoid_gain_minus_fix_contrast_matrix.pdf')
 
 gain_minus_fix_z_map = avoid_model.compute_contrast(
     contrasts['gain_minus_fix'], output_type='z_score')
 
 plotting.plot_stat_map(gain_minus_fix_z_map, threshold=3.0,
               display_mode='z', cut_coords=3, title='Gain minus Fix (Z>3)',
-              output_file=outDir+sub+'/'+ses+'/'+sub+'_'+ses+'_gain_minus_fix_zmap.pdf')
+              output_file=outDir+sub+'/'+ses+'/'+sub+'_'+ses+'_task-avoid_gain_minus_fix_zmap.pdf')
 
 
 
