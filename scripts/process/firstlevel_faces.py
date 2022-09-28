@@ -129,9 +129,10 @@ faces_glm = faces_model.fit(faces_img, events_categ_faces_df, confounds=confound
 #faces_glm.generate_report() #missing 1 required positional argument: 'contrasts'
 design_matrix = faces_model.design_matrices_[0]
 plot_design_matrix(design_matrix, output_file=outDir+sub+'/'+ses+'/'+sub+'_'+ses+'_task-faces_design_matrix.pdf')
+#^ QUESTION: Why does global signal look constant?
+#Not because high mean and low SD - tried scaling and looked the same
 
-#design_matrices = make_first_level_design_matrix(frame_times, events,
-#                          drift_model='polynomial', drift_order=3)
+
 
 ############################### Compute contrasts ##############################
 

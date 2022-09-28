@@ -158,12 +158,40 @@ avoid_model = FirstLevelModel(param_avoid_df['RepetitionTime'],
 avoid_glm = avoid_model.fit(avoid_img, events_categ_avoid_df)
 avoid_res = avoid_glm.residuals()
 
-### faces (not finished)
+### faces
+cols = ['blank', 'fix', 'female', 'happy', 'intensity10', 'intensity20',
+        'intensity30', 'intensity40', 'intensity50']
+        #^September 28, 2022: Removed press (attention check where they are supposed to press when they see a face)
+for col in cols:
+    events_faces_df[col] = events_faces_df[col].map(str)
 
-faces_categ = events_faces_df.iloc[:, 3:].idxmax(axis=1)
+categ = events_faces_df.apply(lambda x: ''.join(x[cols]),axis=1)
 events_categ_faces_df = events_faces_df.iloc[:, 0:2]
-events_categ_faces_df['trial_type'] = faces_categ
+events_categ_faces_df['trial_type'] = categ
 
+events_categ_faces_df = events_categ_faces_df.replace({'trial_type':
+                            {'100000000':'blank', '010000000':'fix',
+                            '000010000':'male_angry_intensity10',
+                            '000001000':'male_angry_intensity20',
+                            '000000100':'male_angry_intensity30',
+                            '000000010':'male_angry_intensity40',
+                            '000000001':'male_angry_intensity50',
+                            '000110000':'male_happy_intensity10',
+                            '000101000':'male_happy_intensity20',
+                            '000100100':'male_happy_intensity30',
+                            '000100010':'male_happy_intensity40',
+                            '000100001':'male_happy_intensity50',
+                            '001010000':'female_angry_intensity10',
+                            '001001000':'female_angry_intensity20',
+                            '001000100':'female_angry_intensity30',
+                            '001000010':'female_angry_intensity40',
+                            '001000001':'female_angry_intensity50',
+                            '001110000':'female_happy_intensity10',
+                            '001101000':'female_happy_intensity20',
+                            '001100100':'female_happy_intensity30',
+                            '001100010':'female_happy_intensity40',
+                            '001100001':'female_happy_intensity50',
+                            }})
 faces_model = FirstLevelModel(param_faces_df['RepetitionTime'],
                               mask_img=mask_img,
                               noise_model='ar1',
@@ -174,13 +202,27 @@ faces_glm = faces_model.fit(faces_img, events_categ_faces_df)
 faces_res = faces_glm.residuals()
 
 
-# read docs: detrend, low_pass, high_pass (should depend on TR?)
-
-
 ############################## Demean and detrend ##############################
+
+rest_de = signal.clean(rest_img, detrend=True, standardize=False, filter=False,
+                        sample_mask=rest_sample_mask, t_r=param_rest_df['RepetitionTime'])
+avoid_de = signal.clean(avoid_res, detrend=True, standardize=False, filter=False,
+                        sample_mask=avoid_sample_mask, t_r=param_avoid_df['RepetitionTime'])
+faces_de = signal.clean(faces_res, detrend=True, standardize=False, filter=False,
+                        sample_mask=faces_sample_mask, t_r=param_faces_df['RepetitionTime'])
 
 
 ############################# Nuissance regression #############################
+
+rest_reg = signal.clean(rest_de, detrend=False, standardize=False, filter=False,
+                        confounds=confounds_rest_df, sample_mask=rest_sample_mask,
+                        t_r=param_rest_df['RepetitionTime'])
+avoid_reg = signal.clean(avoid_de, detrend=False, standardize=False, filter=False,
+                        confounds=confounds_avoid_df, sample_mask=avoid_sample_mask,
+                        t_r=param_avoid_df['RepetitionTime'])
+faces_reg = signal.clean(faces_de, detrend=False, standardize=False, filter=False,
+                        confounds=confounds_faces_df, sample_mask=faces_sample_mask,
+                        t_r=param_faces_df['RepetitionTime'])
 
 
 ######################## Create temporal censoring masks #######################
@@ -197,6 +239,16 @@ faces_res = faces_glm.residuals()
 
 ########################## Temporal bandpass filtering #########################
 
+rest_band = signal.clean(rest_cen, detrend=False, standardize=False, filter=True,
+                        low_pass=, high_pass=, sample_mask=rest_sample_mask,
+                        t_r=param_rest_df['RepetitionTime'])
+avoid_band = signal.clean(avoid_cen, detrend=False, standardize=False, filter=True,
+                        low_pass=, high_pass=, sample_mask=avoid_sample_mask,
+                        t_r=param_avoid_df['RepetitionTime'])
+faces_band = signal.clean(faces_cen, detrend=False, standardize=False, filter=True,
+                        low_pass=, high_pass=, sample_mask=faces_sample_mask,
+                        t_r=param_faces_df['RepetitionTime'])
+                        
 
 ################# Censor volumes identified as having fFD > .1 #################
 
