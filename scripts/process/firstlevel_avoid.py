@@ -51,6 +51,24 @@ imageMask = [x for x in fList if ('brain_mask.nii.gz' in x)][0] #'sub-MWMH378_se
 fileMask = os.path.join(funcInDir, imageMask)
 mask_img = nib.load(fileMask)
 
+### Specify confounds
+confounds_avoid_path = os.path.join(funcInDir, [x for x in fList if ('task-avoid_desc-confounds_timeseries.tsv' in x)][0])
+confounds_avoid_df = pd.read_csv(confounds_avoid_path, sep='\t')
+
+confound_vars = ['trans_x','trans_y','trans_z',
+                 'rot_x','rot_y','rot_z',
+                 'global_signal', 'csf',
+                 'white_matter']
+deriv_vars = ['{}_derivative1'.format(c) for c
+                     in confound_vars]
+power_vars = ['{}_power2'.format(c) for c
+                     in confound_vars]
+power_deriv_vars = ['{}_derivative1_power2'.format(c) for c
+                     in confound_vars]
+final_confounds = confound_vars + deriv_vars + power_vars + power_deriv_vars
+
+confounds_avoid_df = confounds_avoid_df[final_confounds]
+
 #n_scans = avoid_img.shape[3]
 #t_r = param_avoid_df['RepetitionTime']
 #frame_times = np.linspace(0, (n_scans - 1) * t_r, n_scans)
@@ -85,7 +103,7 @@ avoid_model = FirstLevelModel(param_avoid_df['RepetitionTime'],
                               standardize=False,
                               hrf_model='spm + derivative + dispersion',
                               drift_model='cosine')
-avoid_glm = avoid_model.fit(avoid_img, events_categ_avoid_df)
+avoid_glm = avoid_model.fit(avoid_img, events_categ_avoid_df, confounds=confounds_avoid_df)
 #WHAT IS GOING ON HERE? UserWarning: Mean values of 0 observed.The data have probably been centered.Scaling might not work as expected?
 #avoid_glm.generate_report() #missing 1 required positional argument: 'contrasts'
 design_matrix = avoid_model.design_matrices_[0]

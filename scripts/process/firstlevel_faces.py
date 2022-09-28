@@ -51,9 +51,27 @@ imageMask = [x for x in fList if ('brain_mask.nii.gz' in x)][0] #'sub-MWMH378_se
 fileMask = os.path.join(funcInDir, imageMask)
 mask_img = nib.load(fileMask)
 
-#n_scans = faces_img.shape[3]
-#t_r = param_faces_df['RepetitionTime']
-#frame_times = np.linspace(0, (n_scans - 1) * t_r, n_scans)
+### Specify confounds
+confounds_faces_path = os.path.join(funcInDir, [x for x in fList if ('task-faces_desc-confounds_timeseries.tsv' in x)][0])
+confounds_faces_df = pd.read_csv(confounds_faces_path, sep='\t')
+
+confound_vars = ['trans_x','trans_y','trans_z',
+                 'rot_x','rot_y','rot_z',
+                 'global_signal', 'csf',
+                 'white_matter']
+deriv_vars = ['{}_derivative1'.format(c) for c
+                     in confound_vars]
+power_vars = ['{}_power2'.format(c) for c
+                     in confound_vars]
+power_deriv_vars = ['{}_derivative1_power2'.format(c) for c
+                     in confound_vars]
+final_confounds = confound_vars + deriv_vars + power_vars + power_deriv_vars
+
+confounds_faces_df = confounds_faces_df[final_confounds]
+
+### Replace NaNs in confounds df with 0s - NOT CLEAR THAT I SHOULD DO THIS
+confounds_faces_df = confounds_faces_df.fillna(0)
+
 
 ### Transform the events dataframe so that for each unique combination of indicators
 ### there is a different level of a categorical variable (nilearn seems to require
@@ -61,7 +79,8 @@ mask_img = nib.load(fileMask)
 # https://stackoverflow.com/questions/50607740/reverse-a-get-dummies-encoding-in-pandas
 
 cols = ['blank', 'fix', 'female', 'happy', 'intensity10', 'intensity20',
-        'intensity30', 'intensity40', 'intensity50', 'press']
+        'intensity30', 'intensity40', 'intensity50']
+        #^September 28, 2022: Removed press (attention check where they are supposed to press when they see a face)
 for col in cols:
     events_faces_df[col] = events_faces_df[col].map(str)
 
@@ -76,27 +95,28 @@ events_categ_faces_df['trial_type'] = categ
 #NOTE: Categories may not be exhaustive. Ensure that they are before continuing
 #on many subjects
 events_categ_faces_df = events_categ_faces_df.replace({'trial_type':
-                            {'0000001001':'male_angry_intensity30_press',
-                            '1000000000':'blank', '0100000000':'fix',
-                            '0001000101':'male_happy_intensity40_press',
-                            '0011000011':'female_happy_intensity50_press',
-                            '0001001001':'male_happy_intensity30_press',
-                            '0001010001':'male_happy_intensity20_press',
-                            '0010000011':'female_angry_intensity50_press',
-                            '0011001001':'female_happy_intensity30_press',
-                            '0011100001':'female_happy_intensity10_press',
-                            '0011010001':'female_happy_intensity20_press',
-                            '0000010001':'male_angry_intensity20_press',
-                            '0000100001':'male_angry_intensity10_press',
-                            '0010001001':'female_angry_intensity30_press',
-                            '0001000011':'male_happy_intensity50_press',
-                            '0010000101':'female_angry_intensity40_press',
-                            '0001100001':'male_happy_intensity10_press',
-                            '0000000101':'male_angry_intensity40_press',
-                            '0000000011':'male_angry_intensity50_press',
-                            '0010100001':'female_angry_intensity10_press',
-                            '0011000101':'female_happy_intensity40_press',
-                            '0010010001':'female_angry_intensity20_press'}})
+                            {'100000000':'blank', '010000000':'fix',
+                            '000010000':'male_angry_intensity10',
+                            '000001000':'male_angry_intensity20',
+                            '000000100':'male_angry_intensity30',
+                            '000000010':'male_angry_intensity40',
+                            '000000001':'male_angry_intensity50',
+                            '000110000':'male_happy_intensity10',
+                            '000101000':'male_happy_intensity20',
+                            '000100100':'male_happy_intensity30',
+                            '000100010':'male_happy_intensity40',
+                            '000100001':'male_happy_intensity50',
+                            '001010000':'female_angry_intensity10',
+                            '001001000':'female_angry_intensity20',
+                            '001000100':'female_angry_intensity30',
+                            '001000010':'female_angry_intensity40',
+                            '001000001':'female_angry_intensity50',
+                            '001110000':'female_happy_intensity10',
+                            '001101000':'female_happy_intensity20',
+                            '001100100':'female_happy_intensity30',
+                            '001100010':'female_happy_intensity40',
+                            '001100001':'female_happy_intensity50',
+                            }})
 
 faces_model = FirstLevelModel(param_faces_df['RepetitionTime'],
                               mask_img=mask_img,
@@ -104,7 +124,7 @@ faces_model = FirstLevelModel(param_faces_df['RepetitionTime'],
                               standardize=False,
                               hrf_model='spm + derivative + dispersion',
                               drift_model='cosine')
-faces_glm = faces_model.fit(faces_img, events_categ_faces_df)
+faces_glm = faces_model.fit(faces_img, events_categ_faces_df, confounds=confounds_faces_df)
 #WHAT IS GOING ON HERE? UserWarning: Mean values of 0 observed.The data have probably been centered.Scaling might not work as expected?
 #faces_glm.generate_report() #missing 1 required positional argument: 'contrasts'
 design_matrix = faces_model.design_matrices_[0]
@@ -123,8 +143,10 @@ happy = np.array([])
 angry = np.array([])
 face = np.array([])
 notface = np.array([])
+
+exclude = ['derivative', 'dispersion', 'drift', 'constant', 'trans', 'rot', 'global', 'csf', 'white']
 for key in design_matrix.keys():
-    if 'derivative' not in key and 'dispersion' not in key and 'drift' not in key and 'constant' not in key:
+    if not any(exc in key for exc in exclude):
         if 'happy' in key:
             happy = np.append(happy, 1)
             angry = np.append(angry, 0)
