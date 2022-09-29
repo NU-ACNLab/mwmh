@@ -205,24 +205,21 @@ faces_res = faces_glm.residuals()
 ############################## Demean and detrend ##############################
 
 rest_de = signal.clean(rest_img, detrend=True, standardize=False, filter=False,
-                        sample_mask=rest_sample_mask, t_r=param_rest_df['RepetitionTime'])
+                        t_r=param_rest_df['RepetitionTime'])
 avoid_de = signal.clean(avoid_res, detrend=True, standardize=False, filter=False,
-                        sample_mask=avoid_sample_mask, t_r=param_avoid_df['RepetitionTime'])
+                        t_r=param_avoid_df['RepetitionTime'])
 faces_de = signal.clean(faces_res, detrend=True, standardize=False, filter=False,
-                        sample_mask=faces_sample_mask, t_r=param_faces_df['RepetitionTime'])
+                        t_r=param_faces_df['RepetitionTime'])
 
 
 ############################# Nuissance regression #############################
 
 rest_reg = signal.clean(rest_de, detrend=False, standardize=False, filter=False,
-                        confounds=confounds_rest_df, sample_mask=rest_sample_mask,
-                        t_r=param_rest_df['RepetitionTime'])
+                        confounds=confounds_rest_df, t_r=param_rest_df['RepetitionTime'])
 avoid_reg = signal.clean(avoid_de, detrend=False, standardize=False, filter=False,
-                        confounds=confounds_avoid_df, sample_mask=avoid_sample_mask,
-                        t_r=param_avoid_df['RepetitionTime'])
+                        confounds=confounds_avoid_df, t_r=param_avoid_df['RepetitionTime'])
 faces_reg = signal.clean(faces_de, detrend=False, standardize=False, filter=False,
-                        confounds=confounds_faces_df, sample_mask=faces_sample_mask,
-                        t_r=param_faces_df['RepetitionTime'])
+                        confounds=confounds_faces_df, t_r=param_faces_df['RepetitionTime'])
 
 
 ######################## Create temporal censoring masks #######################
@@ -239,16 +236,13 @@ faces_reg = signal.clean(faces_de, detrend=False, standardize=False, filter=Fals
 
 ########################## Temporal bandpass filtering #########################
 
-rest_band = signal.clean(rest_cen, detrend=False, standardize=False, filter=True,
-                        low_pass=, high_pass=, sample_mask=rest_sample_mask,
-                        t_r=param_rest_df['RepetitionTime'])
-avoid_band = signal.clean(avoid_cen, detrend=False, standardize=False, filter=True,
-                        low_pass=, high_pass=, sample_mask=avoid_sample_mask,
-                        t_r=param_avoid_df['RepetitionTime'])
-faces_band = signal.clean(faces_cen, detrend=False, standardize=False, filter=True,
-                        low_pass=, high_pass=, sample_mask=faces_sample_mask,
-                        t_r=param_faces_df['RepetitionTime'])
-                        
+rest_band = signal.clean(rest_cen, detrend=False, standardize=False, filter='butterworth',
+                        low_pass=0.08, high_pass=0.009, t_r=param_rest_df['RepetitionTime'])
+avoid_band = signal.clean(avoid_cen, detrend=False, standardize=False, filter='butterworth',
+                        low_pass=0.08, high_pass=0.009, t_r=param_avoid_df['RepetitionTime'])
+faces_band = signal.clean(faces_cen, detrend=False, standardize=False, filter='butterworth',
+                        low_pass=0.08, high_pass=0.009, t_r=param_faces_df['RepetitionTime'])
+
 
 ################# Censor volumes identified as having fFD > .1 #################
 

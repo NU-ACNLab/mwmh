@@ -19,10 +19,10 @@ from nilearn import plotting
 
 #sub = 'sub-MWMH378'
 #ses = 'ses-1'
-#sub = 'sub-MWMH190'
-#ses = 'ses-1'
-sub = 'sub-MWMH270'
-ses = 'ses-2'
+sub = 'sub-MWMH190'
+ses = 'ses-1'
+#sub = 'sub-MWMH270'
+#ses = 'ses-2'
 
 inDir = '/Users/flutist4129/Documents/Northwestern/studies/mwmh/data/processed/neuroimaging/fmriprep/'
 subInDir = os.path.join(inDir, sub)
@@ -69,7 +69,7 @@ final_confounds = confound_vars + deriv_vars + power_vars + power_deriv_vars
 
 confounds_faces_df = confounds_faces_df[final_confounds]
 
-### Replace NaNs in confounds df with 0s - NOT CLEAR THAT I SHOULD DO THIS
+### Replace NaNs in confounds df with 0s - NOT CLEAR THAT I SHOULD DO THIS ~~~~~~~~~~~~~~~~~~~~~~~~
 confounds_faces_df = confounds_faces_df.fillna(0)
 
 
@@ -125,7 +125,8 @@ faces_model = FirstLevelModel(param_faces_df['RepetitionTime'],
                               hrf_model='spm + derivative + dispersion',
                               drift_model='cosine')
 faces_glm = faces_model.fit(faces_img, events_categ_faces_df, confounds=confounds_faces_df)
-#WHAT IS GOING ON HERE? UserWarning: Mean values of 0 observed.The data have probably been centered.Scaling might not work as expected?
+#Warning: Matrix is singular at working precision, regularizing... Where is this coming from in the design matrix?
+#WHAT IS GOING ON HERE? UserWarning: Mean values of 0 observed. The data have probably been centered. Scaling might not work as expected?
 #faces_glm.generate_report() #missing 1 required positional argument: 'contrasts'
 design_matrix = faces_model.design_matrices_[0]
 plot_design_matrix(design_matrix, output_file=outDir+sub+'/'+ses+'/'+sub+'_'+ses+'_task-faces_design_matrix.pdf')
