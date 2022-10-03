@@ -3,7 +3,7 @@
 ### https://nilearn.github.io/dev/auto_examples/04_glm_first_level/plot_adhd_dmn.html#sphx-glr-auto-examples-04-glm-first-level-plot-adhd-dmn-py
 ###
 ### Ellyn Butler
-### September 20, 2022 - September 22, 2022
+### September 20, 2022 - September 29, 2022
 
 import os
 import json
@@ -17,12 +17,12 @@ import matplotlib.pyplot as plt
 from nilearn.plotting import plot_contrast_matrix
 from nilearn import plotting
 
-#sub = 'sub-MWMH378'
-#ses = 'ses-1'
+sub = 'sub-MWMH378'
+ses = 'ses-1'
 #sub = 'sub-MWMH190'
 #ses = 'ses-1'
-sub = 'sub-MWMH270'
-ses = 'ses-2'
+#sub = 'sub-MWMH270'
+#ses = 'ses-2'
 
 inDir = '/Users/flutist4129/Documents/Northwestern/studies/mwmh/data/processed/neuroimaging/fmriprep/'
 subInDir = os.path.join(inDir, sub)
@@ -69,6 +69,9 @@ final_confounds = confound_vars + deriv_vars + power_vars + power_deriv_vars
 
 confounds_avoid_df = confounds_avoid_df[final_confounds]
 
+### Replace NaNs in confounds df with 0s - NOT CLEAR THAT I SHOULD DO THIS ~~~~~~~~~~~~~~~~~~~~~~~~
+confounds_avoid_df = confounds_avoid_df.fillna(0)
+
 #n_scans = avoid_img.shape[3]
 #t_r = param_avoid_df['RepetitionTime']
 #frame_times = np.linspace(0, (n_scans - 1) * t_r, n_scans)
@@ -104,6 +107,7 @@ avoid_model = FirstLevelModel(param_avoid_df['RepetitionTime'],
                               hrf_model='spm + derivative + dispersion',
                               drift_model='cosine')
 avoid_glm = avoid_model.fit(avoid_img, events_categ_avoid_df, confounds=confounds_avoid_df)
+#Warning: Matrix is singular at working precision, regularizing... Where is this coming from in the design matrix?
 #WHAT IS GOING ON HERE? UserWarning: Mean values of 0 observed.The data have probably been centered.Scaling might not work as expected?
 #avoid_glm.generate_report() #missing 1 required positional argument: 'contrasts'
 design_matrix = avoid_model.design_matrices_[0]
@@ -134,8 +138,8 @@ plot_contrast_matrix(contrasts['approach_minus_avoid'], design_matrix=design_mat
 approach_minus_avoid_z_map = avoid_model.compute_contrast(
     contrasts['approach_minus_avoid'], output_type='z_score')
 
-plotting.plot_stat_map(approach_minus_avoid_z_map, threshold=3.0,
-              display_mode='z', cut_coords=3, title='Approach minus Avoid (Z>3)',
+plotting.plot_stat_map(approach_minus_avoid_z_map, threshold=2.0,
+              display_mode='z', cut_coords=3, title='Approach minus Avoid (Z>2)',
               output_file=outDir+sub+'/'+ses+'/'+sub+'_'+ses+'_task-avoid_approach_minus_avoid_zmap.pdf')
 # TO DO: Unthresholded indicated that the mask may not fit the brain well... vmPFC cut off
 
@@ -146,8 +150,8 @@ plot_contrast_matrix(contrasts['gain_minus_lose'], design_matrix=design_matrix,
 gain_minus_lose_z_map = avoid_model.compute_contrast(
     contrasts['gain_minus_lose'], output_type='z_score')
 
-plotting.plot_stat_map(gain_minus_lose_z_map, threshold=3.0,
-              display_mode='z', cut_coords=3, title='Gain minus Lose (Z>3)',
+plotting.plot_stat_map(gain_minus_lose_z_map, threshold=2.0,
+              display_mode='z', cut_coords=2, title='Gain minus Lose (Z>2)',
               output_file=outDir+sub+'/'+ses+'/'+sub+'_'+ses+'_task-avoid_gain_minus_lose_zmap.pdf')
 
 ### Gain minus fix (Greg's "reward" contrast)
@@ -157,8 +161,8 @@ plot_contrast_matrix(contrasts['gain_minus_fix'], design_matrix=design_matrix,
 gain_minus_fix_z_map = avoid_model.compute_contrast(
     contrasts['gain_minus_fix'], output_type='z_score')
 
-plotting.plot_stat_map(gain_minus_fix_z_map, threshold=3.0,
-              display_mode='z', cut_coords=3, title='Gain minus Fix (Z>3)',
+plotting.plot_stat_map(gain_minus_fix_z_map, threshold=2.0,
+              display_mode='z', cut_coords=3, title='Gain minus Fix (Z>2)',
               output_file=outDir+sub+'/'+ses+'/'+sub+'_'+ses+'_task-avoid_gain_minus_fix_zmap.pdf')
 
 

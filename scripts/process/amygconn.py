@@ -232,6 +232,7 @@ faces_reg = signal.clean(faces_de, detrend=False, standardize=False, filter=Fals
 
 ##### Interpolate over these TRs using a power spectrum matching algorithm #####
 #https://pylians3.readthedocs.io/en/master/interpolation.html
+#https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.lombscargle.html
 
 
 ########################## Temporal bandpass filtering #########################

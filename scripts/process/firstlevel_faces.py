@@ -3,7 +3,7 @@
 ### https://nilearn.github.io/dev/auto_examples/04_glm_first_level/plot_adhd_dmn.html#sphx-glr-auto-examples-04-glm-first-level-plot-adhd-dmn-py
 ###
 ### Ellyn Butler
-### September 28, 2022
+### September 28, 2022 - September 30, 2022
 
 import os
 import json
@@ -19,10 +19,10 @@ from nilearn import plotting
 
 #sub = 'sub-MWMH378'
 #ses = 'ses-1'
-sub = 'sub-MWMH190'
-ses = 'ses-1'
-#sub = 'sub-MWMH270'
-#ses = 'ses-2'
+#sub = 'sub-MWMH190'
+#ses = 'ses-1'
+sub = 'sub-MWMH270'
+ses = 'ses-2'
 
 inDir = '/Users/flutist4129/Documents/Northwestern/studies/mwmh/data/processed/neuroimaging/fmriprep/'
 subInDir = os.path.join(inDir, sub)
@@ -65,7 +65,8 @@ power_vars = ['{}_power2'.format(c) for c
                      in confound_vars]
 power_deriv_vars = ['{}_derivative1_power2'.format(c) for c
                      in confound_vars]
-final_confounds = confound_vars + deriv_vars + power_vars + power_deriv_vars
+#final_confounds = confound_vars + deriv_vars + power_vars + power_deriv_vars #36, but singular
+final_confounds = confound_vars
 
 confounds_faces_df = confounds_faces_df[final_confounds]
 
@@ -80,6 +81,7 @@ confounds_faces_df = confounds_faces_df.fillna(0)
 
 cols = ['blank', 'fix', 'female', 'happy', 'intensity10', 'intensity20',
         'intensity30', 'intensity40', 'intensity50']
+#cols2 = ['blank', 'fix', 'female', 'happy']
         #^September 28, 2022: Removed press (attention check where they are supposed to press when they see a face)
 for col in cols:
     events_faces_df[col] = events_faces_df[col].map(str)
@@ -122,9 +124,11 @@ faces_model = FirstLevelModel(param_faces_df['RepetitionTime'],
                               mask_img=mask_img,
                               noise_model='ar1',
                               standardize=False,
-                              hrf_model='spm + derivative + dispersion',
-                              drift_model='cosine')
+                              hrf_model='spm',
+                              drift_model=None
+                              )# spm + derivative + dispersion
 faces_glm = faces_model.fit(faces_img, events_categ_faces_df, confounds=confounds_faces_df)
+#^ Still says singular when take out intensity, derivative and dispersion
 #Warning: Matrix is singular at working precision, regularizing... Where is this coming from in the design matrix?
 #WHAT IS GOING ON HERE? UserWarning: Mean values of 0 observed. The data have probably been centered. Scaling might not work as expected?
 #faces_glm.generate_report() #missing 1 required positional argument: 'contrasts'
@@ -132,6 +136,11 @@ design_matrix = faces_model.design_matrices_[0]
 plot_design_matrix(design_matrix, output_file=outDir+sub+'/'+ses+'/'+sub+'_'+ses+'_task-faces_design_matrix.pdf')
 #^ QUESTION: Why does global signal look constant?
 #Not because high mean and low SD - tried scaling and looked the same
+
+
+#design_matrix_trans = np.transpose(design_matrix)
+#eigen_values = np.matmul(design_matrix, design_matrix_trans)
+
 
 
 
@@ -181,8 +190,8 @@ plot_contrast_matrix(contrasts['happy_minus_angry'], design_matrix=design_matrix
 happy_minus_angry_z_map = faces_model.compute_contrast(
     contrasts['happy_minus_angry'], output_type='z_score')
 
-plotting.plot_stat_map(happy_minus_angry_z_map, threshold=3.0,
-              display_mode='z', cut_coords=3, title='Happy minus angry (Z>3)',
+plotting.plot_stat_map(happy_minus_angry_z_map, threshold=1.0,
+              display_mode='z', cut_coords=3, title='Happy minus angry (Z>1)',
               output_file=outDir+sub+'/'+ses+'/'+sub+'_'+ses+'_task-faces_happy_minus_angry_zmap.pdf')
 # TO DO: Unthresholded indicated that the mask may not fit the brain well... vmPFC cut off
 
@@ -194,8 +203,8 @@ plot_contrast_matrix(contrasts['face_minus_notface'], design_matrix=design_matri
 face_minus_notface_z_map = faces_model.compute_contrast(
     contrasts['face_minus_notface'], output_type='z_score')
 
-plotting.plot_stat_map(face_minus_notface_z_map, threshold=3.0,
-              display_mode='z', cut_coords=3, title='Face minus not (Z>3)',
+plotting.plot_stat_map(face_minus_notface_z_map, threshold=1.0,
+              display_mode='z', cut_coords=3, title='Face minus not (Z>1)',
               output_file=outDir+sub+'/'+ses+'/'+sub+'_'+ses+'_task-faces_face_minus_notface_zmap.pdf')
 
 
