@@ -13,7 +13,7 @@ sexipr_df <- read.csv('/projects/b1108/studies/mwmh/data/raw/immune/cell_counts_
 
 ############################## Race, BMI, puberty ##############################
 
-racebmipub_df$subid <- paste0('MWMH', df$ID)
+racebmipub_df$subid <- paste0('MWMH', racebmipub_df$ID)
 
 first_df <- racebmipub_df[, c('subid', grep('v1', names(racebmipub_df), value=TRUE))]
 first_df$sesid <- 1
@@ -33,12 +33,27 @@ racebmipub_df <- racebmipub_df[, c('subid', 'sesid', 'black', 'white', 'otherrac
 
 ################################### Sex & IPR ##################################
 
+sexipr_df$subid <- paste0('MWMH', sexipr_df$ID)
+sexipr_df$sesid <- 1
 
+sexipr_df <- rename(sexipr_df, IPR=IPR.v1)
+
+sexipr_df <- sexipr_df[, c('subid', 'sesid', 'female', 'IPR')]
+
+sexipr_df2 <- sexipr_df
+sexipr_df2$sesid <- 2
+
+sexipr_df <- rbind(sexipr_df, sexipr_df2)
+
+
+###################################### Age #####################################
+
+age_df <- age_df[, c('subid', 'sesid', 'age_lab', 'age_mri', 'days_mri_minus_lab')]
 
 
 ################################ Merge & Export ################################
 
 final_df <- merge(racebmipub_df, age_df, all.x=TRUE)
-final_df <- merge(final_df, sexipr_df)
+final_df <- merge(final_df, sexipr_df, all.x=TRUE)
 
 write.csv(final_df, paste0('/projects/b1108/studies/mwmh/data/processed/demographic/demographics_', Sys.Date(), '.csv'), row.names=FALSE)
