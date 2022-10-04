@@ -67,17 +67,16 @@ gran_df <- read.csv('/projects/b1108/studies/mwmh/data/raw/immune/cell_counts_se
 names(gran_df)[names(gran_df) == 'ID'] <- 'subid'
 gran_df$subid <- paste0('MWMH', gran_df$subid)
 gran_df$sesid <- 1
+gran_df <- rename(gran_df, Neutrophils=v1.AbsNeut, Lymphocytes=v1.Abs.Lymph,
+                  Eosinophils=v1.AbsEosin, Basophils=v1.AbsBaso)
 
-
-
-
-
+gran_df <- gran_df[, c('subid', 'sesid', 'Neutrophils', 'Lymphocytes', 'Eosinophils', 'Basophils')]
 
 
 ############################## Merge and write out #############################
 
 final_df <- merge(cyto_df3, mono_df2, all.x=TRUE)
-final_df <- merge(final_df, gran_df2, all.x=TRUE)
+final_df <- merge(final_df, gran_df, all.x=TRUE)
 
 write.csv(paste0('/projects/b1108/studies/mwmh/data/processed/immune/immune_', Sys.Date(), '.csv'), row.names=FALSE)
 
