@@ -3,7 +3,7 @@
 ### https://nilearn.github.io/dev/auto_examples/04_glm_first_level/plot_adhd_dmn.html#sphx-glr-auto-examples-04-glm-first-level-plot-adhd-dmn-py
 ###
 ### Ellyn Butler
-### September 28, 2022 - September 30, 2022
+### September 28, 2022 - October 5, 2022
 
 import os
 import json
@@ -120,13 +120,17 @@ events_categ_faces_df = events_categ_faces_df.replace({'trial_type':
                             '001100001':'female_happy_intensity50',
                             }})
 
+# Remove fixation rows
+events_categ_faces_df = events_categ_faces_df[~events_categ_faces_df['trial_type'].str.contains('fix')]
+events_categ_faces_df = events_categ_faces_df[~events_categ_faces_df['trial_type'].str.contains('blank')]
+
 faces_model = FirstLevelModel(param_faces_df['RepetitionTime'],
                               mask_img=mask_img,
                               noise_model='ar1',
                               standardize=False,
                               hrf_model='spm',
-                              drift_model=None
-                              )# spm + derivative + dispersion
+                              drift_model=None,
+                              smoothing_fwhm=4)# spm + derivative + dispersion
 faces_glm = faces_model.fit(faces_img, events_categ_faces_df, confounds=confounds_faces_df)
 #^ Still says singular when take out intensity, derivative and dispersion
 #Warning: Matrix is singular at working precision, regularizing... Where is this coming from in the design matrix?
@@ -190,8 +194,10 @@ plot_contrast_matrix(contrasts['happy_minus_angry'], design_matrix=design_matrix
 happy_minus_angry_z_map = faces_model.compute_contrast(
     contrasts['happy_minus_angry'], output_type='z_score')
 
-plotting.plot_stat_map(happy_minus_angry_z_map, threshold=1.0,
-              display_mode='z', cut_coords=3, title='Happy minus angry (Z>1)',
+happy_minus_angry_z_map.to_filename(outDir+sub+'/'+ses+'/'+sub+'_'+ses+'_task-faces_happy_minus_angry_zmap.nii.gz')
+
+plotting.plot_stat_map(happy_minus_angry_z_map, threshold=2.0,
+              display_mode='z', cut_coords=3, title='Happy minus angry (Z>2)',
               output_file=outDir+sub+'/'+ses+'/'+sub+'_'+ses+'_task-faces_happy_minus_angry_zmap.pdf')
 # TO DO: Unthresholded indicated that the mask may not fit the brain well... vmPFC cut off
 
@@ -203,8 +209,10 @@ plot_contrast_matrix(contrasts['face_minus_notface'], design_matrix=design_matri
 face_minus_notface_z_map = faces_model.compute_contrast(
     contrasts['face_minus_notface'], output_type='z_score')
 
-plotting.plot_stat_map(face_minus_notface_z_map, threshold=1.0,
-              display_mode='z', cut_coords=3, title='Face minus not (Z>1)',
+face_minus_notface_z_map.to_filename(outDir+sub+'/'+ses+'/'+sub+'_'+ses+'_task-faces_face_minus_notface_zmap.nii.gz')
+
+plotting.plot_stat_map(face_minus_notface_z_map, threshold=2.0,
+              display_mode='z', cut_coords=3, title='Face minus not (Z>2)',
               output_file=outDir+sub+'/'+ses+'/'+sub+'_'+ses+'_task-faces_face_minus_notface_zmap.pdf')
 
 

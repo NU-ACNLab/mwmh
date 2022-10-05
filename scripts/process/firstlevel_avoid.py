@@ -17,12 +17,12 @@ import matplotlib.pyplot as plt
 from nilearn.plotting import plot_contrast_matrix
 from nilearn import plotting
 
-sub = 'sub-MWMH378'
-ses = 'ses-1'
+#sub = 'sub-MWMH378'
+#ses = 'ses-1'
 #sub = 'sub-MWMH190'
 #ses = 'ses-1'
-#sub = 'sub-MWMH270'
-#ses = 'ses-2'
+sub = 'sub-MWMH270'
+ses = 'ses-2'
 
 inDir = '/Users/flutist4129/Documents/Northwestern/studies/mwmh/data/processed/neuroimaging/fmriprep/'
 subInDir = os.path.join(inDir, sub)
@@ -65,7 +65,8 @@ power_vars = ['{}_power2'.format(c) for c
                      in confound_vars]
 power_deriv_vars = ['{}_derivative1_power2'.format(c) for c
                      in confound_vars]
-final_confounds = confound_vars + deriv_vars + power_vars + power_deriv_vars
+#final_confounds = confound_vars + deriv_vars + power_vars + power_deriv_vars
+final_confounds = confound_vars
 
 confounds_avoid_df = confounds_avoid_df[final_confounds]
 
@@ -100,12 +101,18 @@ events_categ_avoid_df = events_categ_avoid_df.replace({'trial_type': {'000100000
                             '000000010':'lose10', '000001000':'gain50',
                             '000000001':'lose50'}})
 
+# Remove fixation rows
+events_categ_avoid_df = events_categ_avoid_df[~events_categ_avoid_df['trial_type'].str.contains('fix')]
+events_categ_avoid_df = events_categ_avoid_df[~events_categ_avoid_df['trial_type'].str.contains('blank')]
+
+# Specify model
 avoid_model = FirstLevelModel(param_avoid_df['RepetitionTime'],
                               mask_img=mask_img,
                               noise_model='ar1',
                               standardize=False,
                               hrf_model='spm + derivative + dispersion',
-                              drift_model='cosine')
+                              drift_model='cosine',
+                              smoothing_fwhm=4)
 avoid_glm = avoid_model.fit(avoid_img, events_categ_avoid_df, confounds=confounds_avoid_df)
 #Warning: Matrix is singular at working precision, regularizing... Where is this coming from in the design matrix?
 #WHAT IS GOING ON HERE? UserWarning: Mean values of 0 observed.The data have probably been centered.Scaling might not work as expected?
@@ -120,15 +127,49 @@ plot_design_matrix(design_matrix, output_file=outDir+sub+'/'+ses+'/'+sub+'_'+ses
 
 #https://nilearn.github.io/stable/auto_examples/04_glm_first_level/plot_first_level_details.html
 
-n_columns = design_matrix.shape[1]
+### Make contrasts
+approach = np.array([])
+avoid = np.array([])
+gain = np.array([])
+lose = np.array([])
 
-def pad_vector(contrast_, n_columns):
-    """A small routine to append zeros in contrast vectors"""
-    return np.hstack((contrast_, np.zeros(n_columns - len(contrast_))))
+exclude = ['derivative', 'dispersion', 'drift', 'constant', 'trans', 'rot', 'global', 'csf', 'white']
+for key in design_matrix.keys():
+    if not any(exc in key for exc in exclude):
+        if 'approach' in key:
+            approach = np.append(approach, 1)
+            avoid = np.append(avoid, 0)
+            gain = np.append(gain, 0)
+            lose = np.append(lose, 0)
+        elif 'avoid' in key:
+            approach = np.append(approach, 0)
+            avoid = np.append(avoid, 1)
+            gain = np.append(gain, 0)
+            lose = np.append(lose, 0)
+        elif 'gain' in key:
+            approach = np.append(approach, 0)
+            avoid = np.append(avoid, 0)
+            gain = np.append(gain, 1)
+            lose = np.append(lose, 0)
+        elif 'lose' in key:
+            approach = np.append(approach, 0)
+            avoid = np.append(avoid, 0)
+            gain = np.append(gain, 0)
+            lose = np.append(lose, 1)
+        else:
+            approach = np.append(approach, 0)
+            avoid = np.append(avoid, 0)
+            gain = np.append(gain, 0)
+            lose = np.append(lose, 0)
+    else:
+        approach = np.append(approach, 0)
+        avoid = np.append(avoid, 0)
+        gain = np.append(gain, 0)
+        lose = np.append(lose, 0)
 
-contrasts = {'approach_minus_avoid': pad_vector([1, 0, 0, -1], n_columns),
-             'gain_minus_lose': pad_vector([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, -1, 0, 0, -1], n_columns),
-             'gain_minus_fix': pad_vector([0, 0, 0, 0, 0, 0, -1, 0, 0, -1, 0, 0, 1, 0, 0, 1], n_columns)
+
+contrasts = {'approach_minus_avoid': np.subtract(approach, avoid),
+             'gain_minus_lose': np.subtract(gain, lose)
             }
 
 ### Approach minus avoid
@@ -137,6 +178,8 @@ plot_contrast_matrix(contrasts['approach_minus_avoid'], design_matrix=design_mat
 
 approach_minus_avoid_z_map = avoid_model.compute_contrast(
     contrasts['approach_minus_avoid'], output_type='z_score')
+
+approach_minus_avoid_z_map.to_filename(outDir+sub+'/'+ses+'/'+sub+'_'+ses+'_task-faces_approach_minus_avoid_zmap.nii.gz')
 
 plotting.plot_stat_map(approach_minus_avoid_z_map, threshold=2.0,
               display_mode='z', cut_coords=3, title='Approach minus Avoid (Z>2)',
@@ -150,21 +193,11 @@ plot_contrast_matrix(contrasts['gain_minus_lose'], design_matrix=design_matrix,
 gain_minus_lose_z_map = avoid_model.compute_contrast(
     contrasts['gain_minus_lose'], output_type='z_score')
 
+gain_minus_lose_z_map.to_filename(outDir+sub+'/'+ses+'/'+sub+'_'+ses+'_task-faces_gain_minus_lose_zmap.nii.gz')
+
 plotting.plot_stat_map(gain_minus_lose_z_map, threshold=2.0,
               display_mode='z', cut_coords=2, title='Gain minus Lose (Z>2)',
               output_file=outDir+sub+'/'+ses+'/'+sub+'_'+ses+'_task-avoid_gain_minus_lose_zmap.pdf')
-
-### Gain minus fix (Greg's "reward" contrast)
-plot_contrast_matrix(contrasts['gain_minus_fix'], design_matrix=design_matrix,
-              output_file=outDir+sub+'/'+ses+'/'+sub+'_'+ses+'_task-avoid_gain_minus_fix_contrast_matrix.pdf')
-
-gain_minus_fix_z_map = avoid_model.compute_contrast(
-    contrasts['gain_minus_fix'], output_type='z_score')
-
-plotting.plot_stat_map(gain_minus_fix_z_map, threshold=2.0,
-              display_mode='z', cut_coords=3, title='Gain minus Fix (Z>2)',
-              output_file=outDir+sub+'/'+ses+'/'+sub+'_'+ses+'_task-avoid_gain_minus_fix_zmap.pdf')
-
 
 
 
