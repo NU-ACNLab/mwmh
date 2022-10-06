@@ -2,7 +2,10 @@
 ### pick up on any unwanted scans
 ###
 ### Ellyn Butler
-### April 21, 2022
+### April 21, 2022 (additional notes October 5, 2022)
+
+
+library('data.table')
 
 df <- read.csv('/projects/b1108/studies/mwmh/data/raw/neuroimaging/meta/params_2022-04-20.csv')
 
@@ -24,6 +27,16 @@ table(t1w_df2$ProtocolName)
 
 # 416 dicoms? Two separate echos
 
+# Final conditions (+ Python: dcm.AcquisitionMatrix[1] == 320... which was true of all of them)
+t1w_df2 <- df[(grepl('l_epinav_ME2', df$ProtocolName) | grepl('MPRAGE_SAG_0.8iso', df$ProtocolName)) & df$NDicoms == 208,]
+# 463... a few subjects had their t1w image redone in a session
+# NOTE: Don't be freaked out that the echo times appear to be different across
+# scans. Each scan had two echoes, and the scan number that was chosen was the
+# scan that contained both of them (each standard subject has three t1w dicom
+# directories). The reason different echo times show up is because the
+# representative dicom header that was using to generate the master csv only
+# contained one of the two echo times.
+
 ##################################### DTI #####################################
 
 dti_df <- df[grepl('DTI_MB4_68dir_1pt5mm_b1k', df$ProtocolName) & df$NDicoms > 60 &
@@ -34,6 +47,9 @@ dti_df2 <- df[grepl('DTI_MB4_68dir_1pt5mm_b1k', df$ProtocolName) & df$NDicoms > 
   df$SliceThickness == 1.5 & df$RepetitionTime == 2500 & df$NDicoms < 70,]
 dim(dti_df2) # 448. Yes.
 
+dti_df2$subid_sesid <- paste0(dti_df2$subid, dti_df2$sesid)
+length(unique(dti_df2$subid_sesid)) #447
+
 
 #################################### FACES ####################################
 
@@ -42,8 +58,27 @@ faces_df <- df[(grepl('FACES', df$ProtocolName) | grepl('MB2_task', df$ProtocolN
 dim(faces_df) # 424
 table(faces_df$ProtocolName)
 
+faces_df$subid_sesid <- paste0(faces_df$subid, faces_df$sesid)
+length(faces_df$subid_sesid) == length(unique(faces_df$subid_sesid))
+# ^ no session has more than one faces task with these criteria
+
 # Check out the wonky protocol name
 faces_df[faces_df$ProtocolName == 'MB2_task_20_70_2000_1pt7iso', ]
+subs_mb2 <- faces_df[faces_df$ProtocolName == 'MB2_task_20_70_2000_1pt7iso', 'subid']
+df[df$subid == subs_mb2[1], ]
+df[df$subid == subs_mb2[2], ]
+df[df$subid == subs_mb2[3], ]
+
+# What if we split up 'FACES' and 'MB2_task'?
+faces_prot_df <- df[which(grepl('FACES', df$ProtocolName) & df$SliceThickness < 1.8),]
+mb2_prot_df <- df[which(grepl('MB2_task', df$ProtocolName) & df$NDicoms < 205 & df$NDicoms > 195 &
+  df$SliceThickness < 1.8),]
+
+faces_both_prot_df <- rbind(faces_prot_df, mb2_prot_df)
+faces_both_prot_df$subid_sesid <- paste0(faces_both_prot_df$subid, faces_both_prot_df$sesid)
+length(unique(faces_both_prot_df$subid_sesid))
+
+faces_both_prot_df[which(!(faces_both_prot_df$subid_sesid %in% unique(faces_df$subid_sesid))), ]
 
 
 #################################### AVOID ####################################
