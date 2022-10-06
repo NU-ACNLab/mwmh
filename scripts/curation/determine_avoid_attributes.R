@@ -9,11 +9,14 @@ df <- read.table(paste0(bidsdir, 'sub-MWMH241_ses-2_task-avoid_events.tsv'), sep
 # Number of trials
 max(df$trial)
 
-# Mean and range of the duration of the face
-summary(df[df$face == 1, 'duration'])
+# Mean and range of the duration of the cue
+summary(df[df$cue == 1, 'duration'])
 
-# Mean and range of the duration of the blank screen
-summary(df[df$blank == 1, 'duration'])
+# Mean and range of the duration of the first fix
+summary(df[df$fix1 == 1, 'duration'])
 
-# Mean and range of the duration of the ISI
-summary(df[df$fix == 1, 'duration'])
+# Mean and range of the duration of the feedback
+summary(df[df$feedback == 1, 'duration'])
+
+# Mean and range of the duration of the second fix
+summary(df[df$fix2 == 1, 'duration'])

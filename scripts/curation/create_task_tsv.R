@@ -84,41 +84,49 @@ if (nrow(avoid_df) > 10) {
     final_avoid_df[i+j+1, 'avoid'] <- (1-press)*final_avoid_df[i+j+1, 'cue']
     final_avoid_df[i+j+2, 'avoid'] <- (1-press)*final_avoid_df[i+j+2, 'cue']
     final_avoid_df[i+j+3, 'avoid'] <- (1-press)*final_avoid_df[i+j+3, 'cue']
+    ######## NOTE (October 5, 2022): Amount column incorrectly displays an amount
+    ######## even when the subject chose to risk no money (and no 0s), therefore
+    ######## `press*` was added to each of the lines of code utilizing this column
+    ######## for which they risked money, and `press*` was added to each of the
+    ######## lines of code utilizing this column for which they did not risk money.
+    ######## Confusingly, the 'Feedbk' and 'Message' columns disagree on what the
+    ######## subject saw. One can only hope that they saw the 'Message' column
+    ######## values, considering those are the correct ones.
     # reward - feedback & reward ($ > 0)
-    final_avoid_df[i+j, 'reward'] <- (avoid_df[i, 'Amount'] > 0)*final_avoid_df[i+j, 'feedback']
-    final_avoid_df[i+j+1, 'reward'] <- (avoid_df[i, 'Amount'] > 0)*final_avoid_df[i+j+1, 'feedback']
-    final_avoid_df[i+j+2, 'reward'] <- (avoid_df[i, 'Amount'] > 0)*final_avoid_df[i+j+2, 'feedback']
-    final_avoid_df[i+j+3, 'reward'] <- (avoid_df[i, 'Amount'] > 0)*final_avoid_df[i+j+3, 'feedback']
+    final_avoid_df[i+j, 'reward'] <- press*(avoid_df[i, 'Amount'] > 0)*final_avoid_df[i+j, 'feedback']
+    final_avoid_df[i+j+1, 'reward'] <- press*(avoid_df[i, 'Amount'] > 0)*final_avoid_df[i+j+1, 'feedback']
+    final_avoid_df[i+j+2, 'reward'] <- press*(avoid_df[i, 'Amount'] > 0)*final_avoid_df[i+j+2, 'feedback']
+    final_avoid_df[i+j+3, 'reward'] <- press*(avoid_df[i, 'Amount'] > 0)*final_avoid_df[i+j+3, 'feedback']
     # loss - feedback & loss ($ < 0)
-    final_avoid_df[i+j, 'loss'] <- (avoid_df[i, 'Amount'] < 0)*final_avoid_df[i+j, 'feedback']
-    final_avoid_df[i+j+1, 'loss'] <- (avoid_df[i, 'Amount'] < 0)*final_avoid_df[i+j+1, 'feedback']
-    final_avoid_df[i+j+2, 'loss'] <- (avoid_df[i, 'Amount'] < 0)*final_avoid_df[i+j+2, 'feedback']
-    final_avoid_df[i+j+3, 'loss'] <- (avoid_df[i, 'Amount'] < 0)*final_avoid_df[i+j+3, 'feedback']
+    final_avoid_df[i+j, 'loss'] <- press*(avoid_df[i, 'Amount'] < 0)*final_avoid_df[i+j, 'feedback']
+    final_avoid_df[i+j+1, 'loss'] <- press*(avoid_df[i, 'Amount'] < 0)*final_avoid_df[i+j+1, 'feedback']
+    final_avoid_df[i+j+2, 'loss'] <- press*(avoid_df[i, 'Amount'] < 0)*final_avoid_df[i+j+2, 'feedback']
+    final_avoid_df[i+j+3, 'loss'] <- press*(avoid_df[i, 'Amount'] < 0)*final_avoid_df[i+j+3, 'feedback']
     # nothing - feedback & $0
-    final_avoid_df[i+j, 'nothing'] <- (avoid_df[i, 'Amount'] == 0)*final_avoid_df[i+j, 'feedback']
-    final_avoid_df[i+j+1, 'nothing'] <- (avoid_df[i, 'Amount'] == 0)*final_avoid_df[i+j+1, 'feedback']
-    final_avoid_df[i+j+2, 'nothing'] <- (avoid_df[i, 'Amount'] == 0)*final_avoid_df[i+j+2, 'feedback']
-    final_avoid_df[i+j+3, 'nothing'] <- (avoid_df[i, 'Amount'] == 0)*final_avoid_df[i+j+3, 'feedback']
+    final_avoid_df[i+j, 'nothing'] <- (1-press)*final_avoid_df[i+j, 'feedback']
+    final_avoid_df[i+j+1, 'nothing'] <- (1-press)*final_avoid_df[i+j+1, 'feedback']
+    final_avoid_df[i+j+2, 'nothing'] <- (1-press)*final_avoid_df[i+j+2, 'feedback']
+    final_avoid_df[i+j+3, 'nothing'] <- (1-press)*final_avoid_df[i+j+3, 'feedback']
     # gain 50
-    final_avoid_df[i+j, 'gain50'] <- (avoid_df[i, 'Amount'] == 50)*final_avoid_df[i+j, 'feedback']
-    final_avoid_df[i+j+1, 'gain50'] <- (avoid_df[i, 'Amount'] == 50)*final_avoid_df[i+j+1, 'feedback']
-    final_avoid_df[i+j+2, 'gain50'] <- (avoid_df[i, 'Amount'] == 50)*final_avoid_df[i+j+2, 'feedback']
-    final_avoid_df[i+j+3, 'gain50'] <- (avoid_df[i, 'Amount'] == 50)*final_avoid_df[i+j+3, 'feedback']
+    final_avoid_df[i+j, 'gain50'] <- press*(avoid_df[i, 'Amount'] == 50)*final_avoid_df[i+j, 'feedback']
+    final_avoid_df[i+j+1, 'gain50'] <- press*(avoid_df[i, 'Amount'] == 50)*final_avoid_df[i+j+1, 'feedback']
+    final_avoid_df[i+j+2, 'gain50'] <- press*(avoid_df[i, 'Amount'] == 50)*final_avoid_df[i+j+2, 'feedback']
+    final_avoid_df[i+j+3, 'gain50'] <- press*(avoid_df[i, 'Amount'] == 50)*final_avoid_df[i+j+3, 'feedback']
     # gain 10
-    final_avoid_df[i+j, 'gain10'] <- (avoid_df[i, 'Amount'] == 10)*final_avoid_df[i+j, 'feedback']
-    final_avoid_df[i+j+1, 'gain10'] <- (avoid_df[i, 'Amount'] == 10)*final_avoid_df[i+j+1, 'feedback']
-    final_avoid_df[i+j+2, 'gain10'] <- (avoid_df[i, 'Amount'] == 10)*final_avoid_df[i+j+2, 'feedback']
-    final_avoid_df[i+j+3, 'gain10'] <- (avoid_df[i, 'Amount'] == 10)*final_avoid_df[i+j+3, 'feedback']
+    final_avoid_df[i+j, 'gain10'] <- press*(avoid_df[i, 'Amount'] == 10)*final_avoid_df[i+j, 'feedback']
+    final_avoid_df[i+j+1, 'gain10'] <- press*(avoid_df[i, 'Amount'] == 10)*final_avoid_df[i+j+1, 'feedback']
+    final_avoid_df[i+j+2, 'gain10'] <- press*(avoid_df[i, 'Amount'] == 10)*final_avoid_df[i+j+2, 'feedback']
+    final_avoid_df[i+j+3, 'gain10'] <- press*(avoid_df[i, 'Amount'] == 10)*final_avoid_df[i+j+3, 'feedback']
     # lose 10
-    final_avoid_df[i+j, 'lose10'] <- (avoid_df[i, 'Amount'] == -10)*final_avoid_df[i+j, 'feedback']
-    final_avoid_df[i+j+1, 'lose10'] <- (avoid_df[i, 'Amount'] == -10)*final_avoid_df[i+j+1, 'feedback']
-    final_avoid_df[i+j+2, 'lose10'] <- (avoid_df[i, 'Amount'] == -10)*final_avoid_df[i+j+2, 'feedback']
-    final_avoid_df[i+j+3, 'lose10'] <- (avoid_df[i, 'Amount'] == -10)*final_avoid_df[i+j+3, 'feedback']
+    final_avoid_df[i+j, 'lose10'] <- press*(avoid_df[i, 'Amount'] == -10)*final_avoid_df[i+j, 'feedback']
+    final_avoid_df[i+j+1, 'lose10'] <- press*(avoid_df[i, 'Amount'] == -10)*final_avoid_df[i+j+1, 'feedback']
+    final_avoid_df[i+j+2, 'lose10'] <- press*(avoid_df[i, 'Amount'] == -10)*final_avoid_df[i+j+2, 'feedback']
+    final_avoid_df[i+j+3, 'lose10'] <- press*(avoid_df[i, 'Amount'] == -10)*final_avoid_df[i+j+3, 'feedback']
     # lose 50
-    final_avoid_df[i+j, 'lose50'] <- (avoid_df[i, 'Amount'] == -50)*final_avoid_df[i+j, 'feedback']
-    final_avoid_df[i+j+1, 'lose50'] <- (avoid_df[i, 'Amount'] == -50)*final_avoid_df[i+j+1, 'feedback']
-    final_avoid_df[i+j+2, 'lose50'] <- (avoid_df[i, 'Amount'] == -50)*final_avoid_df[i+j+2, 'feedback']
-    final_avoid_df[i+j+3, 'lose50'] <- (avoid_df[i, 'Amount'] == -50)*final_avoid_df[i+j+3, 'feedback']
+    final_avoid_df[i+j, 'lose50'] <- press*(avoid_df[i, 'Amount'] == -50)*final_avoid_df[i+j, 'feedback']
+    final_avoid_df[i+j+1, 'lose50'] <- press*(avoid_df[i, 'Amount'] == -50)*final_avoid_df[i+j+1, 'feedback']
+    final_avoid_df[i+j+2, 'lose50'] <- press*(avoid_df[i, 'Amount'] == -50)*final_avoid_df[i+j+2, 'feedback']
+    final_avoid_df[i+j+3, 'lose50'] <- press*(avoid_df[i, 'Amount'] == -50)*final_avoid_df[i+j+3, 'feedback']
     j=j+3
   }
 
