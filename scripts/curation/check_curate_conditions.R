@@ -7,9 +7,15 @@
 
 library('data.table')
 
-df <- read.csv('/projects/b1108/studies/mwmh/data/raw/neuroimaging/meta/params_2022-04-20.csv')
+df <- read.csv('/projects/b1108/studies/mwmh/data/raw/neuroimaging/meta/params_2022-10-06.csv')
 
-# How many sessions are in here? 448
+# October 6, 2022: ^ This file is short 44 sessions... investigating
+bids_df <- read.csv('/projects/b1108/studies/mwmh/data/raw/neuroimaging/meta/bids_10-06-2022.csv')
+params_ids <- unique(paste0(df$subid, df$sesid))
+bids_ids <- unique(bids_df$subid_sesid)
+bids_ids[!(bids_ids %in% params_ids)]
+
+# How many sessions are in here? 492
 length(unique(paste0(df$subid, df$sesid)))
 
 
@@ -17,8 +23,8 @@ length(unique(paste0(df$subid, df$sesid)))
 
 t1w_df <- df[grepl('tfl_epinav_ME2', df$ProtocolName) & df$NDicoms == 208,
   c('RepetitionTime', 'SequenceName', 'SliceThickness')]
-dim(t1w_df) # Should be 448...
-dim(df[df$NDicoms == 208,]) # 463... Loosen ProtocolName restriction?
+dim(t1w_df) # Should be 492...
+dim(df[df$NDicoms == 208,]) # 509... Loosen ProtocolName restriction?
 
 t1w_df2 <- df[df$NDicoms == 208, c('ProtocolName', 'RepetitionTime', 'SequenceName', 'SliceThickness')]
 # A lot of them have "tffl" instead of "tfl"
@@ -29,7 +35,8 @@ table(t1w_df2$ProtocolName)
 
 # Final conditions (+ Python: dcm.AcquisitionMatrix[1] == 320... which was true of all of them)
 t1w_df2 <- df[(grepl('l_epinav_ME2', df$ProtocolName) | grepl('MPRAGE_SAG_0.8iso', df$ProtocolName)) & df$NDicoms == 208,]
-# 463... a few subjects had their t1w image redone in a session
+dim(t1w_df2)
+# 509... a few subjects had their t1w image redone in a session
 # NOTE: Don't be freaked out that the echo times appear to be different across
 # scans. Each scan had two echoes, and the scan number that was chosen was the
 # scan that contained both of them (each standard subject has three t1w dicom
@@ -41,21 +48,21 @@ t1w_df2 <- df[(grepl('l_epinav_ME2', df$ProtocolName) | grepl('MPRAGE_SAG_0.8iso
 
 dti_df <- df[grepl('DTI_MB4_68dir_1pt5mm_b1k', df$ProtocolName) & df$NDicoms > 60 &
   df$SliceThickness == 1.5 & df$RepetitionTime == 2500,]
-dim(dti_df) # 2240 sessions... whoops. Need to be more exclusionary
+dim(dti_df) # 2417 sessions... whoops. Need to be more exclusionary
 
 dti_df2 <- df[grepl('DTI_MB4_68dir_1pt5mm_b1k', df$ProtocolName) & df$NDicoms > 60 &
   df$SliceThickness == 1.5 & df$RepetitionTime == 2500 & df$NDicoms < 70,]
-dim(dti_df2) # 448. Yes.
+dim(dti_df2) # 492. Yes.
 
 dti_df2$subid_sesid <- paste0(dti_df2$subid, dti_df2$sesid)
-length(unique(dti_df2$subid_sesid)) #447
+length(unique(dti_df2$subid_sesid)) #491
 
 
 #################################### FACES ####################################
 
 faces_df <- df[(grepl('FACES', df$ProtocolName) | grepl('MB2_task', df$ProtocolName)) &
   df$NDicoms < 205 & df$NDicoms > 195 & df$SliceThickness < 1.8,]
-dim(faces_df) # 424
+dim(faces_df) # 466
 table(faces_df$ProtocolName)
 
 faces_df$subid_sesid <- paste0(faces_df$subid, faces_df$sesid)
@@ -85,7 +92,7 @@ faces_both_prot_df[which(!(faces_both_prot_df$subid_sesid %in% unique(faces_df$s
 
 avoid_df <- df[(grepl('PASSIVE', df$ProtocolName) | grepl('MB2_task', df$ProtocolName)) &
   df$NDicoms < 305 & df$NDicoms > 295 & df$SliceThickness < 1.8,]
-dim(avoid_df) # 431
+dim(avoid_df) # 473
 table(avoid_df$ProtocolName)
 
 avoid_df$subid_sesid <- paste0(avoid_df$subid, avoid_df$sesid)
@@ -97,6 +104,7 @@ subs_mb2 <- avoid_df[avoid_df$ProtocolName == 'MB2_task_20_70_2000_1pt7iso', 'su
 df[df$subid == subs_mb2[1], ]
 df[df$subid == subs_mb2[2], ]
 df[df$subid == subs_mb2[3], ]
+df[df$subid == subs_mb2[4], ]
 
 # What if we split up 'PASSIVE' and 'MB2_task'?
 avoid_prot_df <- df[which(grepl('PASSIVE', df$ProtocolName) & df$SliceThickness < 1.8),]

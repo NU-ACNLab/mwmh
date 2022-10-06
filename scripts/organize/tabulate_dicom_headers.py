@@ -1,8 +1,9 @@
 ### This script creates a csv of the various key parameters in the dicom headers
 ### for all of the sequences, subjects and sessions
+### Python version 3.8.4
 ###
 ### Ellyn Butler
-### February 1, 2022 - May 3, 2022
+### February 1, 2022 - October 6, 2022
 
 import pydicom #https://github.com/pydicom/pydicom
 # https://pydicom.github.io/pydicom/stable/old/getting_started.html
@@ -43,9 +44,12 @@ for subdir in subdirs:
         ses = sesdir.split('/')[10].split('-')[1]
         for seq in sequences:
             if os.path.isdir(sesdir+'/SCANS/'+seq+'/DICOM/'):
-                dcm_path = os.popen('find '+sesdir+'/SCANS/'+seq+'/DICOM/ -name "*.dcm"').read().split("\n")[0]
+                dicomdir = indir+'/sub-'+sub+'/ses-'+ses+'/SCANS/'+seq+'/DICOM'
+                dcm_path = os.popen('find '+dicomdir+' -name "*.dcm"').read().split("\n")[0]
+                dicoms = os.popen('find '+dicomdir+' -name "*.dcm"').read().split("\n")[:-1]
                 if len(dcm_path) == 0:
-                    dcm_path = os.popen('find '+sesdir+'/SCANS/'+seq+'/DICOM/ -regex ".*/[0-9]+"').read().split("\n")[0]
+                    dcm_path = os.popen('find '+dicomdir+' -regex ".*/[0-9]+"').read().split("\n")[0]
+                    dicoms = os.popen('find '+dicomdir+' -regex ".*/[0-9]+"').read().split("\n")[:-1]
                 if len(dcm_path) > 0:
                     dcm = pydicom.dcmread(dcm_path)
                     param_dict['subid'].append(sub)
@@ -90,7 +94,6 @@ for subdir in subdirs:
                     else:
                         param_dict['SliceThickness'].append('NA')
                     # Count the number of dicoms in the dicom directory
-                    dicoms = os.popen('find '+sesdir+'/SCANS/'+seq+'/DICOM/'+' -name "*.dcm"').read().split("\n")[:-1]
                     ndicoms = len(dicoms)
                     param_dict['NDicoms'].append(ndicoms)
 

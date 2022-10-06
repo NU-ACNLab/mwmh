@@ -2,14 +2,14 @@
 ### and sessions, and the data types that have made it through fmriprep
 ###
 ### Ellyn Butler
-### July 6, 2022 - September 27, 2022
+### July 6, 2022 - October 6, 2022
 
 
 fmriprepdir=/projects/b1108/studies/mwmh/data/processed/neuroimaging/fmriprep/
 outdir=/projects/b1108/studies/mwmh/data/processed/neuroimaging/meta/
 subdirs=`find ${fmriprepdir} -maxdepth 1 -type d -name "sub-*"`
 
-echo "subid,sesid,t1w,rest,avoid,faces" > ${outdir}/fmriprep_09-27-2022.csv
+echo "subid,sesid,t1w,rest,avoid,faces" > ${outdir}/fmriprep_10-06-2022.csv
 
 for subdir in ${subdirs}; do
   sub=`echo ${subdir} | cut -d '/' -f 10 | cut -d '-' -f 2`
@@ -60,6 +60,6 @@ for subdir in ${subdirs}; do
       avoidexist=0
       facesexist=0
     fi
-    echo ${sub},${ses},${t1wexist},${avoidexist},${facesexist} >> ${outdir}/fmriprep_09-27-2022.csv
+    echo ${sub},${ses},${t1wexist},${restexist},${avoidexist},${facesexist} >> ${outdir}/fmriprep_10-06-2022.csv
   done
 done

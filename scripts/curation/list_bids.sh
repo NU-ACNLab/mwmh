@@ -2,13 +2,15 @@
 ### and sessions, and the data types that they have in BIDS
 ###
 ### Ellyn Butler
-### July 6, 2022 - September 27, 2022
+### July 6, 2022 - October 6, 2022
 
 
 bidsdir=/projects/b1108/studies/mwmh/data/raw/neuroimaging/bids/
+outdir=/projects/b1108/studies/mwmh/data/raw/neuroimaging/meta/
+
 subdirs=`find ${bidsdir} -maxdepth 1 -name "sub-*"`
 
-echo "subid,sesid,t1w,dwi,rest,avoid,avoid_events,faces,faces_events" > /projects/b1108/studies/mwmh/data/raw/neuroimaging/meta/bids_09-27-2022.csv
+echo "subid,sesid,t1w,dwi,rest,avoid,avoid_events,faces,faces_events" > ${outdir}/bids_10-06-2022.csv
 
 for subdir in ${subdirs}; do
   sub=`echo ${subdir} | cut -d '/' -f 10 | cut -d '-' -f 2`
@@ -74,8 +76,8 @@ for subdir in ${subdirs}; do
         facesexist=0
       fi
       # Does the faces events file exist?
-      facesevents=`find ${sesdir}/func/ -maxdepth 1 -name "*faces_events.tsv"`
-      if [ -f "${facesevents}" ] ; then
+      faceseventsexist=`find ${sesdir}/func/ -maxdepth 1 -name "*faces_events.tsv"`
+      if [ -f "${faceseventsexist}" ] ; then
         faceseventsexist=1
       else
         faceseventsexist=0
@@ -87,6 +89,6 @@ for subdir in ${subdirs}; do
       facesexist=0
       faceseventsexist=0
     fi
-    echo ${sub},${ses},${t1wexist},${dwiexist},${avoidexist},${avoideventsexist},${facesexist},${faceseventsexist} >> /projects/b1108/studies/mwmh/data/raw/neuroimaging/meta/bids_09-27-2022.csv
+    echo ${sub},${ses},${t1wexist},${dwiexist},${restexist},${avoidexist},${avoideventsexist},${facesexist},${faceseventsexist} >> ${outdir}/bids_10-06-2022.csv
   done
 done
