@@ -23,14 +23,14 @@ for sub in subjects:
     for ses in sessions:
         sesdir = indir+sub+'/'+ses
         # Below will rerun a couple (if avoid was not collected), but okay
-        if not os.path.isfile(sesdir+'/func/'+sub+'_'+ses+'_task-avoid_events.tsv') or not os.path.isfile(sesdir+'/func/'+sub+'_'+ses+'_task-faces_events.tsv'):
-            mods = os.listdir(sesdir)
-            if 'func' in mods:
-                sublab = sub.split('-')[1]
-                seslab = ses.split('-')[1]
-                cmd = ['Rscript /projects/b1108/studies/mwmh/scripts/curation/create_task_tsv.R', sublab, seslab]
-                tsv_script = launchdir+sub+'_'+ses+'_tsv_run.sh'
-                os.system('cat /projects/b1108/studies/mwmh/scripts/curation/sbatch_info_manually_curate.sh > '+tsv_script)
-                os.system('echo '+' '.join(cmd)+' >> '+tsv_script)
-                os.system('chmod +x '+tsv_script)
-                os.system('sbatch -o '+launchdir+sub+'_'+ses+'.txt'+' '+tsv_script)
+        #if not os.path.isfile(sesdir+'/func/'+sub+'_'+ses+'_task-avoid_events.tsv') or not os.path.isfile(sesdir+'/func/'+sub+'_'+ses+'_task-faces_events.tsv'):
+        mods = os.listdir(sesdir)
+        if 'func' in mods:
+            subid = sub.split('-')[1]
+            sesid = ses.split('-')[1]
+            cmd = ['Rscript /projects/b1108/studies/mwmh/scripts/curation/create_task_tsv.R', subid, sesid]
+            tsv_script = launchdir+sub+'_'+ses+'_tsv_run.sh'
+            os.system('cat /projects/b1108/studies/mwmh/scripts/curation/sbatch_info_manually_curate.sh > '+tsv_script)
+            os.system('echo '+' '.join(cmd)+' >> '+tsv_script)
+            os.system('chmod +x '+tsv_script)
+            os.system('sbatch -o '+launchdir+sub+'_'+ses+'.txt'+' '+tsv_script)
