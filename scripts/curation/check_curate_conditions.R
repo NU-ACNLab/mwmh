@@ -88,6 +88,26 @@ avoid_df <- df[(grepl('PASSIVE', df$ProtocolName) | grepl('MB2_task', df$Protoco
 dim(avoid_df) # 431
 table(avoid_df$ProtocolName)
 
+avoid_df$subid_sesid <- paste0(avoid_df$subid, avoid_df$sesid)
+length(avoid_df$subid_sesid) == length(unique(avoid_df$subid_sesid))
+
+# Check out the wonky protocol name
+avoid_df[avoid_df$ProtocolName == 'MB2_task_20_70_2000_1pt7iso', ]
+subs_mb2 <- avoid_df[avoid_df$ProtocolName == 'MB2_task_20_70_2000_1pt7iso', 'subid']
+df[df$subid == subs_mb2[1], ]
+df[df$subid == subs_mb2[2], ]
+df[df$subid == subs_mb2[3], ]
+
+# What if we split up 'PASSIVE' and 'MB2_task'?
+avoid_prot_df <- df[which(grepl('PASSIVE', df$ProtocolName) & df$SliceThickness < 1.8),]
+mb2_prot_df <- df[which(grepl('MB2_task', df$ProtocolName) & df$NDicoms < 305 & df$NDicoms > 295 &
+  df$SliceThickness < 1.8),]
+
+avoid_both_prot_df <- rbind(avoid_prot_df, mb2_prot_df)
+avoid_both_prot_df$subid_sesid <- paste0(avoid_both_prot_df$subid, avoid_both_prot_df$sesid)
+length(unique(avoid_both_prot_df$subid_sesid))
+
+avoid_both_prot_df[which(!(avoid_both_prot_df$subid_sesid %in% unique(avoid_df$subid_sesid))), ]
 
 ##################################### REST #####################################
 
