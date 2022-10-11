@@ -2,7 +2,7 @@
 ### one csv.
 ###
 ### Ellyn Butler
-### October 3, 2022
+### October 3, 2022 - October 6, 2022
 
 library('dplyr')
 library('naniar')
@@ -78,7 +78,7 @@ gran_df <- gran_df[, c('subid', 'sesid', 'Neutrophils', 'Lymphocytes', 'Eosinoph
 final_df <- merge(cyto_df3, mono_df2, all.x=TRUE)
 final_df <- merge(final_df, gran_df, all.x=TRUE)
 
-write.csv(paste0('/projects/b1108/studies/mwmh/data/processed/immune/immune_', Sys.Date(), '.csv'), row.names=FALSE)
+write.csv(final_df, paste0('/projects/b1108/studies/mwmh/data/processed/immune/immune_', Sys.Date(), '.csv'), row.names=FALSE)
 
 
 

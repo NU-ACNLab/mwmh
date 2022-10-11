@@ -56,9 +56,7 @@ confounds_faces_path = os.path.join(funcInDir, [x for x in fList if ('task-faces
 confounds_faces_df = pd.read_csv(confounds_faces_path, sep='\t')
 
 confound_vars = ['trans_x','trans_y','trans_z',
-                 'rot_x','rot_y','rot_z',
-                 'global_signal', 'csf',
-                 'white_matter']
+                 'rot_x','rot_y','rot_z', 'global_signal'] #, 'csf', 'white_matter'
 deriv_vars = ['{}_derivative1'.format(c) for c
                      in confound_vars]
 power_vars = ['{}_power2'.format(c) for c

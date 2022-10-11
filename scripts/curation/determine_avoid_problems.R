@@ -14,7 +14,7 @@ table(avoid_df$Feedbk)
 sum(is.na(avoid_df$Feedbk))
 
 mwmh270_df <- avoid_df[which(avoid_df$subid == 'MWMH270' & avoid_df$sesid == 2), ]
-mwmh270_df[which(mwmh270_df$Trial %in% 10:12), c('Stm.RT', 'Stm.RESP', 'Amount', 'Feedbk', 'Message')]
+mwmh270_df[which(mwmh270_df$Trial %in% 10:12), c('Trial', 'Stm.RT', 'Stm.RESP', 'Amount', 'Feedbk', 'Message')]
 # ^ Hopefully the 'Message' column is the one they saw
 
 ########################### Shapes predict outcome? ############################

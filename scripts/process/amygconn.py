@@ -15,6 +15,7 @@ from nilearn import plotting
 from nilearn.glm.first_level import FirstLevelModel
 import sys, getopt
 import argparse
+from calc_ffd import calc_ffd
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-i', default='/projects/b1108/studies/mwmh/data/processed/neuroimaging/fmriprep/')
@@ -80,13 +81,18 @@ param_avoid_df = json.load(param_avoid_file)
 param_faces_file = open(os.path.join(funcInDir, sub+'_'+ses+'_task-faces_space-MNI152NLin6Asym_desc-preproc_bold.json'),)
 param_faces_df = json.load(param_faces_file)
 
+# Get TRs
+rest_tr = param_rest_df['RepetitionTime']
+avoid_tr = param_avoid_df['RepetitionTime']
+faces_tr = param_faces_df['RepetitionTime']
+
+
+
 #### Select confound columns
 # https://www.sciencedirect.com/science/article/pii/S1053811917302288
 # Model 8
 confound_vars = ['trans_x','trans_y','trans_z',
-                 'rot_x','rot_y','rot_z',
-                 'global_signal', 'csf',
-                 'white_matter']
+                 'rot_x','rot_y','rot_z', 'global_signal'] #, 'csf', 'white_matter'
 deriv_vars = ['{}_derivative1'.format(c) for c
                      in confound_vars]
 power_vars = ['{}_power2'.format(c) for c
@@ -149,6 +155,11 @@ events_categ_avoid_df = events_categ_avoid_df.replace({'trial_type': {'000100000
                             '010000000':'fix2', '001000000':'approach',
                             '000000010':'lose10', '000001000':'gain50',
                             '000000001':'lose50'}})
+
+# Remove fixation rows
+events_categ_avoid_df = events_categ_avoid_df[~events_categ_avoid_df['trial_type'].str.contains('fix')]
+events_categ_avoid_df = events_categ_avoid_df[~events_categ_avoid_df['trial_type'].str.contains('blank')]
+
 avoid_model = FirstLevelModel(param_avoid_df['RepetitionTime'],
                               mask_img=mask_img,
                               noise_model='ar1',
@@ -192,6 +203,11 @@ events_categ_faces_df = events_categ_faces_df.replace({'trial_type':
                             '001100010':'female_happy_intensity40',
                             '001100001':'female_happy_intensity50',
                             }})
+
+# Remove fixation rows
+events_categ_faces_df = events_categ_faces_df[~events_categ_faces_df['trial_type'].str.contains('fix')]
+events_categ_faces_df = events_categ_faces_df[~events_categ_faces_df['trial_type'].str.contains('blank')]
+
 faces_model = FirstLevelModel(param_faces_df['RepetitionTime'],
                               mask_img=mask_img,
                               noise_model='ar1',
@@ -205,26 +221,39 @@ faces_res = faces_glm.residuals()
 ############################## Demean and detrend ##############################
 
 rest_de = signal.clean(rest_img, detrend=True, standardize=False, filter=False,
-                        t_r=param_rest_df['RepetitionTime'])
+                        t_r=rest_tr)
 avoid_de = signal.clean(avoid_res, detrend=True, standardize=False, filter=False,
-                        t_r=param_avoid_df['RepetitionTime'])
+                        t_r=avoid_tr)
 faces_de = signal.clean(faces_res, detrend=True, standardize=False, filter=False,
-                        t_r=param_faces_df['RepetitionTime'])
+                        t_r=faces_tr)
 
 
 ############################# Nuissance regression #############################
 
 rest_reg = signal.clean(rest_de, detrend=False, standardize=False, filter=False,
-                        confounds=confounds_rest_df, t_r=param_rest_df['RepetitionTime'])
+                        confounds=confounds_rest_df, t_r=rest_tr)
 avoid_reg = signal.clean(avoid_de, detrend=False, standardize=False, filter=False,
-                        confounds=confounds_avoid_df, t_r=param_avoid_df['RepetitionTime'])
+                        confounds=confounds_avoid_df, t_r=avoid_tr)
 faces_reg = signal.clean(faces_de, detrend=False, standardize=False, filter=False,
-                        confounds=confounds_faces_df, t_r=param_faces_df['RepetitionTime'])
+                        confounds=confounds_faces_df, t_r=faces_tr)
 
 
 ######################## Create temporal censoring masks #######################
 #https://nilearn.github.io/dev/auto_examples/03_connectivity/plot_signal_extraction.html#sphx-glr-auto-examples-03-connectivity-plot-signal-extraction-py
 ##https://nilearn.github.io/stable/modules/generated/nilearn.interfaces.fmriprep.load_confounds.html
+
+##### Rest
+confounds_rest_df['ffd'] = calc_ffd(confounds_rest_df, rest_tr)
+confounds_rest_df['keep_frames_ffd'] = confounds_rest_df['ffd'] < 0.01
+
+
+##### Avoid
+confounds_avoid_df['ffd'] = signal.butterworth(avoid_fd, avoid_tr, low_pass=0.1)
+confounds_avoid_df['keep_frames_ffd'] = confounds_avoid_df['ffd'] < 0.01
+
+
+##### Faces
+confounds_faces_df['ffd'] = signal.butterworth(faces_fd, faces_tr, low_pass=0.1)
 
 
 ############ Censor the TRs where fFD > .1 (put NAs in their place) ############
@@ -246,6 +275,9 @@ faces_band = signal.clean(faces_cen, detrend=False, standardize=False, filter='b
 
 
 ################# Censor volumes identified as having fFD > .1 #################
+
+
+# Write out imgs
 
 
 ############################ Run masker on all scans ###########################
@@ -284,9 +316,9 @@ masker_faces = NiftiLabelsMasker(labels_img=labels_img,
                             t_r=param_faces_df['RepetitionTime']
                         )
 
-rest_time_series = masker_rest.fit_transform(rest_img_interp) #, confounds=confounds_rest_df, sample_mask=rest_sample_mask
-avoid_time_series = masker_avoid.fit_transform(avoid_res_interp)
-faces_time_series = masker_faces.fit_transform(faces_res_interp)
+rest_time_series = masker_rest.fit_transform(rest_img_cen2) #, confounds=confounds_rest_df, sample_mask=rest_sample_mask
+avoid_time_series = masker_avoid.fit_transform(avoid_res_cen2)
+faces_time_series = masker_faces.fit_transform(faces_res_cen2)
 
 ################################# Connectivity #################################
 # Write out time series

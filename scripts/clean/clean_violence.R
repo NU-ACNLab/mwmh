@@ -85,6 +85,8 @@ for (i in 1:nrow(viol_df3)) {
   }
 }
 
+viol_df3$num_pastyear <- rowSums(viol_df3[, grep('pastyear', names(viol_df3), value=TRUE)])
+
 
 #################################### Export ####################################
 

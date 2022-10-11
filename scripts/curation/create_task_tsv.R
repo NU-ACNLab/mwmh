@@ -7,8 +7,8 @@
 
 # TO DO: Turn these into command line arguments for job submission
 args = commandArgs(trailingOnly=TRUE)
-sub = args[1] # e.g., MWMH001
-ses = args[2] # e.g., 1
+sub = args[1] # e.g., MWMH270
+ses = args[2] # e.g., 2
 
 base_path <- '/projects/b1108/studies/mwmh/data/processed/neuroimaging/behavioral/'
 
