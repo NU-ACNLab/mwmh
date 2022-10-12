@@ -16,6 +16,7 @@ from nilearn import plotting
 from nilearn.glm.first_level import FirstLevelModel
 from nilearn import signal
 from nilearn import image
+import scipy.signal as sgnl
 import sys, getopt
 import argparse
 from calc_ffd import calc_ffd
@@ -279,14 +280,18 @@ faces_cen, confounds_faces_df = remove_trs(faces_reg, confounds_faces_df, replac
 #https://pylians3.readthedocs.io/en/master/interpolation.html
 #https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.lombscargle.html
 
+rest_int = power_interp(rest_cen, mask_img, rest_tr)
+avoid_int = power_interp(avoid_cen, mask_img, avoid_tr)
+faces_int = power_interp(faces_cen, mask_img, faces_tr)
+
 
 ########################## Temporal bandpass filtering #########################
 
-rest_band = image.clean_img(rest_cen, detrend=False, standardize=False, filter='butterworth',
+rest_band = image.clean_img(rest_int, detrend=False, standardize=False, filter='butterworth',
                         low_pass=0.08, high_pass=0.009, t_r=rest_tr)
-avoid_band = image.clean_img(avoid_cen, detrend=False, standardize=False, filter='butterworth',
+avoid_band = image.clean_img(avoid_int, detrend=False, standardize=False, filter='butterworth',
                         low_pass=0.08, high_pass=0.009, t_r=avoid_tr)
-faces_band = image.clean_img(faces_cen, detrend=False, standardize=False, filter='butterworth',
+faces_band = image.clean_img(faces_int, detrend=False, standardize=False, filter='butterworth',
                         low_pass=0.08, high_pass=0.009, t_r=faces_tr)
 
 
