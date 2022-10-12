@@ -9,16 +9,6 @@
 from nilearn import signal
 import math
 
-confounds_avoid_path = '/Users/flutist4129/Documents/Northwestern/studies/mwmh/data/processed/neuroimaging/fmriprep/sub-MWMH270/ses-2/func/sub-MWMH270_ses-2_task-avoid_desc-confounds_timeseries.tsv'
-confounds_avoid_df = pd.read_csv(confounds_avoid_path, sep='\t')
-confounds_df = confounds_avoid_df
-
-param_avoid_file = open('/Users/flutist4129/Documents/Northwestern/studies/mwmh/data/processed/neuroimaging/fmriprep/sub-MWMH270/ses-2/func/sub-MWMH270_ses-2_task-avoid_space-MNI152NLin6Asym_desc-preproc_bold.json')
-param_avoid_df = json.load(param_avoid_file)
-tr = param_avoid_df['RepetitionTime']
-
-confounds_df = calc_ffd(confounds_df, tr)
-
 def calc_ffd(confounds_df, tr):
     confounds_df['trans_x_filt'] = signal.butterworth(confounds_df['trans_x'], tr, low_pass=0.1)
     confounds_df['trans_y_filt'] = signal.butterworth(confounds_df['trans_y'], tr, low_pass=0.1)

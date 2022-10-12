@@ -1,21 +1,25 @@
 ### This script conducts the post-processing steps after fmriprep
 ###
 ### Ellyn Butler
-### November 22, 2021 - September 28, 2022
+### November 22, 2021 - October 11, 2022
 
+# Python version: 3.8.4
 import os
 import json
-import pandas as pd
-import nibabel as nib
-import numpy as np
+import pandas as pd #1.0.5
+import nibabel as nib #3.2.1
+import numpy as np #1.19.1
 #from bids.layout import BIDSLayout #may not be needed
-from nilearn.input_data import NiftiLabelsMasker
+from nilearn.input_data import NiftiLabelsMasker #0.8.1
 from nilearn.connectome import ConnectivityMeasure
 from nilearn import plotting
 from nilearn.glm.first_level import FirstLevelModel
+from nilearn import signal
+from nilearn import image
 import sys, getopt
 import argparse
 from calc_ffd import calc_ffd
+from remove_trs import remove_trs
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-i', default='/projects/b1108/studies/mwmh/data/processed/neuroimaging/fmriprep/')
@@ -31,12 +35,12 @@ bidsDir = args.b #bidsDir = '/Users/flutist4129/Documents/Northwestern/studies/m
 sub = args.s #sub = 'sub-MWMH378'
 ses = args.ss #ses = 'ses-1'
 
-# directory where preprocessed fMRI data is located
+# Directory where preprocessed fMRI data is located
 subInDir = os.path.join(inDir, sub)
 sesInDir = os.path.join(subInDir, ses)
 funcInDir = os.path.join(sesInDir, 'func')
 
-# location of the pre-processed fMRI & mask
+# Location of the pre-processed fMRI & mask
 fList = os.listdir(funcInDir)
 imageRest = [x for x in fList if ('preproc_bold.nii.gz' in x and 'task-rest' in x)][0]
 imageAvoid = [x for x in fList if ('preproc_bold.nii.gz' in x and 'task-avoid' in x)][0]
@@ -49,6 +53,7 @@ fileFaces = os.path.join(funcInDir, imageFaces)
 fileMask = os.path.join(funcInDir, imageMask)
 mask_img = nib.load(fileMask)
 
+# Get the labeled image
 SeitzDir = '/projects/b1081/Atlases/Seitzman300/' #SeitzDir='/Users/flutist4129/Documents/Northwestern/templates/Seitzman300/'
 labels_img = nib.load(SeitzDir+'Seitzman300_MNI_res02_allROIs.nii.gz')
 # ^ Not going to work. Only cortical labels
@@ -86,11 +91,9 @@ rest_tr = param_rest_df['RepetitionTime']
 avoid_tr = param_avoid_df['RepetitionTime']
 faces_tr = param_faces_df['RepetitionTime']
 
-
-
 #### Select confound columns
 # https://www.sciencedirect.com/science/article/pii/S1053811917302288
-# Model 8
+# Removed csf and white_matter because too collinear with global_signal
 confound_vars = ['trans_x','trans_y','trans_z',
                  'rot_x','rot_y','rot_z', 'global_signal'] #, 'csf', 'white_matter'
 deriv_vars = ['{}_derivative1'.format(c) for c
@@ -104,16 +107,19 @@ final_confounds = confound_vars + deriv_vars + power_vars + power_deriv_vars
 ## REST
 #confounds_rest_df = confounds_rest_df.loc[5:] # drop the first 5 TRs from confounds df
 confounds_rest_df = confounds_rest_df[final_confounds]
+confounds_rest_df = confounds_rest_df.fillna(0)
 
 ## AVOID (onset: 12)
 #confounds_avoid_df = confounds_avoid_df.loc[6:] # drop the first 6 TRs from confounds df
 confounds_avoid_df = confounds_avoid_df[final_confounds]
+confounds_avoid_df = confounds_avoid_df.fillna(0)
 # subtract off 6 TRs*RT 2 = 12 from the onset column
 #events_avoid_df['onset'] = events_avoid_df['onset'] - 12
 
 ## FACES (onset: 14.5)
 #confounds_faces_df = confounds_faces_df.loc[5:] # drop the first 5 TRs from confounds df
 confounds_faces_df = confounds_faces_df[final_confounds]
+confounds_faces_df = confounds_faces_df.fillna(0)
 # subtract off 5 TRs*RT 2 = 10 from the onset column
 #events_faces_df['onset'] = events_faces_df['onset'] - 10
 
@@ -148,7 +154,6 @@ events_categ_avoid_df = events_avoid_df.iloc[:, 0:2]
 events_categ_avoid_df['trial_type'] = categ
 #categ.unique()
 
-
 #https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.replace.html
 events_categ_avoid_df = events_categ_avoid_df.replace({'trial_type': {'000100000':'avoid',
                             '100000000':'fix1', '000000100':'gain10',
@@ -165,9 +170,10 @@ avoid_model = FirstLevelModel(param_avoid_df['RepetitionTime'],
                               noise_model='ar1',
                               standardize=False,
                               hrf_model='spm + derivative + dispersion',
-                              drift_model='cosine')
+                              drift_model='cosine',
+                              minimize_memory=False)
 avoid_glm = avoid_model.fit(avoid_img, events_categ_avoid_df)
-avoid_res = avoid_glm.residuals()
+avoid_res = avoid_glm.residuals[0]
 
 ### faces
 cols = ['blank', 'fix', 'female', 'happy', 'intensity10', 'intensity20',
@@ -213,50 +219,54 @@ faces_model = FirstLevelModel(param_faces_df['RepetitionTime'],
                               noise_model='ar1',
                               standardize=False,
                               hrf_model='spm + derivative + dispersion',
-                              drift_model='cosine')
+                              drift_model='cosine',
+                              minimize_memory=False)
 faces_glm = faces_model.fit(faces_img, events_categ_faces_df)
-faces_res = faces_glm.residuals()
+faces_res = faces_glm.residuals[0]
 
 
 ############################## Demean and detrend ##############################
 
-rest_de = signal.clean(rest_img, detrend=True, standardize=False, filter=False,
-                        t_r=rest_tr)
-avoid_de = signal.clean(avoid_res, detrend=True, standardize=False, filter=False,
-                        t_r=avoid_tr)
-faces_de = signal.clean(faces_res, detrend=True, standardize=False, filter=False,
-                        t_r=faces_tr)
+#https://carpentries-incubator.github.io/SDC-BIDS-fMRI/05-data-cleaning-with-nilearn/index.html
+#https://nilearn.github.io/dev/modules/generated/nilearn.image.clean_img.html
+
+rest_de = image.clean_img(rest_img, detrend=True, standardize=False, t_r=rest_tr)
+avoid_de = image.clean_img(avoid_res, detrend=True, standardize=False, t_r=avoid_tr)
+faces_de = image.clean_img(faces_res, detrend=True, standardize=False, t_r=faces_tr)
 
 
-############################# Nuissance regression #############################
+############################# Nuisance regression ##############################
 
-rest_reg = signal.clean(rest_de, detrend=False, standardize=False, filter=False,
-                        confounds=confounds_rest_df, t_r=rest_tr)
-avoid_reg = signal.clean(avoid_de, detrend=False, standardize=False, filter=False,
-                        confounds=confounds_avoid_df, t_r=avoid_tr)
-faces_reg = signal.clean(faces_de, detrend=False, standardize=False, filter=False,
-                        confounds=confounds_faces_df, t_r=faces_tr)
+rest_reg = image.clean_img(rest_de, detrend=False, standardize=False,
+                        confounds=confounds_rest_df[final_confounds], t_r=rest_tr)
+avoid_reg = image.clean_img(avoid_de, detrend=False, standardize=False,
+                        confounds=confounds_avoid_df[final_confounds], t_r=avoid_tr)
+faces_reg = image.clean_img(faces_de, detrend=False, standardize=False,
+                        confounds=confounds_faces_df[final_confounds], t_r=faces_tr)
 
 
-######################## Create temporal censoring masks #######################
+############################# Identify TRs to censor ###########################
 #https://nilearn.github.io/dev/auto_examples/03_connectivity/plot_signal_extraction.html#sphx-glr-auto-examples-03-connectivity-plot-signal-extraction-py
 ##https://nilearn.github.io/stable/modules/generated/nilearn.interfaces.fmriprep.load_confounds.html
 
 ##### Rest
-confounds_rest_df['ffd'] = calc_ffd(confounds_rest_df, rest_tr)
+confounds_rest_df = calc_ffd(confounds_rest_df, rest_tr)
 confounds_rest_df['keep_frames_ffd'] = confounds_rest_df['ffd'] < 0.01
 
-
 ##### Avoid
-confounds_avoid_df['ffd'] = signal.butterworth(avoid_fd, avoid_tr, low_pass=0.1)
+confounds_avoid_df = calc_ffd(confounds_avoid_df, avoid_tr)
 confounds_avoid_df['keep_frames_ffd'] = confounds_avoid_df['ffd'] < 0.01
 
-
 ##### Faces
-confounds_faces_df['ffd'] = signal.butterworth(faces_fd, faces_tr, low_pass=0.1)
+confounds_faces_df = calc_ffd(confounds_faces_df, faces_tr)
+confounds_faces_df['keep_frames_ffd'] = confounds_faces_df['ffd'] < 0.01
 
 
 ############ Censor the TRs where fFD > .1 (put NAs in their place) ############
+
+rest_cen = remove_trs(rest_reg, confounds_rest_df, replace=True)
+avoid_cen = remove_trs(avoid_reg, confounds_avoid_df, replace=True)
+faces_cen = remove_trs(faces_reg, confounds_faces_df, replace=True)
 
 
 ##### Interpolate over these TRs using a power spectrum matching algorithm #####
@@ -276,6 +286,9 @@ faces_band = signal.clean(faces_cen, detrend=False, standardize=False, filter='b
 
 ################# Censor volumes identified as having fFD > .1 #################
 
+rest_cen2 = remove_trs(rest_band, confounds_rest_df, replace=False)
+avoid_cen2 = remove_trs(avoid_band, confounds_rest_df, replace=False)
+faces_cen2 = remove_trs(faces_band, confounds_rest_df, replace=False)
 
 # Write out imgs
 
