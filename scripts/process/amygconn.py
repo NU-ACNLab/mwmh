@@ -1,7 +1,7 @@
 ### This script conducts the post-processing steps after fmriprep
 ###
 ### Ellyn Butler
-### November 22, 2021 - October 11, 2022
+### November 22, 2021 - October 12, 2022
 
 # Python version: 3.8.4
 import os
@@ -39,6 +39,10 @@ ses = args.ss #ses = 'ses-1'
 subInDir = os.path.join(inDir, sub)
 sesInDir = os.path.join(subInDir, ses)
 funcInDir = os.path.join(sesInDir, 'func')
+
+# Directory where outputs should go
+subOutDir = os.path.join(outDir, sub)
+sesOutDir = os.path.join(subOutDir, ses)
 
 # Location of the pre-processed fMRI & mask
 fList = os.listdir(funcInDir)
@@ -106,19 +110,16 @@ final_confounds = confound_vars + deriv_vars + power_vars + power_deriv_vars
 
 ## REST
 #confounds_rest_df = confounds_rest_df.loc[5:] # drop the first 5 TRs from confounds df
-confounds_rest_df = confounds_rest_df[final_confounds]
 confounds_rest_df = confounds_rest_df.fillna(0)
 
 ## AVOID (onset: 12)
 #confounds_avoid_df = confounds_avoid_df.loc[6:] # drop the first 6 TRs from confounds df
-confounds_avoid_df = confounds_avoid_df[final_confounds]
 confounds_avoid_df = confounds_avoid_df.fillna(0)
 # subtract off 6 TRs*RT 2 = 12 from the onset column
 #events_avoid_df['onset'] = events_avoid_df['onset'] - 12
 
 ## FACES (onset: 14.5)
 #confounds_faces_df = confounds_faces_df.loc[5:] # drop the first 5 TRs from confounds df
-confounds_faces_df = confounds_faces_df[final_confounds]
 confounds_faces_df = confounds_faces_df.fillna(0)
 # subtract off 5 TRs*RT 2 = 10 from the onset column
 #events_faces_df['onset'] = events_faces_df['onset'] - 10
@@ -244,6 +245,11 @@ avoid_reg = image.clean_img(avoid_de, detrend=False, standardize=False,
 faces_reg = image.clean_img(faces_de, detrend=False, standardize=False,
                         confounds=confounds_faces_df[final_confounds], t_r=faces_tr)
 
+# Write out images for ease of testing code later
+rest_reg.to_filename(sesOutDir+'/'+sub+'_'+ses+'_task-rest_nuisreg.nii.gz')
+avoid_reg.to_filename(sesOutDir+'/'+sub+'_'+ses+'_task-avoid_nuisreg.nii.gz')
+faces_reg.to_filename(sesOutDir+'/'+sub+'_'+ses+'_task-faces_nuisreg.nii.gz')
+
 
 ############################# Identify TRs to censor ###########################
 #https://nilearn.github.io/dev/auto_examples/03_connectivity/plot_signal_extraction.html#sphx-glr-auto-examples-03-connectivity-plot-signal-extraction-py
@@ -251,37 +257,37 @@ faces_reg = image.clean_img(faces_de, detrend=False, standardize=False,
 
 ##### Rest
 confounds_rest_df = calc_ffd(confounds_rest_df, rest_tr)
-confounds_rest_df['keep_frames_ffd'] = confounds_rest_df['ffd'] < 0.01
+confounds_rest_df['ffd_good'] = confounds_rest_df['ffd'] < 0.1
 
 ##### Avoid
 confounds_avoid_df = calc_ffd(confounds_avoid_df, avoid_tr)
-confounds_avoid_df['keep_frames_ffd'] = confounds_avoid_df['ffd'] < 0.01
+confounds_avoid_df['ffd_good'] = confounds_avoid_df['ffd'] < 0.1
 
 ##### Faces
 confounds_faces_df = calc_ffd(confounds_faces_df, faces_tr)
-confounds_faces_df['keep_frames_ffd'] = confounds_faces_df['ffd'] < 0.01
+confounds_faces_df['ffd_good'] = confounds_faces_df['ffd'] < 0.1
 
 
 ############ Censor the TRs where fFD > .1 (put NAs in their place) ############
 
-rest_cen = remove_trs(rest_reg, confounds_rest_df, replace=True)
-avoid_cen = remove_trs(avoid_reg, confounds_avoid_df, replace=True)
-faces_cen = remove_trs(faces_reg, confounds_faces_df, replace=True)
+rest_cen, confounds_rest_df = remove_trs(rest_reg, confounds_rest_df, replace=True)
+avoid_cen, confounds_avoid_df = remove_trs(avoid_reg, confounds_avoid_df, replace=True)
+faces_cen, confounds_faces_df = remove_trs(faces_reg, confounds_faces_df, replace=True)
 
 
-##### Interpolate over these TRs using a power spectrum matching algorithm #####
+########################## Interpolate over these TRs ##########################
 #https://pylians3.readthedocs.io/en/master/interpolation.html
 #https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.lombscargle.html
 
 
 ########################## Temporal bandpass filtering #########################
 
-rest_band = signal.clean(rest_cen, detrend=False, standardize=False, filter='butterworth',
-                        low_pass=0.08, high_pass=0.009, t_r=param_rest_df['RepetitionTime'])
-avoid_band = signal.clean(avoid_cen, detrend=False, standardize=False, filter='butterworth',
-                        low_pass=0.08, high_pass=0.009, t_r=param_avoid_df['RepetitionTime'])
-faces_band = signal.clean(faces_cen, detrend=False, standardize=False, filter='butterworth',
-                        low_pass=0.08, high_pass=0.009, t_r=param_faces_df['RepetitionTime'])
+rest_band = image.clean_img(rest_cen, detrend=False, standardize=False, filter='butterworth',
+                        low_pass=0.08, high_pass=0.009, t_r=rest_tr)
+avoid_band = image.clean_img(avoid_cen, detrend=False, standardize=False, filter='butterworth',
+                        low_pass=0.08, high_pass=0.009, t_r=avoid_tr)
+faces_band = image.clean_img(faces_cen, detrend=False, standardize=False, filter='butterworth',
+                        low_pass=0.08, high_pass=0.009, t_r=faces_tr)
 
 
 ################# Censor volumes identified as having fFD > .1 #################
@@ -291,6 +297,9 @@ avoid_cen2 = remove_trs(avoid_band, confounds_rest_df, replace=False)
 faces_cen2 = remove_trs(faces_band, confounds_rest_df, replace=False)
 
 # Write out imgs
+rest_cen2.to_filename(sesOutDir+'/'+sub+'_'+ses+'_task-rest_final.nii.gz')
+avoid_cen2.to_filename(sesOutDir+'/'+sub+'_'+ses+'_task-avoid_final.nii.gz')
+faces_cen2.to_filename(sesOutDir+'/'+sub+'_'+ses+'_task-faces_final.nii.gz')
 
 
 ############################ Run masker on all scans ###########################
@@ -333,6 +342,10 @@ rest_time_series = masker_rest.fit_transform(rest_img_cen2) #, confounds=confoun
 avoid_time_series = masker_avoid.fit_transform(avoid_res_cen2)
 faces_time_series = masker_faces.fit_transform(faces_res_cen2)
 
+################################ Quality Metrics ###############################
+
+# subid,sesid,task,mean_fd,mean_ffd,num_trs,num_trs_censored
+
 ################################# Connectivity #################################
 # Write out time series
 np.savetxt(outDir+sub+'/'+ses+'/'+sub+'_'+ses+'_task-rest_atlas-seitz_timeseries.csv',
@@ -371,6 +384,11 @@ cols.extend(amyg_cols)
 amyg_df = amyg_df[cols]
 
 amyg_df.to_csv(outDir+sub+'/'+ses+'/'+sub+'_'+ses+'_atlas-seitz_amygcorr.csv', index=False)
+
+
+
+
+
 
 
 # Generate reports
