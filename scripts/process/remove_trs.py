@@ -4,6 +4,8 @@
 ### October 11, 2022 - October 12, 2022
 
 #https://stackoverflow.com/questions/60208043/how-to-replace-the-first-dimension-of-a-3d-numpy-array-with-values-from-a-1d-arr
+import nibabel as nib #3.2.1
+import numpy as np #1.19.1
 
 def remove_trs(img, confounds_df, replace=True):
     img_array = img.get_fdata()

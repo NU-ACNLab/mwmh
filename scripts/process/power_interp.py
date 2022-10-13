@@ -3,7 +3,7 @@
 ### https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.lombscargle.html
 ###
 ### Ellyn Butler
-### October 12, 2022
+### October 12, 2022 - October 13, 2022
 
 def power_interp(img_cen, mask, tr):
     mask_array = mask.get_fdata()

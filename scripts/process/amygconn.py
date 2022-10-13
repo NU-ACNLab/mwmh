@@ -1,7 +1,7 @@
 ### This script conducts the post-processing steps after fmriprep
 ###
 ### Ellyn Butler
-### November 22, 2021 - October 12, 2022
+### November 22, 2021 - October 13, 2022
 
 # Python version: 3.8.4
 import os
@@ -21,6 +21,7 @@ import sys, getopt
 import argparse
 from calc_ffd import calc_ffd
 from remove_trs import remove_trs
+from power_interp import power_interp
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-i', default='/projects/b1108/studies/mwmh/data/processed/neuroimaging/fmriprep/')
@@ -251,6 +252,9 @@ rest_reg.to_filename(sesOutDir+'/'+sub+'_'+ses+'_task-rest_nuisreg.nii.gz')
 avoid_reg.to_filename(sesOutDir+'/'+sub+'_'+ses+'_task-avoid_nuisreg.nii.gz')
 faces_reg.to_filename(sesOutDir+'/'+sub+'_'+ses+'_task-faces_nuisreg.nii.gz')
 
+#rest_reg = nib.load(sesOutDir+'/'+sub+'_'+ses+'_task-rest_nuisreg.nii.gz')
+#avoid_reg = nib.load(sesOutDir+'/'+sub+'_'+ses+'_task-avoid_nuisreg.nii.gz')
+#faces_reg = nib.load(sesOutDir+'/'+sub+'_'+ses+'_task-faces_nuisreg.nii.gz')
 
 ############################# Identify TRs to censor ###########################
 #https://nilearn.github.io/dev/auto_examples/03_connectivity/plot_signal_extraction.html#sphx-glr-auto-examples-03-connectivity-plot-signal-extraction-py
@@ -285,14 +289,17 @@ avoid_int = power_interp(avoid_cen, mask_img, avoid_tr)
 faces_int = power_interp(faces_cen, mask_img, faces_tr)
 
 
-########################## Temporal bandpass filtering #########################
+############ Temporal bandpass filtering + Nuisance regression again ###########
 
-rest_band = image.clean_img(rest_int, detrend=False, standardize=False, filter='butterworth',
-                        low_pass=0.08, high_pass=0.009, t_r=rest_tr)
-avoid_band = image.clean_img(avoid_int, detrend=False, standardize=False, filter='butterworth',
-                        low_pass=0.08, high_pass=0.009, t_r=avoid_tr)
-faces_band = image.clean_img(faces_int, detrend=False, standardize=False, filter='butterworth',
-                        low_pass=0.08, high_pass=0.009, t_r=faces_tr)
+rest_band = image.clean_img(rest_int, detrend=False, standardize=False, t_r=rest_tr,
+                        confounds=confounds_faces_df[final_confounds],
+                        low_pass=0.08, high_pass=0.009)
+avoid_band = image.clean_img(avoid_int, detrend=False, standardize=False, t_r=avoid_tr,
+                        confounds=confounds_faces_df[final_confounds],
+                        low_pass=0.08, high_pass=0.009)
+faces_band = image.clean_img(faces_int, detrend=False, standardize=False, t_r=faces_tr,
+                        confounds=confounds_faces_df[final_confounds],
+                        low_pass=0.08, high_pass=0.009)
 
 
 ################# Censor volumes identified as having fFD > .1 #################
