@@ -16,6 +16,7 @@ from nilearn import plotting
 from nilearn.glm.first_level import FirstLevelModel
 from nilearn import signal
 from nilearn import image
+import matplotlib.pyplot as plt
 import scipy.signal as sgnl
 import sys, getopt
 import argparse
@@ -275,7 +276,7 @@ confounds_faces_df = calc_ffd(confounds_faces_df, faces_tr)
 confounds_faces_df['ffd_good'] = confounds_faces_df['ffd'] < 0.1
 
 
-############ Censor the TRs where fFD > .1 (put NAs in their place) ############
+######################### Censor the TRs where fFD > .1 ########################
 
 rest_cen, confounds_rest_df = remove_trs(rest_reg, confounds_rest_df, replace=False)
 avoid_cen, confounds_avoid_df = remove_trs(avoid_reg, confounds_avoid_df, replace=False)
@@ -352,9 +353,10 @@ masker_faces = NiftiLabelsMasker(labels_img=labels_img,
                             t_r=faces_tr
                         )
 
-rest_time_series = masker_rest.fit_transform(rest_cen2) #, confounds=confounds_rest_df, sample_mask=rest_sample_mask
+rest_time_series = masker_rest.fit_transform(rest_cen2)
 avoid_time_series = masker_avoid.fit_transform(avoid_cen2)
 faces_time_series = masker_faces.fit_transform(faces_cen2)
+
 
 ################################ Quality Metrics ###############################
 
@@ -392,6 +394,9 @@ faces_corr_matrix = np.corrcoef(faces_time_series, rowvar=False)
 # Average correlation matrices... CHECK WORKS
 corr_matrix = (rest_corr_matrix + avoid_corr_matrix + faces_corr_matrix)/3
 
+corr_mat_plt = plt.matshow(corr_matrix)
+plt.savefig(outdir+sub+'/'+ses+'/'+sub+'_'+ses+'_corrmat.pdf')
+
 # Write out correlation matrix
 np.savetxt(outdir+sub+'/'+ses+'/'+sub+'_'+ses+'_atlas-seitz_corrmat.csv',
     corr_matrix, delimiter=',')
@@ -420,6 +425,7 @@ amyg_df.to_csv(outdir+sub+'/'+ses+'/'+sub+'_'+ses+'_atlas-seitz_amygcorr.csv', i
 
 
 
+
 # Generate reports
 # `generate_report`: https://nilearn.github.io/dev/modules/generated/nilearn.glm.first_level.FirstLevelModel.html?highlight=fit_transform#nilearn.glm.first_level.FirstLevelModel.fit_transform
 
@@ -440,6 +446,6 @@ amyg_df.to_csv(outdir+sub+'/'+ses+'/'+sub+'_'+ses+'_atlas-seitz_amygcorr.csv', i
 # matrices are ordered for block-like representation
 #https://nilearn.github.io/modules/generated/nilearn.plotting.plot_matrix.html
 # TO DO: This isn't working
-#plotting.plot_matrix(correlation_matrix, figure=(10, 8), labels=amyg_cols,
+#plotting.plot_matrix(corr_matrix, figure=(10, 8), labels=amyg_cols,
 #                     vmax=0.8, vmin=-0.8, reorder=True,
 #                     output_file=outdir+sub+'/'+ses+'/'+sub+'_'+ses+'_corrmat.png')
