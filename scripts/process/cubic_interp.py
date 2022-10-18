@@ -8,6 +8,8 @@
 
 #rest_int = power_interp(rest_cen, mask_img, rest_tr)
 from scipy.interpolate import interp1d
+import numpy as np
+import nibabel as nib
 #from copy import deepcopy
 
 #img_cen = rest_cen

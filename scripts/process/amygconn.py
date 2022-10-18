@@ -285,9 +285,9 @@ faces_cen, confounds_faces_df = remove_trs(faces_reg, confounds_faces_df, replac
 #https://pylians3.readthedocs.io/en/master/interpolation.html
 #https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.lombscargle.html
 
-rest_int = cubic_interp(rest_cen, rest_mask_img, rest_tr, confouds_rest_df)
-avoid_int = cubic_interp(avoid_cen, avoid_mask_img, avoid_tr, confouds_avoid_df)
-faces_int = cubic_interp(faces_cen, faces_mask_img, faces_tr, confouds_faces_df)
+rest_int = cubic_interp(rest_cen, rest_mask_img, rest_tr, confounds_rest_df)
+avoid_int = cubic_interp(avoid_cen, avoid_mask_img, avoid_tr, confounds_avoid_df)
+faces_int = cubic_interp(faces_cen, faces_mask_img, faces_tr, confounds_faces_df)
 
 
 ############ Temporal bandpass filtering + Nuisance regression again ###########
