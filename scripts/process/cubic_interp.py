@@ -29,6 +29,7 @@ def cubic_interp(img_cen, mask, tr, confounds_df):
     # Get the voxels that are brain tissue
     mask_array = mask.get_fdata()
     # Make an empty numpy array to put the interpolated data into
+    nout = confounds_df.shape[0]
     int_array = np.zeros((img_array.shape[0], img_array.shape[1], img_array.shape[2], nout))
     # Loop over the voxels to pull out single times series
     for i in range(img_array.shape[0]):

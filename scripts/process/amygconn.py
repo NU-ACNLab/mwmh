@@ -1,7 +1,7 @@
 ### This script conducts the post-processing steps after fmriprep
 ###
 ### Ellyn Butler
-### November 22, 2021 - October 13, 2022
+### November 22, 2021 - October 18, 2022
 
 # Python version: 3.8.4
 import os
@@ -22,6 +22,7 @@ import argparse
 from calc_ffd import calc_ffd
 from remove_trs import remove_trs
 from cubic_interp import cubic_interp
+from get_qual_metrics import get_qual_metrics
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-i', default='/projects/b1108/studies/mwmh/data/processed/neuroimaging/fmriprep/')
@@ -249,9 +250,9 @@ faces_reg = image.clean_img(faces_de, detrend=False, standardize=False,
                         confounds=confounds_faces_df[final_confounds], t_r=faces_tr)
 
 # Write out images for ease of testing code later
-rest_reg.to_filename(sesoutdir+'/'+sub+'_'+ses+'_task-rest_nuisreg.nii.gz')
-avoid_reg.to_filename(sesoutdir+'/'+sub+'_'+ses+'_task-avoid_nuisreg.nii.gz')
-faces_reg.to_filename(sesoutdir+'/'+sub+'_'+ses+'_task-faces_nuisreg.nii.gz')
+#rest_reg.to_filename(sesoutdir+'/'+sub+'_'+ses+'_task-rest_nuisreg.nii.gz')
+#avoid_reg.to_filename(sesoutdir+'/'+sub+'_'+ses+'_task-avoid_nuisreg.nii.gz')
+#faces_reg.to_filename(sesoutdir+'/'+sub+'_'+ses+'_task-faces_nuisreg.nii.gz')
 
 #rest_reg = nib.load(sesoutdir+'/'+sub+'_'+ses+'_task-rest_nuisreg.nii.gz')
 #avoid_reg = nib.load(sesoutdir+'/'+sub+'_'+ses+'_task-avoid_nuisreg.nii.gz')
@@ -293,10 +294,10 @@ faces_int = cubic_interp(faces_cen, faces_mask_img, faces_tr, confounds_faces_df
 ############ Temporal bandpass filtering + Nuisance regression again ###########
 
 rest_band = image.clean_img(rest_int, detrend=False, standardize=False, t_r=rest_tr,
-                        confounds=confounds_faces_df[final_confounds],
+                        confounds=confounds_rest_df[final_confounds],
                         low_pass=0.08, high_pass=0.009)
 avoid_band = image.clean_img(avoid_int, detrend=False, standardize=False, t_r=avoid_tr,
-                        confounds=confounds_faces_df[final_confounds],
+                        confounds=confounds_avoid_df[final_confounds],
                         low_pass=0.08, high_pass=0.009)
 faces_band = image.clean_img(faces_int, detrend=False, standardize=False, t_r=faces_tr,
                         confounds=confounds_faces_df[final_confounds],
@@ -305,9 +306,9 @@ faces_band = image.clean_img(faces_int, detrend=False, standardize=False, t_r=fa
 
 ################# Censor volumes identified as having fFD > .1 #################
 
-rest_cen2 = remove_trs(rest_band, confounds_rest_df, replace=False)
-avoid_cen2 = remove_trs(avoid_band, confounds_rest_df, replace=False)
-faces_cen2 = remove_trs(faces_band, confounds_rest_df, replace=False)
+rest_cen2, confounds_rest_df = remove_trs(rest_band, confounds_rest_df, replace=False)
+avoid_cen2, confounds_avoid_df = remove_trs(avoid_band, confounds_avoid_df, replace=False)
+faces_cen2, confounds_faces_df = remove_trs(faces_band, confounds_faces_df, replace=False)
 
 # Write out imgs
 rest_cen2.to_filename(sesoutdir+'/'+sub+'_'+ses+'_task-rest_final.nii.gz')
@@ -319,45 +320,54 @@ faces_cen2.to_filename(sesoutdir+'/'+sub+'_'+ses+'_task-faces_final.nii.gz')
 
 masker_rest = NiftiLabelsMasker(labels_img=labels_img,
                             labels=labels_list,
-                            mask_img=mask_img,
+                            mask_img=rest_mask_img,
                             smoothing_fwhm=0,
                             standardize=True,
                             detrend=False,
                             low_pass=None,
                             high_pass=None,
                             verbose=5,
-                            t_r=param_rest_df['RepetitionTime']
+                            t_r=rest_tr
                         )
 masker_avoid = NiftiLabelsMasker(labels_img=labels_img,
                             labels=labels_list,
-                            mask_img=mask_img,
+                            mask_img=avoid_mask_img,
                             smoothing_fwhm=0,
                             standardize=True,
                             detrend=False,
                             low_pass=None,
                             high_pass=None,
                             verbose=5,
-                            t_r=param_avoid_df['RepetitionTime']
+                            t_r=avoid_tr
                         )
 masker_faces = NiftiLabelsMasker(labels_img=labels_img,
                             labels=labels_list,
-                            mask_img=mask_img,
+                            mask_img=faces_mask_img,
                             smoothing_fwhm=0,
                             standardize=True,
                             detrend=False,
                             low_pass=None,
                             high_pass=None,
                             verbose=5,
-                            t_r=param_faces_df['RepetitionTime']
+                            t_r=faces_tr
                         )
 
-rest_time_series = masker_rest.fit_transform(rest_img_cen2) #, confounds=confounds_rest_df, sample_mask=rest_sample_mask
-avoid_time_series = masker_avoid.fit_transform(avoid_res_cen2)
-faces_time_series = masker_faces.fit_transform(faces_res_cen2)
+rest_time_series = masker_rest.fit_transform(rest_cen2) #, confounds=confounds_rest_df, sample_mask=rest_sample_mask
+avoid_time_series = masker_avoid.fit_transform(avoid_cen2)
+faces_time_series = masker_faces.fit_transform(faces_cen2)
 
 ################################ Quality Metrics ###############################
 
-# subid,sesid,task,mean_fd,mean_ffd,num_trs,num_trs_censored
+subid = sub.split('-')[1]
+sesid = ses.split('-')[1]
+
+rest_qual_df = get_qual_metrics(confounds_rest_df, 'rest', subid, sesid)
+avoid_qual_df = get_qual_metrics(confounds_avoid_df, 'avoid', subid, sesid)
+faces_qual_df = get_qual_metrics(confounds_faces_df, 'faces', subid, sesid)
+qual_df = pd.concat([rest_qual_df, avoid_qual_df, faces_qual_df])
+
+qual_df.to_csv(outdir+sub+'/'+ses+'/'+sub+'_'+ses+'_quality.csv', index=False)
+
 
 ################################# Connectivity #################################
 # Write out time series
@@ -368,10 +378,16 @@ np.savetxt(outdir+sub+'/'+ses+'/'+sub+'_'+ses+'_task-avoid_atlas-seitz_timeserie
 np.savetxt(outdir+sub+'/'+ses+'/'+sub+'_'+ses+'_task-faces_atlas-seitz_timeseries.csv',
     faces_time_series, delimiter=',')
 
-correlation_measure = ConnectivityMeasure(kind='correlation')
-rest_corr_matrix = correlation_measure.fit_transform(rest_time_series)[0]
-avoid_corr_matrix = correlation_measure.fit_transform(avoid_time_series)[0]
-faces_corr_matrix = correlation_measure.fit_transform(faces_time_series)[0]
+#correlation_measure = ConnectivityMeasure(kind='correlation')
+#rest_corr_matrix = correlation_measure.fit_transform(rest_time_series)[0]
+#avoid_corr_matrix = correlation_measure.fit_transform(avoid_time_series)[0]
+#faces_corr_matrix = correlation_measure.fit_transform(faces_time_series)[0]
+# ^ no longer working for a single subject
+
+# Correlate every column with every other column
+rest_corr_matrix = np.corrcoef(rest_time_series, rowvar=False)
+avoid_corr_matrix = np.corrcoef(avoid_time_series, rowvar=False)
+faces_corr_matrix = np.corrcoef(faces_time_series, rowvar=False)
 
 # Average correlation matrices... CHECK WORKS
 corr_matrix = (rest_corr_matrix + avoid_corr_matrix + faces_corr_matrix)/3
@@ -383,15 +399,15 @@ np.savetxt(outdir+sub+'/'+ses+'/'+sub+'_'+ses+'_atlas-seitz_corrmat.csv',
 ##### Write out average amygdala connectivity
 # Get amygdalae indices and average connectivity
 amyg_indices = labels_df[labels_df['region'] == 4].index
-amyg_corr = correlation_matrix[amyg_indices]
+amyg_corr = corr_matrix[amyg_indices]
 amyg_ave_corr = (amyg_corr[0,] + amyg_corr[1,])/2 # average across right and left
 
 # Name columns
 amyg_cols = ['region'+str(x) for x in range(1,301)]
 amyg_df = pd.DataFrame(columns = amyg_cols)
 amyg_df.loc[0] = amyg_ave_corr.T
-amyg_df['subid'] = sub.split('-')[1]
-amyg_df['sesid'] = ses.split('-')[1]
+amyg_df['subid'] = subid
+amyg_df['sesid'] = sesid
 cols = ['subid', 'sesid']
 cols.extend(amyg_cols)
 amyg_df = amyg_df[cols]
