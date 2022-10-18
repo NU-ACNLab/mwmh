@@ -2,7 +2,7 @@
 ### a tsv compliant with BIDS
 ###
 ### Ellyn Butler
-### March 29, 2022 - July 27, 2022
+### March 29, 2022 - October 8, 2022
 
 
 # TO DO: Turn these into command line arguments for job submission

@@ -31,65 +31,66 @@ parser.add_argument('-s')
 parser.add_argument('-ss')
 args = parser.parse_args()
 
-inDir = args.i #inDir = '/Users/flutist4129/Documents/Northwestern/studies/mwmh/data/processed/neuroimaging/fmriprep/'
-outDir = args.o #outDir = '/Users/flutist4129/Documents/Northwestern/studies/mwmh/data/processed/neuroimaging/amygconn/'
-bidsDir = args.b #bidsDir = '/Users/flutist4129/Documents/Northwestern/studies/mwmh/data/raw/neuroimaging/bids/'
+indir = args.i #indir = '/Users/flutist4129/Documents/Northwestern/studies/mwmh/data/processed/neuroimaging/fmriprep/'
+outdir = args.o #outdir = '/Users/flutist4129/Documents/Northwestern/studies/mwmh/data/processed/neuroimaging/amygconn/'
+bidsdir = args.b #bidsdir = '/Users/flutist4129/Documents/Northwestern/studies/mwmh/data/raw/neuroimaging/bids/'
 sub = args.s #sub = 'sub-MWMH378'
 ses = args.ss #ses = 'ses-1'
 
 # Directory where preprocessed fMRI data is located
-subInDir = os.path.join(inDir, sub)
-sesInDir = os.path.join(subInDir, ses)
-funcInDir = os.path.join(sesInDir, 'func')
+subindir = os.path.join(indir, sub)
+sesindir = os.path.join(subindir, ses)
+funcindir = os.path.join(sesindir, 'func')
 
 # Directory where outputs should go
-subOutDir = os.path.join(outDir, sub)
-sesOutDir = os.path.join(subOutDir, ses)
+suboutdir = os.path.join(outdir, sub)
+sesoutdir = os.path.join(suboutdir, ses)
 
 # Location of the pre-processed fMRI & mask
-fList = os.listdir(funcInDir)
-imageRest = [x for x in fList if ('preproc_bold.nii.gz' in x and 'task-rest' in x)][0]
-imageAvoid = [x for x in fList if ('preproc_bold.nii.gz' in x and 'task-avoid' in x)][0]
-imageFaces = [x for x in fList if ('preproc_bold.nii.gz' in x and 'task-faces' in x)][0]
-imageMask = [x for x in fList if ('brain_mask.nii.gz' in x)][0]
+flist = os.listdir(funcindir)
+file_rest = os.path.join(funcindir, [x for x in flist if ('preproc_bold.nii.gz' in x and 'task-rest' in x)][0])
+file_avoid = os.path.join(funcindir, [x for x in flist if ('preproc_bold.nii.gz' in x and 'task-avoid' in x)][0])
+file_faces = os.path.join(funcindir, [x for x in flist if ('preproc_bold.nii.gz' in x and 'task-faces' in x)][0])
 
-fileRest = os.path.join(funcInDir, imageRest)
-fileAvoid = os.path.join(funcInDir, imageAvoid)
-fileFaces = os.path.join(funcInDir, imageFaces)
-fileMask = os.path.join(funcInDir, imageMask)
-mask_img = nib.load(fileMask)
+file_rest_mask = os.path.join(funcindir, [x for x in flist if ('brain_mask.nii.gz' in x and 'task-rest' in x)][0])
+file_avoid_mask = os.path.join(funcindir, [x for x in flist if ('brain_mask.nii.gz' in x and 'task-avoid' in x)][0])
+file_faces_mask = os.path.join(funcindir, [x for x in flist if ('brain_mask.nii.gz' in x and 'task-faces' in x)][0])
+
+rest_mask_img = nib.load(file_rest_mask)
+avoid_mask_img = nib.load(file_avoid_mask)
+faces_mask_img = nib.load(file_faces_mask)
 
 # Get the labeled image
-SeitzDir = '/projects/b1081/Atlases/Seitzman300/' #SeitzDir='/Users/flutist4129/Documents/Northwestern/templates/Seitzman300/'
-labels_img = nib.load(SeitzDir+'Seitzman300_MNI_res02_allROIs.nii.gz')
+seitzdir = '/projects/b1081/Atlases/Seitzman300/' #seitzdir='/Users/flutist4129/Documents/Northwestern/templates/Seitzman300/'
+labels_img = nib.load(seitzdir+'Seitzman300_MNI_res02_allROIs.nii.gz')
 # ^ Not going to work. Only cortical labels
-labels_path = SeitzDir+'ROIs_anatomicalLabels.txt'
+labels_path = seitzdir+'ROIs_anatomicalLabels.txt'
 labels_df = pd.read_csv(labels_path, sep='\t')
 labels_df = labels_df.rename(columns={'0=cortexMid,1=cortexL,2=cortexR,3=hippocampus,4=amygdala,5=basalGanglia,6=thalamus,7=cerebellum': 'region'})
 
 labels_list = labels_df.iloc[:, 0] # will want to truncate names
 
 # Load confounds for rest, avoid and faces
-confounds_rest_path = os.path.join(funcInDir, [x for x in fList if ('task-rest_desc-confounds_timeseries.tsv' in x)][0])
+confounds_rest_path = os.path.join(funcindir, [x for x in flist if ('task-rest_desc-confounds_timeseries.tsv' in x)][0])
 confounds_rest_df = pd.read_csv(confounds_rest_path, sep='\t')
-confounds_avoid_path = os.path.join(funcInDir, [x for x in fList if ('task-avoid_desc-confounds_timeseries.tsv' in x)][0])
+confounds_avoid_path = os.path.join(funcindir, [x for x in flist if ('task-avoid_desc-confounds_timeseries.tsv' in x)][0])
 confounds_avoid_df = pd.read_csv(confounds_avoid_path, sep='\t')
-confounds_faces_path = os.path.join(funcInDir, [x for x in fList if ('task-faces_desc-confounds_timeseries.tsv' in x)][0])
+confounds_faces_path = os.path.join(funcindir, [x for x in flist if ('task-faces_desc-confounds_timeseries.tsv' in x)][0])
 confounds_faces_df = pd.read_csv(confounds_faces_path, sep='\t')
-os.makedirs(os.path.join(outDir, sub, ses), exist_ok=True)
+os.makedirs(os.path.join(outdir, sub, ses), exist_ok=True)
 
 # Load task events for avoid and faces
-bidsSubDir = os.path.join(bidsDir, sub)
-bidsSesDir = os.path.join(bidsSubDir, ses)
-events_avoid_df = pd.read_csv(bidsSesDir+'/func/'+sub+'_'+ses+'_task-avoid_events.tsv', sep='\t')
-events_faces_df = pd.read_csv(bidsSesDir+'/func/'+sub+'_'+ses+'_task-faces_events.tsv', sep='\t')
+bidssubdir = os.path.join(bidsdir, sub)
+bidssesdir = os.path.join(bidssubdir, ses)
+events_avoid_df = pd.read_csv(bidssesdir+'/func/'+sub+'_'+ses+'_task-avoid_events.tsv', sep='\t')
+events_faces_df = pd.read_csv(bidssesdir+'/func/'+sub+'_'+ses+'_task-faces_events.tsv', sep='\t')
 
 # Load parameters for rest, avoid and faces
-param_rest_file = open(os.path.join(funcInDir, sub+'_'+ses+'_task-rest_space-MNI152NLin6Asym_desc-preproc_bold.json'),)
+param_rest_file = open(os.path.join(funcindir, sub+'_'+ses+'_task-rest_space-MNI152NLin6Asym_desc-preproc_bold.json'),)
 param_rest_df = json.load(param_rest_file)
-param_avoid_file = open(os.path.join(funcInDir, sub+'_'+ses+'_task-avoid_space-MNI152NLin6Asym_desc-preproc_bold.json'),)
+param_avoid_file = open(os.path.join(funcindir, sub+'_'+ses+'_task-avoid_space-MNI152NLin6Asym_desc-preproc_bold.json'),)
 param_avoid_df = json.load(param_avoid_file)
-param_faces_file = open(os.path.join(funcInDir, sub+'_'+ses+'_task-faces_space-MNI152NLin6Asym_desc-preproc_bold.json'),)
+param_faces_file = open(os.path.join(funcindir, sub+'_'+ses+'_task-faces_space-MNI152NLin6Asym_desc-preproc_bold.json'),)
 param_faces_df = json.load(param_faces_file)
 
 # Get TRs
@@ -129,15 +130,15 @@ confounds_faces_df = confounds_faces_df.fillna(0)
 #### Remove first X TRs (September 20, 2022: Stop doing this)
 #https://carpentries-incubator.github.io/SDC-BIDS-fMRI/05-data-cleaning-with-nilearn/index.html
 # REST: Remove first 5 TRs
-rest_img = nib.load(fileRest)
+rest_img = nib.load(file_rest)
 #rest_img = raw_rest_img.slicer[:,:,:,5:]
 
 # AVOID: Remove first 6 TRs
-avoid_img = nib.load(fileAvoid)
+avoid_img = nib.load(file_avoid)
 #avoid_img = raw_avoid_img.slicer[:,:,:,6:]
 
 # FACES: Remove first 5 TRs
-faces_img = nib.load(fileFaces)
+faces_img = nib.load(file_faces)
 #faces_img = raw_faces_img.slicer[:,:,:,5:]
 
 
@@ -165,11 +166,11 @@ events_categ_avoid_df = events_categ_avoid_df.replace({'trial_type': {'000100000
                             '000000001':'lose50'}})
 
 # Remove fixation rows
-events_categ_avoid_df = events_categ_avoid_df[~events_categ_avoid_df['trial_type'].str.contains('fix')]
+events_categ_avoid_df = events_categ_avoid_df[~events_categ_avoid_df['trial_type'].str.contains('fix2')]
 events_categ_avoid_df = events_categ_avoid_df[~events_categ_avoid_df['trial_type'].str.contains('blank')]
 
 avoid_model = FirstLevelModel(param_avoid_df['RepetitionTime'],
-                              mask_img=mask_img,
+                              mask_img=avoid_mask_img,
                               noise_model='ar1',
                               standardize=False,
                               hrf_model='spm + derivative + dispersion',
@@ -218,7 +219,7 @@ events_categ_faces_df = events_categ_faces_df[~events_categ_faces_df['trial_type
 events_categ_faces_df = events_categ_faces_df[~events_categ_faces_df['trial_type'].str.contains('blank')]
 
 faces_model = FirstLevelModel(param_faces_df['RepetitionTime'],
-                              mask_img=mask_img,
+                              mask_img=faces_mask_img,
                               noise_model='ar1',
                               standardize=False,
                               hrf_model='spm + derivative + dispersion',
@@ -248,13 +249,13 @@ faces_reg = image.clean_img(faces_de, detrend=False, standardize=False,
                         confounds=confounds_faces_df[final_confounds], t_r=faces_tr)
 
 # Write out images for ease of testing code later
-rest_reg.to_filename(sesOutDir+'/'+sub+'_'+ses+'_task-rest_nuisreg.nii.gz')
-avoid_reg.to_filename(sesOutDir+'/'+sub+'_'+ses+'_task-avoid_nuisreg.nii.gz')
-faces_reg.to_filename(sesOutDir+'/'+sub+'_'+ses+'_task-faces_nuisreg.nii.gz')
+rest_reg.to_filename(sesoutdir+'/'+sub+'_'+ses+'_task-rest_nuisreg.nii.gz')
+avoid_reg.to_filename(sesoutdir+'/'+sub+'_'+ses+'_task-avoid_nuisreg.nii.gz')
+faces_reg.to_filename(sesoutdir+'/'+sub+'_'+ses+'_task-faces_nuisreg.nii.gz')
 
-#rest_reg = nib.load(sesOutDir+'/'+sub+'_'+ses+'_task-rest_nuisreg.nii.gz')
-#avoid_reg = nib.load(sesOutDir+'/'+sub+'_'+ses+'_task-avoid_nuisreg.nii.gz')
-#faces_reg = nib.load(sesOutDir+'/'+sub+'_'+ses+'_task-faces_nuisreg.nii.gz')
+#rest_reg = nib.load(sesoutdir+'/'+sub+'_'+ses+'_task-rest_nuisreg.nii.gz')
+#avoid_reg = nib.load(sesoutdir+'/'+sub+'_'+ses+'_task-avoid_nuisreg.nii.gz')
+#faces_reg = nib.load(sesoutdir+'/'+sub+'_'+ses+'_task-faces_nuisreg.nii.gz')
 
 ############################# Identify TRs to censor ###########################
 #https://nilearn.github.io/dev/auto_examples/03_connectivity/plot_signal_extraction.html#sphx-glr-auto-examples-03-connectivity-plot-signal-extraction-py
@@ -275,18 +276,18 @@ confounds_faces_df['ffd_good'] = confounds_faces_df['ffd'] < 0.1
 
 ############ Censor the TRs where fFD > .1 (put NAs in their place) ############
 
-rest_cen, confounds_rest_df = remove_trs(rest_reg, confounds_rest_df, replace=True)
-avoid_cen, confounds_avoid_df = remove_trs(avoid_reg, confounds_avoid_df, replace=True)
-faces_cen, confounds_faces_df = remove_trs(faces_reg, confounds_faces_df, replace=True)
+rest_cen, confounds_rest_df = remove_trs(rest_reg, confounds_rest_df, replace=False)
+avoid_cen, confounds_avoid_df = remove_trs(avoid_reg, confounds_avoid_df, replace=False)
+faces_cen, confounds_faces_df = remove_trs(faces_reg, confounds_faces_df, replace=False)
 
 
 ########################## Interpolate over these TRs ##########################
 #https://pylians3.readthedocs.io/en/master/interpolation.html
 #https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.lombscargle.html
 
-rest_int = power_interp(rest_cen, mask_img, rest_tr)
-avoid_int = power_interp(avoid_cen, mask_img, avoid_tr)
-faces_int = power_interp(faces_cen, mask_img, faces_tr)
+rest_int = power_interp(rest_cen, rest_mask_img, rest_tr, confouds_rest_df)
+avoid_int = power_interp(avoid_cen, avoid_mask_img, avoid_tr, confouds_avoid_df)
+faces_int = power_interp(faces_cen, faces_mask_img, faces_tr, confouds_faces_df)
 
 
 ############ Temporal bandpass filtering + Nuisance regression again ###########
@@ -309,9 +310,9 @@ avoid_cen2 = remove_trs(avoid_band, confounds_rest_df, replace=False)
 faces_cen2 = remove_trs(faces_band, confounds_rest_df, replace=False)
 
 # Write out imgs
-rest_cen2.to_filename(sesOutDir+'/'+sub+'_'+ses+'_task-rest_final.nii.gz')
-avoid_cen2.to_filename(sesOutDir+'/'+sub+'_'+ses+'_task-avoid_final.nii.gz')
-faces_cen2.to_filename(sesOutDir+'/'+sub+'_'+ses+'_task-faces_final.nii.gz')
+rest_cen2.to_filename(sesoutdir+'/'+sub+'_'+ses+'_task-rest_final.nii.gz')
+avoid_cen2.to_filename(sesoutdir+'/'+sub+'_'+ses+'_task-avoid_final.nii.gz')
+faces_cen2.to_filename(sesoutdir+'/'+sub+'_'+ses+'_task-faces_final.nii.gz')
 
 
 ############################ Run masker on all scans ###########################
@@ -360,11 +361,11 @@ faces_time_series = masker_faces.fit_transform(faces_res_cen2)
 
 ################################# Connectivity #################################
 # Write out time series
-np.savetxt(outDir+sub+'/'+ses+'/'+sub+'_'+ses+'_task-rest_atlas-seitz_timeseries.csv',
+np.savetxt(outdir+sub+'/'+ses+'/'+sub+'_'+ses+'_task-rest_atlas-seitz_timeseries.csv',
     rest_time_series, delimiter=',')
-np.savetxt(outDir+sub+'/'+ses+'/'+sub+'_'+ses+'_task-avoid_atlas-seitz_timeseries.csv',
+np.savetxt(outdir+sub+'/'+ses+'/'+sub+'_'+ses+'_task-avoid_atlas-seitz_timeseries.csv',
     avoid_time_series, delimiter=',')
-np.savetxt(outDir+sub+'/'+ses+'/'+sub+'_'+ses+'_task-faces_atlas-seitz_timeseries.csv',
+np.savetxt(outdir+sub+'/'+ses+'/'+sub+'_'+ses+'_task-faces_atlas-seitz_timeseries.csv',
     faces_time_series, delimiter=',')
 
 correlation_measure = ConnectivityMeasure(kind='correlation')
@@ -376,7 +377,7 @@ faces_corr_matrix = correlation_measure.fit_transform(faces_time_series)[0]
 corr_matrix = (rest_corr_matrix + avoid_corr_matrix + faces_corr_matrix)/3
 
 # Write out correlation matrix
-np.savetxt(outDir+sub+'/'+ses+'/'+sub+'_'+ses+'_atlas-seitz_corrmat.csv',
+np.savetxt(outdir+sub+'/'+ses+'/'+sub+'_'+ses+'_atlas-seitz_corrmat.csv',
     corr_matrix, delimiter=',')
 
 ##### Write out average amygdala connectivity
@@ -395,7 +396,7 @@ cols = ['subid', 'sesid']
 cols.extend(amyg_cols)
 amyg_df = amyg_df[cols]
 
-amyg_df.to_csv(outDir+sub+'/'+ses+'/'+sub+'_'+ses+'_atlas-seitz_amygcorr.csv', index=False)
+amyg_df.to_csv(outdir+sub+'/'+ses+'/'+sub+'_'+ses+'_atlas-seitz_amygcorr.csv', index=False)
 
 
 
@@ -425,4 +426,4 @@ amyg_df.to_csv(outDir+sub+'/'+ses+'/'+sub+'_'+ses+'_atlas-seitz_amygcorr.csv', i
 # TO DO: This isn't working
 #plotting.plot_matrix(correlation_matrix, figure=(10, 8), labels=amyg_cols,
 #                     vmax=0.8, vmin=-0.8, reorder=True,
-#                     output_file=outDir+sub+'/'+ses+'/'+sub+'_'+ses+'_corrmat.png')
+#                     output_file=outdir+sub+'/'+ses+'/'+sub+'_'+ses+'_corrmat.png')

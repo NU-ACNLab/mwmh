@@ -1,7 +1,7 @@
 ### This script replaces TRs where ffd > .1 with NAs
 ###
 ### Ellyn Butler
-### October 11, 2022 - October 12, 2022
+### October 11, 2022 - October 13, 2022
 
 #https://stackoverflow.com/questions/60208043/how-to-replace-the-first-dimension-of-a-3d-numpy-array-with-values-from-a-1d-arr
 import nibabel as nib #3.2.1
@@ -28,6 +28,7 @@ def remove_trs(img, confounds_df, replace=True):
             if keep_array[i] == False:
                 img_array[:,:,:,i] = float('nan')
     else:
+        confounds_df['keep_ffd'] = keep_array
         img_array = img_array[:,:,:,keep_array]
     img_cen = nib.Nifti1Image(img_array, affine=img.affine)
     return img_cen, confounds_df
