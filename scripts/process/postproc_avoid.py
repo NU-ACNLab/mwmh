@@ -32,7 +32,7 @@ def postproc_avoid(sub, ses, funcindir, bidssesdir, sesoutdir):
     labels_df = pd.read_csv(labels_path, sep='\t')
     labels_df = labels_df.rename(columns={'0=cortexMid,1=cortexL,2=cortexR,3=hippocampus,4=amygdala,5=basalGanglia,6=thalamus,7=cerebellum': 'region'})
     labels_list = labels_df.iloc[:, 0] # will want to truncate names
-    
+
     # Location of the pre-processed fMRI & mask
     flist = os.listdir(funcindir)
     file_avoid = os.path.join(funcindir, [x for x in flist if ('preproc_bold.nii.gz' in x and 'task-avoid' in x)][0])
@@ -155,7 +155,7 @@ def postproc_avoid(sub, ses, funcindir, bidssesdir, sesoutdir):
 
     ################################# Connectivity #################################
     # Write out time series
-    np.savetxt(outdir+sub+'/'+ses+'/'+sub+'_'+ses+'_task-avoid_atlas-seitz_timeseries.csv',
+    np.savetxt(sesoutdir+'/'+sub+'_'+ses+'_task-avoid_atlas-seitz_timeseries.csv',
         avoid_time_series, delimiter=',')
 
     # Correlate every column with every other column

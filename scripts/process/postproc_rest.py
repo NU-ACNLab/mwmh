@@ -1,7 +1,7 @@
-### This script conducts the post-processing steps for resting after fmriprep
+### This script conducts the post-processing steps after fmriprep for rest
 ###
 ### Ellyn Butler
-### November 22, 2021 - October 18, 2022
+### November 22, 2021 - October 19, 2022
 
 # Python version: 3.8.4
 import os
@@ -29,7 +29,7 @@ def postproc_rest(sub, ses, funcindir, bidssesdir, sesoutdir):
     labels_df = pd.read_csv(labels_path, sep='\t')
     labels_df = labels_df.rename(columns={'0=cortexMid,1=cortexL,2=cortexR,3=hippocampus,4=amygdala,5=basalGanglia,6=thalamus,7=cerebellum': 'region'})
     labels_list = labels_df.iloc[:, 0] # will want to truncate names
-    
+
     # Location of the pre-processed fMRI & mask
     flist = os.listdir(funcindir)
     file_rest = os.path.join(funcindir, [x for x in flist if ('preproc_bold.nii.gz' in x and 'task-rest' in x)][0])
@@ -113,7 +113,7 @@ def postproc_rest(sub, ses, funcindir, bidssesdir, sesoutdir):
 
     ##### Connectivity
     # Write out time series
-    np.savetxt(outdir+sub+'/'+ses+'/'+sub+'_'+ses+'_task-rest_atlas-seitz_timeseries.csv',
+    np.savetxt(sesoutdir+'/'+sub+'_'+ses+'_task-rest_atlas-seitz_timeseries.csv',
         rest_time_series, delimiter=',')
 
     # Correlate every column with every other column
