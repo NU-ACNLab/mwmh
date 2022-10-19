@@ -18,6 +18,9 @@ import matplotlib.pyplot as plt
 import scipy.signal as sgnl
 import sys, getopt
 import argparse
+from postproc_rest import postproc_rest
+from postproc_avoid import postproc_avoid
+from postproc_faces import postproc_faces
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-i', default='/projects/b1108/studies/mwmh/data/processed/neuroimaging/fmriprep/')
