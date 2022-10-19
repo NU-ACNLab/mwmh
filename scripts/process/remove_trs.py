@@ -17,11 +17,12 @@ def remove_trs(img, confounds_df, replace=True):
                 np.put(keep_array, index, False)
                 # Is there a False within the subsequent 6?
                 nextsix = confounds_df.loc[(index+1):(index+6), 'ffd_good'].to_list()
-                if nextsix[0] == True and False in nextsix:
-                    # If so, replace all the intervening Trues with False
-                    index_firstfalse = index + nextsix.index(False) + 1
-                    np.put(keep_array, range(index, index_firstfalse), False)
-                    #keep_array[index:index_firstfalse] = False
+                if len(nextsix) > 0:
+                    if nextsix[0] == True and (False in nextsix or len(nextsix) < 6):
+                        # If so, replace all the intervening Trues with False
+                        index_firstfalse = index + nextsix.index(False) + 1
+                        np.put(keep_array, range(index, index_firstfalse), False)
+                        #keep_array[index:index_firstfalse] = False
         confounds_df['keep_ffd'] = keep_array
     else:
         keep_array = confounds_df['keep_ffd'].to_list()
