@@ -22,6 +22,14 @@ from cubic_interp import cubic_interp
 from get_qual_metrics import get_qual_metrics
 
 def postproc_rest(sub, ses, funcindir, bidssesdir, sesoutdir):
+    # Get the labeled image and labels
+    seitzdir = '/projects/b1081/Atlases/Seitzman300/' #seitzdir='/Users/flutist4129/Documents/Northwestern/templates/Seitzman300/'
+    labels_img = nib.load(seitzdir+'Seitzman300_MNI_res02_allROIs.nii.gz')
+    labels_path = seitzdir+'ROIs_anatomicalLabels.txt'
+    labels_df = pd.read_csv(labels_path, sep='\t')
+    labels_df = labels_df.rename(columns={'0=cortexMid,1=cortexL,2=cortexR,3=hippocampus,4=amygdala,5=basalGanglia,6=thalamus,7=cerebellum': 'region'})
+    labels_list = labels_df.iloc[:, 0] # will want to truncate names
+    
     # Location of the pre-processed fMRI & mask
     flist = os.listdir(funcindir)
     file_rest = os.path.join(funcindir, [x for x in flist if ('preproc_bold.nii.gz' in x and 'task-rest' in x)][0])
