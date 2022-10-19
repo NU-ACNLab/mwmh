@@ -27,8 +27,10 @@ for subdir in subdirs:
         for ses in sessions:
             if not os.path.exists(outdir+sub+'/'+ses):
                 os.mkdir(outdir+sub+'/'+ses)
+            tasks_list = np.unique([i.split('/')[12].split('_')[2].split('-')[1] for i in bold_imgs])
+            tasks = ' '.join(tasks_list)
             cmd = ['python3 /projects/b1108/studies/mwmh/scripts/process/amygconn.py -i',
-                indir, '-o', outdir, '-b', bidsdir, '-s', sub, '-ss', ses]
+                indir, '-o', outdir, '-b', bidsdir, '-s', sub, '-ss', ses, '-t', tasks]
             amygconn_script = launchdir+sub+'_'+ses+'_amygconn_run.sh'
             os.system('cat /projects/b1108/studies/mwmh/scripts/process/sbatchinfo_60min_general.sh > '+amygconn_script)
             os.system('echo '+' '.join(cmd)+' >> '+amygconn_script)

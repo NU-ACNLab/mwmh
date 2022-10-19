@@ -51,29 +51,61 @@ bidssesdir = os.path.join(bidssubdir, ses)
 
 ############################ Process available tasks ###########################
 
-rest_corr_matrix, rest_qual_df = postproc_rest(sub, ses, funcindir, bidssesdir, sesoutdir)
-avoid_corr_matrix, avoid_qual_df = postproc_avoid(sub, ses, funcindir, bidssesdir, sesoutdir)
-faces_corr_matrix, faces_qual_df = postproc_faces(sub, ses, funcindir, bidssesdir, sesoutdir)
+if 'rest' in tasks:
+    rest_corr_matrix, rest_qual_df = postproc_rest(sub, ses, funcindir, bidssesdir, sesoutdir)
+if 'avoid' in tasks:
+    avoid_corr_matrix, avoid_qual_df = postproc_avoid(sub, ses, funcindir, bidssesdir, sesoutdir)
+if 'faces' in tasks:
+    faces_corr_matrix, faces_qual_df = postproc_faces(sub, ses, funcindir, bidssesdir, sesoutdir)
 
 ################################# Combine tasks ################################
 
-# Combine quality metrics
-qual_df = pd.concat([rest_qual_df, avoid_qual_df, faces_qual_df])
-qual_df.to_csv(outdir+sub+'/'+ses+'/'+sub+'_'+ses+'_quality.csv', index=False)
+if 'rest' in tasks and 'avoid' in tasks and 'faces' in tasks:
+    # Combine quality metrics
+    qual_df = pd.concat([rest_qual_df, avoid_qual_df, faces_qual_df])
+    qual_df.to_csv(outdir+sub+'/'+ses+'/'+sub+'_'+ses+'_quality.csv', index=False)
+    # Average correlation matrices
+    corr_matrix = (rest_corr_matrix + avoid_corr_matrix + faces_corr_matrix)/3
+elif 'rest' in tasks and 'avoid' in tasks:
+    # Combine quality metrics
+    qual_df = pd.concat([rest_qual_df, avoid_qual_df])
+    qual_df.to_csv(outdir+sub+'/'+ses+'/'+sub+'_'+ses+'_quality.csv', index=False)
+    # Average correlation matrices
+    corr_matrix = (rest_corr_matrix + avoid_corr_matrix)/2
+elif 'rest' in tasks and 'faces' in tasks:
+    # Combine quality metrics
+    qual_df = pd.concat([rest_qual_df, faces_qual_df])
+    qual_df.to_csv(outdir+sub+'/'+ses+'/'+sub+'_'+ses+'_quality.csv', index=False)
+    # Average correlation matrices
+    corr_matrix = (rest_corr_matrix + faces_corr_matrix)/2
+elif 'avoid' in tasks and 'faces' in tasks:
+    # Combine quality metrics
+    qual_df = pd.concat([avoid_qual_df, faces_qual_df])
+    qual_df.to_csv(outdir+sub+'/'+ses+'/'+sub+'_'+ses+'_quality.csv', index=False)
+    # Average correlation matrices
+    corr_matrix = (avoid_corr_matrix + faces_corr_matrix)/2
+elif 'rest' in tasks:
+    qual_df = rest_qual_df
+    qual_df.to_csv(outdir+sub+'/'+ses+'/'+sub+'_'+ses+'_quality.csv', index=False)
+    corr_matrix = rest_corr_matrix
+elif 'avoid' in tasks:
+    qual_df = avoid_qual_df
+    qual_df.to_csv(outdir+sub+'/'+ses+'/'+sub+'_'+ses+'_quality.csv', index=False)
+    corr_matrix = avoid_corr_matrix
+elif 'faces' in tasks:
+    qual_df = faces_qual_df
+    qual_df.to_csv(outdir+sub+'/'+ses+'/'+sub+'_'+ses+'_quality.csv', index=False)
+    corr_matrix = faces_corr_matrix
 
-# Get the labeled image
+# Get the labeled image and labels
 seitzdir = '/projects/b1081/Atlases/Seitzman300/' #seitzdir='/Users/flutist4129/Documents/Northwestern/templates/Seitzman300/'
 labels_img = nib.load(seitzdir+'Seitzman300_MNI_res02_allROIs.nii.gz')
-# ^ Not going to work. Only cortical labels
 labels_path = seitzdir+'ROIs_anatomicalLabels.txt'
 labels_df = pd.read_csv(labels_path, sep='\t')
 labels_df = labels_df.rename(columns={'0=cortexMid,1=cortexL,2=cortexR,3=hippocampus,4=amygdala,5=basalGanglia,6=thalamus,7=cerebellum': 'region'})
-
 labels_list = labels_df.iloc[:, 0] # will want to truncate names
 
-# Average correlation matrices... CHECK WORKS
-corr_matrix = (rest_corr_matrix + avoid_corr_matrix + faces_corr_matrix)/3
-
+# Create correlation matrix plot
 corr_mat_plt = plt.matshow(corr_matrix)
 plt.savefig(outdir+sub+'/'+ses+'/'+sub+'_'+ses+'_corrmat.pdf')
 
