@@ -1,7 +1,7 @@
 ### This script replaces TRs where ffd > .1 with NAs
 ###
 ### Ellyn Butler
-### October 11, 2022 - October 13, 2022
+### October 11, 2022 - October 19, 2022
 
 #https://stackoverflow.com/questions/60208043/how-to-replace-the-first-dimension-of-a-3d-numpy-array-with-values-from-a-1d-arr
 import nibabel as nib #3.2.1
@@ -18,9 +18,12 @@ def remove_trs(img, confounds_df, replace=True):
                 # Is there a False within the subsequent 6?
                 nextsix = confounds_df.loc[(index+1):(index+6), 'ffd_good'].to_list()
                 if len(nextsix) > 0:
-                    if nextsix[0] == True and (False in nextsix or len(nextsix) < 6):
+                    if nextsix[0] == True:
                         # If so, replace all the intervening Trues with False
-                        index_firstfalse = index + nextsix.index(False) + 1
+                        if False in nextsix:
+                            index_firstfalse = index + nextsix.index(False) + 1
+                        elif len(nextsix) < 6:
+                            index_firstfalse = len(keep_array)
                         np.put(keep_array, range(index, index_firstfalse), False)
                         #keep_array[index:index_firstfalse] = False
         confounds_df['keep_ffd'] = keep_array
