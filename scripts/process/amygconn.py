@@ -106,7 +106,6 @@ elif 'faces' in tasks:
 plt.ioff()
 corr_mat_plt = plt.matshow(corr_matrix)
 plt.savefig(sesoutdir+'/'+sub+'_'+ses+'_corrmat.pdf')
-plt.close(corr_mat_plt)
 
 # Write out correlation matrix
 np.savetxt(sesoutdir+'/'+sub+'_'+ses+'_atlas-seitz_corrmat.csv',
