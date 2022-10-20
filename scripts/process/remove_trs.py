@@ -22,10 +22,10 @@ def remove_trs(img, confounds_df, replace=True):
                         # If so, replace all the intervening Trues with False
                         if False in nextsix:
                             index_firstfalse = index + nextsix.index(False) + 1
+                            np.put(keep_array, range(index, index_firstfalse), False)
                         elif len(nextsix) < 6:
                             index_firstfalse = len(keep_array)
-                        np.put(keep_array, range(index, index_firstfalse), False)
-                        #keep_array[index:index_firstfalse] = False
+                            np.put(keep_array, range(index, index_firstfalse), False)
         confounds_df['keep_ffd'] = keep_array
     else:
         keep_array = confounds_df['keep_ffd'].to_list()
