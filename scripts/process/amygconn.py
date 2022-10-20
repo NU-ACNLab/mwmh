@@ -126,6 +126,9 @@ amyg_corr = corr_matrix[amyg_indices]
 amyg_ave_corr = (amyg_corr[0,] + amyg_corr[1,])/2 # average across right and left
 
 # Name columns
+subid = sub.split('-')[1]
+sesid = ses.split('-')[1]
+
 amyg_cols = ['region'+str(x) for x in range(1,301)]
 amyg_df = pd.DataFrame(columns = amyg_cols)
 amyg_df.loc[0] = amyg_ave_corr.T
