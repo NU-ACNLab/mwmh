@@ -33,7 +33,7 @@ for subdir in subdirs:
             cmd = ['python3 /projects/b1108/studies/mwmh/scripts/process/amygconn.py -i',
                 indir, '-o', outdir, '-b', bidsdir, '-s', sub, '-ss', ses, '-t', tasks]
             amygconn_script = launchdir+sub+'_'+ses+'_amygconn_run.sh'
-            os.system('cat /projects/b1108/studies/mwmh/scripts/process/sbatchinfo_60min_general.sh > '+amygconn_script)
+            os.system('cat /projects/b1108/studies/mwmh/scripts/process/sbatchinfo_40min_general.sh > '+amygconn_script)
             os.system('echo '+' '.join(cmd)+' >> '+amygconn_script)
             os.system('chmod +x '+amygconn_script)
             os.system('sbatch -o '+launchdir+sub+'_'+ses+'.txt'+' '+amygconn_script)
