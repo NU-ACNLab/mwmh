@@ -150,7 +150,7 @@ def postproc_avoid(sub, ses, funcindir, bidssesdir, sesoutdir):
 
     avoid_qual_df = get_qual_metrics(confounds_avoid_df, 'avoid', subid, sesid)
 
-    ################################# Connectivity #################################
+    ##### Connectivity 
     # Write out time series
     np.savetxt(sesoutdir+'/'+sub+'_'+ses+'_task-avoid_atlas-seitz_timeseries.csv',
         avoid_time_series, delimiter=',')

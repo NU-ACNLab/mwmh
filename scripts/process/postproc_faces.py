@@ -167,7 +167,7 @@ def postproc_faces(sub, ses, funcindir, bidssesdir, sesoutdir):
 
     faces_qual_df = get_qual_metrics(confounds_faces_df, 'faces', subid, sesid)
 
-    ###### Connectivity
+    ##### Connectivity
     # Write out time series
     np.savetxt(sesoutdir+'/'+sub+'_'+ses+'_task-faces_atlas-seitz_timeseries.csv',
         faces_time_series, delimiter=',')

@@ -66,46 +66,48 @@ if 'faces' in tasks:
 if 'rest' in tasks and 'avoid' in tasks and 'faces' in tasks:
     # Combine quality metrics
     qual_df = pd.concat([rest_qual_df, avoid_qual_df, faces_qual_df])
-    qual_df.to_csv(outdir+sub+'/'+ses+'/'+sub+'_'+ses+'_quality.csv', index=False)
+    qual_df.to_csv(sesoutdir+'/'+sub+'_'+ses+'_quality.csv', index=False)
     # Average correlation matrices
     corr_matrix = (rest_corr_matrix + avoid_corr_matrix + faces_corr_matrix)/3
 elif 'rest' in tasks and 'avoid' in tasks:
     # Combine quality metrics
     qual_df = pd.concat([rest_qual_df, avoid_qual_df])
-    qual_df.to_csv(outdir+sub+'/'+ses+'/'+sub+'_'+ses+'_quality.csv', index=False)
+    qual_df.to_csv(sesoutdir+'/'+sub+'_'+ses+'_quality.csv', index=False)
     # Average correlation matrices
     corr_matrix = (rest_corr_matrix + avoid_corr_matrix)/2
 elif 'rest' in tasks and 'faces' in tasks:
     # Combine quality metrics
     qual_df = pd.concat([rest_qual_df, faces_qual_df])
-    qual_df.to_csv(outdir+sub+'/'+ses+'/'+sub+'_'+ses+'_quality.csv', index=False)
+    qual_df.to_csv(sesoutdir+'/'+sub+'_'+ses+'_quality.csv', index=False)
     # Average correlation matrices
     corr_matrix = (rest_corr_matrix + faces_corr_matrix)/2
 elif 'avoid' in tasks and 'faces' in tasks:
     # Combine quality metrics
     qual_df = pd.concat([avoid_qual_df, faces_qual_df])
-    qual_df.to_csv(outdir+sub+'/'+ses+'/'+sub+'_'+ses+'_quality.csv', index=False)
+    qual_df.to_csv(sesoutdir+'/'+sub+'_'+ses+'_quality.csv', index=False)
     # Average correlation matrices
     corr_matrix = (avoid_corr_matrix + faces_corr_matrix)/2
 elif 'rest' in tasks:
     qual_df = rest_qual_df
-    qual_df.to_csv(outdir+sub+'/'+ses+'/'+sub+'_'+ses+'_quality.csv', index=False)
+    qual_df.to_csv(sesoutdir+'/'+sub+'_'+ses+'_quality.csv', index=False)
     corr_matrix = rest_corr_matrix
 elif 'avoid' in tasks:
     qual_df = avoid_qual_df
-    qual_df.to_csv(outdir+sub+'/'+ses+'/'+sub+'_'+ses+'_quality.csv', index=False)
+    qual_df.to_csv(sesoutdir+'/'+sub+'_'+ses+'_quality.csv', index=False)
     corr_matrix = avoid_corr_matrix
 elif 'faces' in tasks:
     qual_df = faces_qual_df
-    qual_df.to_csv(outdir+sub+'/'+ses+'/'+sub+'_'+ses+'_quality.csv', index=False)
+    qual_df.to_csv(sesoutdir+'/'+sub+'_'+ses+'_quality.csv', index=False)
     corr_matrix = faces_corr_matrix
 
 # Create correlation matrix plot
+plt.ioff()
 corr_mat_plt = plt.matshow(corr_matrix)
-plt.savefig(outdir+sub+'/'+ses+'/'+sub+'_'+ses+'_corrmat.pdf')
+plt.savefig(sesoutdir+'/'+sub+'_'+ses+'_corrmat.pdf')
+plt.close(corr_mat_plt)
 
 # Write out correlation matrix
-np.savetxt(outdir+sub+'/'+ses+'/'+sub+'_'+ses+'_atlas-seitz_corrmat.csv',
+np.savetxt(sesoutdir+'/'+sub+'_'+ses+'_atlas-seitz_corrmat.csv',
     corr_matrix, delimiter=',')
 
 ##### Write out average amygdala connectivity
@@ -124,4 +126,4 @@ cols = ['subid', 'sesid']
 cols.extend(amyg_cols)
 amyg_df = amyg_df[cols]
 
-amyg_df.to_csv(outdir+sub+'/'+ses+'/'+sub+'_'+ses+'_atlas-seitz_amygcorr.csv', index=False)
+amyg_df.to_csv(sesoutdir+'/'+sub+'_'+ses+'_atlas-seitz_amygcorr.csv', index=False)
