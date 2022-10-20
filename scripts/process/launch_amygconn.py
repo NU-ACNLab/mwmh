@@ -16,6 +16,7 @@ bidsdir = '/projects/b1108/studies/mwmh/data/raw/neuroimaging/bids/'
 launchdir = '/projects/b1108/studies/mwmh/data/processed/neuroimaging/launch/amygconn/'
 
 subdirs = glob.glob(indir + "sub-*[!.html]")
+subdirs = subdirs[2:]
 
 for subdir in subdirs:
     sub = subdir.split('/')[9]
