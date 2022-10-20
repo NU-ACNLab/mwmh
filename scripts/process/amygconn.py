@@ -54,6 +54,14 @@ os.makedirs(os.path.join(outdir, sub, ses), exist_ok=True)
 bidssubdir = os.path.join(bidsdir, sub)
 bidssesdir = os.path.join(bidssubdir, ses)
 
+# Get the labeled image and labels
+seitzdir = '/projects/b1081/Atlases/Seitzman300/' #seitzdir='/Users/flutist4129/Documents/Northwestern/templates/Seitzman300/'
+labels_img = nib.load(seitzdir+'Seitzman300_MNI_res02_allROIs.nii.gz')
+labels_path = seitzdir+'ROIs_anatomicalLabels.txt'
+labels_df = pd.read_csv(labels_path, sep='\t')
+labels_df = labels_df.rename(columns={'0=cortexMid,1=cortexL,2=cortexR,3=hippocampus,4=amygdala,5=basalGanglia,6=thalamus,7=cerebellum': 'region'})
+labels_list = labels_df.iloc[:, 0] # will want to truncate names
+
 ############################ Process available tasks ###########################
 
 if 'rest' in tasks:
