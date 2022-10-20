@@ -1,7 +1,7 @@
 ### This script generates submission scripts for fmriprep for the first visit
 ###
 ### Ellyn Butler
-### December 12, 2021 - October 19, 2022
+### December 12, 2021 - October 20, 2022
 
 
 import os
@@ -21,13 +21,14 @@ for subdir in subdirs:
     sub = subdir.split('/')[9]
     if not os.path.exists(outdir+sub):
         os.mkdir(outdir+sub)
-    bold_imgs = glob.glob(indir+sub+'/*/*/*bold.nii.gz')
-    if len(bold_imgs) > 0:
-        sessions = np.unique([i.split('/')[10] for i in bold_imgs])
-        for ses in sessions:
-            if not os.path.exists(outdir+sub+'/'+ses):
-                os.mkdir(outdir+sub+'/'+ses)
-            tasks_list = np.unique([i.split('/')[12].split('_')[2].split('-')[1] for i in bold_imgs])
+    sub_bold_imgs = glob.glob(indir+sub+'/*/*/*bold.nii.gz')
+    sessions = np.unique([i.split('/')[10] for i in sub_bold_imgs])
+    for ses in sessions:
+        if not os.path.exists(outdir+sub+'/'+ses):
+            os.mkdir(outdir+sub+'/'+ses)
+        ses_bold_imgs = glob.glob(indir+sub+'/'+ses+'/*/*bold.nii.gz')
+        if len(ses_bold_imgs) > 0:
+            tasks_list = np.unique([i.split('/')[12].split('_')[2].split('-')[1] for i in ses_bold_imgs])
             tasks = ' '.join(tasks_list)
             cmd = ['python3 /projects/b1108/studies/mwmh/scripts/process/amygconn.py -i',
                 indir, '-o', outdir, '-b', bidsdir, '-s', sub, '-ss', ses, '-t', tasks]

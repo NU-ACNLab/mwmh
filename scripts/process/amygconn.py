@@ -1,7 +1,7 @@
 ### This script conducts the post-processing steps after fmriprep
 ###
 ### Ellyn Butler
-### November 22, 2021 - October 18, 2022
+### November 22, 2021 - October 20, 2022
 
 # Python version: 3.8.4
 import os
@@ -14,6 +14,8 @@ from nilearn.input_data import NiftiLabelsMasker #0.8.1
 from nilearn import plotting
 from nilearn import signal
 from nilearn import image
+import matplotlib
+matplotlib.use('pdf')
 import matplotlib.pyplot as plt
 import scipy.signal as sgnl
 import sys, getopt
