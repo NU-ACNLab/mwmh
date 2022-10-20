@@ -60,13 +60,15 @@ def cubic_interp(img_cen, mask, tr, confounds_df):
                     # Fit the cubic model
                     fit = interp1d(retained_sample_times, vals, kind='cubic')
                     # Get the predicted values for the censored times
-                    if ditch_ffd[0] == True or ditch_ffd[-1] == True:
-                        if ditch_ffd[-1] == True:
-                            interp_vals = fit(excluded_sample_times[ditch_beg:-ditch_end])
-                        else:
-                            interp_vals = fit(excluded_sample_times[ditch_beg:])
-                        # Put predicted values in the correct TRs
+                    if ditch_ffd[0] == True and ditch_ffd[-1] == True:
+                        interp_vals = fit(excluded_sample_times[ditch_beg:-ditch_end])
                         int_array[i, j, k, ditch_ffd] = np.append(np.repeat(0, ditch_beg), interp_vals, np.repeat(0, ditch_end))
+                    elif ditch_ffd[0] == True:
+                        interp_vals = fit(excluded_sample_times[ditch_beg:])
+                        int_array[i, j, k, ditch_ffd] = np.append(np.repeat(0, ditch_beg), interp_vals)
+                    elif ditch_ffd[-1] == True:
+                        interp_vals = fit(excluded_sample_times[0:-ditch_end])
+                        int_array[i, j, k, ditch_ffd] = np.append(interp_vals, np.repeat(0, ditch_end))
                     else:
                         interp_vals = fit(excluded_sample_times)
                         # Put predicted values in the correct TRs

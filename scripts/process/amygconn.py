@@ -34,8 +34,8 @@ args = parser.parse_args()
 indir = args.i #indir = '/Users/flutist4129/Documents/Northwestern/studies/mwmh/data/processed/neuroimaging/fmriprep/'
 outdir = args.o #outdir = '/Users/flutist4129/Documents/Northwestern/studies/mwmh/data/processed/neuroimaging/amygconn/'
 bidsdir = args.b #bidsdir = '/Users/flutist4129/Documents/Northwestern/studies/mwmh/data/raw/neuroimaging/bids/'
-sub = args.s #sub = 'sub-MWMH212'
-ses = args.ss #ses = 'ses-2'
+sub = args.s #sub = 'sub-MWMH359'
+ses = args.ss #ses = 'ses-1'
 tasks = args.t
 
 # Directory where preprocessed fMRI data is located

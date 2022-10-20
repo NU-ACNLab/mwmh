@@ -52,12 +52,9 @@ def postproc_rest(sub, ses, funcindir, bidssesdir, sesoutdir):
     # Removed csf and white_matter because too collinear with global_signal
     confound_vars = ['trans_x','trans_y','trans_z',
                      'rot_x','rot_y','rot_z', 'global_signal'] #, 'csf', 'white_matter'
-    deriv_vars = ['{}_derivative1'.format(c) for c
-                         in confound_vars]
-    power_vars = ['{}_power2'.format(c) for c
-                         in confound_vars]
-    power_deriv_vars = ['{}_derivative1_power2'.format(c) for c
-                         in confound_vars]
+    deriv_vars = ['{}_derivative1'.format(c) for c in confound_vars]
+    power_vars = ['{}_power2'.format(c) for c in confound_vars]
+    power_deriv_vars = ['{}_derivative1_power2'.format(c) for c in confound_vars]
     final_confounds = confound_vars + deriv_vars + power_vars + power_deriv_vars
 
     confounds_rest_df = confounds_rest_df.fillna(0)
