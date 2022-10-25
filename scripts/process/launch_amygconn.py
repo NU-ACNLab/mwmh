@@ -1,7 +1,7 @@
 ### This script generates submission scripts for fmriprep for the first visit
 ###
 ### Ellyn Butler
-### December 12, 2021 - October 20, 2022
+### December 12, 2021 - October 25, 2022
 
 
 import os
@@ -16,7 +16,6 @@ bidsdir = '/projects/b1108/studies/mwmh/data/raw/neuroimaging/bids/'
 launchdir = '/projects/b1108/studies/mwmh/data/processed/neuroimaging/launch/amygconn/'
 
 subdirs = glob.glob(indir + "sub-*[!.html]")
-subdirs = subdirs[2:]
 
 for subdir in subdirs:
     sub = subdir.split('/')[9]
@@ -30,11 +29,26 @@ for subdir in subdirs:
         ses_bold_imgs = glob.glob(indir+sub+'/'+ses+'/*/*bold.nii.gz')
         if len(ses_bold_imgs) > 0:
             tasks_list = np.unique([i.split('/')[12].split('_')[2].split('-')[1] for i in ses_bold_imgs])
-            tasks = ' '.join(tasks_list)
-            cmd = ['python3 /projects/b1108/studies/mwmh/scripts/process/amygconn.py -i',
-                indir, '-o', outdir, '-b', bidsdir, '-s', sub, '-ss', ses, '-t', tasks]
-            amygconn_script = launchdir+sub+'_'+ses+'_amygconn_run.sh'
-            os.system('cat /projects/b1108/studies/mwmh/scripts/process/sbatchinfo_40min_general.sh > '+amygconn_script)
-            os.system('echo '+' '.join(cmd)+' >> '+amygconn_script)
-            os.system('chmod +x '+amygconn_script)
-            os.system('sbatch -o '+launchdir+sub+'_'+ses+'.txt'+' '+amygconn_script)
+            ses_events_files = glob.glob(bidsdir+sub+'/'+ses+'/*/*events.tsv')
+            events_list = np.unique([i.split('/')[12].split('_')[2].split('-')[1] for i in ses_events_files])
+            # If you don't have an events file, you can't include the task fMRI
+            if 'avoid' in tasks_list and 'avoid' not in events_list:
+                index = np.argwhere(tasks_list == 'avoid')
+                tasks_list = np.delete(tasks_list, index)
+            if 'faces' in tasks_list and 'faces' not in events_list:
+                index = np.argwhere(tasks_list == 'faces')
+                tasks_list = np.delete(tasks_list, index)
+            # If the rest scan is too short, you can't process it
+            rest_img = nib.load(indir+sub+'/'+ses+'/func/'+sub+'_'+ses+'_task-rest_space-MNI152NLin6Asym_desc-preproc_bold.nii.gz')
+            if rest_img.shape[3] < 34:
+                index = np.argwhere(tasks_list == 'rest')
+                tasks_list = np.delete(tasks_list, index)
+            if len(tasks_list) > 0:
+                tasks = ' '.join(tasks_list)
+                cmd = ['python3 /projects/b1108/studies/mwmh/scripts/process/amygconn.py -i',
+                    indir, '-o', outdir, '-b', bidsdir, '-s', sub, '-ss', ses, '-t', tasks]
+                amygconn_script = launchdir+sub+'_'+ses+'_amygconn_run.sh'
+                os.system('cat /projects/b1108/studies/mwmh/scripts/process/sbatchinfo_40min_general.sh > '+amygconn_script)
+                os.system('echo '+' '.join(cmd)+' >> '+amygconn_script)
+                os.system('chmod +x '+amygconn_script)
+                os.system('sbatch -o '+launchdir+sub+'_'+ses+'.txt'+' '+amygconn_script)
