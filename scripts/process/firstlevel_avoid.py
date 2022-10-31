@@ -3,7 +3,7 @@
 ### https://nilearn.github.io/dev/auto_examples/04_glm_first_level/plot_adhd_dmn.html#sphx-glr-auto-examples-04-glm-first-level-plot-adhd-dmn-py
 ###
 ### Ellyn Butler
-### September 20, 2022 - September 29, 2022
+### September 20, 2022 - October 31, 2022
 
 import os
 import json
@@ -16,43 +16,47 @@ import numpy as np
 import matplotlib.pyplot as plt
 from nilearn.plotting import plot_contrast_matrix
 from nilearn import plotting
+import argparse
 
-#sub = 'sub-MWMH378'
-#ses = 'ses-1'
-#sub = 'sub-MWMH190'
-#ses = 'ses-1'
-sub = 'sub-MWMH270'
-ses = 'ses-2'
+parser = argparse.ArgumentParser()
+parser.add_argument('-i', default='/projects/b1108/studies/mwmh/data/processed/neuroimaging/fmriprep/')
+parser.add_argument('-o', default='/projects/b1108/studies/mwmh/data/processed/neuroimaging/firstlevel/')
+parser.add_argument('-b', default='/projects/b1108/studies/mwmh/data/raw/neuroimaging/bids/')
+parser.add_argument('-s')
+parser.add_argument('-ss')
+args = parser.parse_args()
 
-inDir = '/Users/flutist4129/Documents/Northwestern/studies/mwmh/data/processed/neuroimaging/fmriprep/'
-subInDir = os.path.join(inDir, sub)
-sesInDir = os.path.join(subInDir, ses)
-funcInDir = os.path.join(sesInDir, 'func')
+indir = args.i #indir = '/Users/flutist4129/Documents/Northwestern/studies/mwmh/data/processed/neuroimaging/fmriprep/'
+outdir = args.o #outdir = '/Users/flutist4129/Documents/Northwestern/studies/mwmh/data/processed/neuroimaging/amygconn/'
+bidsdir = args.b #bidsdir = '/Users/flutist4129/Documents/Northwestern/studies/mwmh/data/raw/neuroimaging/bids/'
+sub = args.s #sub = 'sub-MWMH359'
+ses = args.ss #ses = 'ses-1'
 
-outDir = '/Users/flutist4129/Documents/Northwestern/studies/mwmh/data/processed/neuroimaging/firstlevel/'
-os.makedirs(os.path.join(outDir, sub, ses), exist_ok=True)
+subindir = os.path.join(indir, sub)
+sesindir = os.path.join(subindir, ses)
+funcindir = os.path.join(sesindir, 'func')
 
-bidsDir = '/Users/flutist4129/Documents/Northwestern/studies/mwmh/data/raw/neuroimaging/bids/'
+os.makedirs(os.path.join(outdir, sub, ses), exist_ok=True)
 
-fList = os.listdir(funcInDir)
-imageAvoid = [x for x in fList if ('preproc_bold.nii.gz' in x and 'task-avoid' in x)][0] #'sub-MWMH378_ses-1_task-avoid_space-MNI152NLin6Asym_desc-preproc_bold.nii.gz'
-fileAvoid = os.path.join(funcInDir, imageAvoid)
+flist = os.listdir(funcindir)
+imageAvoid = [x for x in flist if ('preproc_bold.nii.gz' in x and 'task-avoid' in x)][0] #'sub-MWMH378_ses-1_task-avoid_space-MNI152NLin6Asym_desc-preproc_bold.nii.gz'
+fileAvoid = os.path.join(funcindir, imageAvoid)
 
-bidsSubDir = os.path.join(bidsDir, sub)
-bidsSesDir = os.path.join(bidsSubDir, ses)
-events_avoid_df = pd.read_csv(bidsSesDir+'/func/'+sub+'_'+ses+'_task-avoid_events.tsv', sep='\t')
+bidssubdir = os.path.join(bidsdir, sub)
+bidssesdir = os.path.join(bidssubdir, ses)
+events_avoid_df = pd.read_csv(bidssesdir+'/func/'+sub+'_'+ses+'_task-avoid_events.tsv', sep='\t')
 
-param_avoid_file = open(os.path.join(funcInDir, sub+'_'+ses+'_task-avoid_space-MNI152NLin6Asym_desc-preproc_bold.json'),)
+param_avoid_file = open(os.path.join(funcindir, sub+'_'+ses+'_task-avoid_space-MNI152NLin6Asym_desc-preproc_bold.json'),)
 param_avoid_df = json.load(param_avoid_file)
 
 avoid_img = nib.load(fileAvoid)
 
-imageMask = [x for x in fList if ('brain_mask.nii.gz' in x)][0] #'sub-MWMH378_ses-1_task-avoid_space-MNI152NLin6Asym_desc-brain_mask.nii.gz'
-fileMask = os.path.join(funcInDir, imageMask)
+imageMask = [x for x in flist if ('brain_mask.nii.gz' in x)][0] #'sub-MWMH378_ses-1_task-avoid_space-MNI152NLin6Asym_desc-brain_mask.nii.gz'
+fileMask = os.path.join(funcindir, imageMask)
 mask_img = nib.load(fileMask)
 
 ### Specify confounds
-confounds_avoid_path = os.path.join(funcInDir, [x for x in fList if ('task-avoid_desc-confounds_timeseries.tsv' in x)][0])
+confounds_avoid_path = os.path.join(funcindir, [x for x in flist if ('task-avoid_desc-confounds_timeseries.tsv' in x)][0])
 confounds_avoid_df = pd.read_csv(confounds_avoid_path, sep='\t')
 
 confound_vars = ['trans_x','trans_y','trans_z',
@@ -116,7 +120,7 @@ avoid_glm = avoid_model.fit(avoid_img, events_categ_avoid_df, confounds=confound
 #WHAT IS GOING ON HERE? UserWarning: Mean values of 0 observed.The data have probably been centered.Scaling might not work as expected?
 #avoid_glm.generate_report() #missing 1 required positional argument: 'contrasts'
 design_matrix = avoid_model.design_matrices_[0]
-plot_design_matrix(design_matrix, output_file=outDir+sub+'/'+ses+'/'+sub+'_'+ses+'_task-avoid_design_matrix.pdf')
+plot_design_matrix(design_matrix, output_file=outdir+sub+'/'+ses+'/'+sub+'_'+ses+'_task-avoid_design_matrix.pdf')
 
 #design_matrices = make_first_level_design_matrix(frame_times, events,
 #                          drift_model='polynomial', drift_order=3)
@@ -172,30 +176,30 @@ contrasts = {'approach_minus_avoid': np.subtract(approach, avoid),
 
 ### Approach minus avoid
 plot_contrast_matrix(contrasts['approach_minus_avoid'], design_matrix=design_matrix,
-                        output_file=outDir+sub+'/'+ses+'/'+sub+'_'+ses+'_task-avoid_approach_minus_avoid_contrast_matrix.pdf')
+                        output_file=outdir+sub+'/'+ses+'/'+sub+'_'+ses+'_task-avoid_approach_minus_avoid_contrast_matrix.pdf')
 
 approach_minus_avoid_z_map = avoid_model.compute_contrast(
     contrasts['approach_minus_avoid'], output_type='z_score')
 
-approach_minus_avoid_z_map.to_filename(outDir+sub+'/'+ses+'/'+sub+'_'+ses+'_task-faces_approach_minus_avoid_zmap.nii.gz')
+approach_minus_avoid_z_map.to_filename(outdir+sub+'/'+ses+'/'+sub+'_'+ses+'_task-faces_approach_minus_avoid_zmap.nii.gz')
 
 plotting.plot_stat_map(approach_minus_avoid_z_map, threshold=2.0,
               display_mode='z', cut_coords=3, title='Approach minus Avoid (Z>2)',
-              output_file=outDir+sub+'/'+ses+'/'+sub+'_'+ses+'_task-avoid_approach_minus_avoid_zmap.pdf')
+              output_file=outdir+sub+'/'+ses+'/'+sub+'_'+ses+'_task-avoid_approach_minus_avoid_zmap.pdf')
 # TO DO: Unthresholded indicated that the mask may not fit the brain well... vmPFC cut off
 
 ### Gain minus lose
 plot_contrast_matrix(contrasts['gain_minus_lose'], design_matrix=design_matrix,
-                        output_file=outDir+sub+'/'+ses+'/'+sub+'_'+ses+'_task-avoid_gain_minus_lose_contrast_matrix.pdf')
+                        output_file=outdir+sub+'/'+ses+'/'+sub+'_'+ses+'_task-avoid_gain_minus_lose_contrast_matrix.pdf')
 
 gain_minus_lose_z_map = avoid_model.compute_contrast(
     contrasts['gain_minus_lose'], output_type='z_score')
 
-gain_minus_lose_z_map.to_filename(outDir+sub+'/'+ses+'/'+sub+'_'+ses+'_task-faces_gain_minus_lose_zmap.nii.gz')
+gain_minus_lose_z_map.to_filename(outdir+sub+'/'+ses+'/'+sub+'_'+ses+'_task-faces_gain_minus_lose_zmap.nii.gz')
 
 plotting.plot_stat_map(gain_minus_lose_z_map, threshold=2.0,
               display_mode='z', cut_coords=2, title='Gain minus Lose (Z>2)',
-              output_file=outDir+sub+'/'+ses+'/'+sub+'_'+ses+'_task-avoid_gain_minus_lose_zmap.pdf')
+              output_file=outdir+sub+'/'+ses+'/'+sub+'_'+ses+'_task-avoid_gain_minus_lose_zmap.pdf')
 
 
 
