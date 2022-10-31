@@ -33,7 +33,7 @@ for index, row in exclude_df.iterrows():
         os.system('cat /projects/b1108/studies/mwmh/scripts/process/sbatchinfo_10min_general.sh > '+amygconn_script)
         os.system('echo '+' '.join(cmd)+' >> '+amygconn_script)
         os.system('chmod +x '+amygconn_script)
-        os.system('sbatch -o '+launchdir+sub+'_'+ses+'.txt'+' '+amygconn_script)
+        os.system('sbatch -o '+launchdir+sub+'_'+ses+'_reaverage.txt'+' '+amygconn_script)
     # if exclude == 1 for all of the tasks
     elif 1 in excludes and 0 not in excludes:
         os.rename(outdir+'/'+sub+'/'+ses+'/'+sub+'_'+ses+'_atlas-seitz_amygcorr.csv', outdir+'/'+sub+'/'+ses+'/'+sub+'_'+ses+'_atlas-seitz_amygcorr_old.csv')

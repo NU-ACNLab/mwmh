@@ -9,6 +9,18 @@ import os
 import json
 import pandas as pd #1.0.5
 import nibabel as nib #3.2.1
+import numpy as np #1.19.1
+#from bids.layout import BIDSLayout #may not be needed
+from nilearn.input_data import NiftiLabelsMasker #0.8.1
+from nilearn import plotting
+from nilearn import signal
+from nilearn import image
+import matplotlib
+matplotlib.use('pdf')
+import matplotlib.pyplot as plt
+import scipy.signal as sgnl
+import sys, getopt
+import argparse
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-o', default='/projects/b1108/studies/mwmh/data/processed/neuroimaging/amygconn/')
