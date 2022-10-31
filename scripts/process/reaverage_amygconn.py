@@ -11,33 +11,20 @@ import pandas as pd #1.0.5
 import nibabel as nib #3.2.1
 
 parser = argparse.ArgumentParser()
-parser.add_argument('-i', default='/projects/b1108/studies/mwmh/data/processed/neuroimaging/fmriprep/')
 parser.add_argument('-o', default='/projects/b1108/studies/mwmh/data/processed/neuroimaging/amygconn/')
-parser.add_argument('-b', default='/projects/b1108/studies/mwmh/data/raw/neuroimaging/bids/')
 parser.add_argument('-s')
 parser.add_argument('-ss')
 parser.add_argument('-t', nargs='+') #https://www.codegrepper.com/code-examples/python/python+argparse+multiple+values
 args = parser.parse_args()
 
-indir = args.i #indir = '/Users/flutist4129/Documents/Northwestern/studies/mwmh/data/processed/neuroimaging/fmriprep/'
 outdir = args.o #outdir = '/Users/flutist4129/Documents/Northwestern/studies/mwmh/data/processed/neuroimaging/amygconn/'
-bidsdir = args.b #bidsdir = '/Users/flutist4129/Documents/Northwestern/studies/mwmh/data/raw/neuroimaging/bids/'
 sub = args.s #sub = 'sub-MWMH359'
 ses = args.ss #ses = 'ses-1'
 tasks = args.t
 
-# Directory where preprocessed fMRI data is located
-subindir = os.path.join(indir, sub)
-sesindir = os.path.join(subindir, ses)
-funcindir = os.path.join(sesindir, 'func')
-
 # Directory where outputs should go
 suboutdir = os.path.join(outdir, sub)
 sesoutdir = os.path.join(suboutdir, ses)
-
-# Get the bids directory for this session
-bidssubdir = os.path.join(bidsdir, sub)
-bidssesdir = os.path.join(bidssubdir, ses)
 
 # Get the labeled image and labels
 seitzdir = '/projects/b1081/Atlases/Seitzman300/' #seitzdir='/Users/flutist4129/Documents/Northwestern/templates/Seitzman300/'
