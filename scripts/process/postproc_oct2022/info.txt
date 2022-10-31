@@ -1,0 +1,3 @@
+The scripts in this directory are the exact scripts that processed the data in
+October, 2022. These copies were created in case the pipelines are modified in
+the future.

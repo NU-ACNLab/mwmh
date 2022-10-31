@@ -11,7 +11,7 @@ from datetime import datetime
 
 basedir = '/projects/b1108/studies/mwmh/data/processed/neuroimaging'
 
-files = glob.glob(basedir+'/amygconn/sub*/ses*/*_atlas-seitz_amygcorr.csv')
+files = glob.glob(basedir+'/amygconn/sub*/ses*/*_quality.csv')
 df = pd.concat((pd.read_csv(f, header = 0) for f in files))
 
-df.to_csv(basedir+'/tabulated/amygconn_'+datetime.today().strftime('%Y-%m-%d')+'.csv', index=False)
+df.to_csv(basedir+'/tabulated/quality_'+datetime.today().strftime('%Y-%m-%d')+'.csv', index=False)
