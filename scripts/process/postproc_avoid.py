@@ -84,10 +84,10 @@ def postproc_avoid(sub, ses, funcindir, bidssesdir, sesoutdir):
 
     #https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.replace.html
     events_categ_avoid_df = events_categ_avoid_df.replace({'trial_type': {'000100000':'avoid',
-                                '100000000':'fix1', '000000100':'gain10',
-                                '010000000':'fix2', '001000000':'approach',
-                                '000000010':'lose10', '000001000':'gain50',
-                                '000000001':'lose50'}})
+                                '100000000':'fix1', '000010000':'nothing',
+                                '000000100':'gain10', '010000000':'fix2',
+                                '001000000':'approach', '000000010':'lose10',
+                                '000001000':'gain50', '000000001':'lose50'}})
 
     # Remove fixation rows
     events_categ_avoid_df = events_categ_avoid_df[~events_categ_avoid_df['trial_type'].str.contains('fix2')]
@@ -150,7 +150,7 @@ def postproc_avoid(sub, ses, funcindir, bidssesdir, sesoutdir):
 
     avoid_qual_df = get_qual_metrics(confounds_avoid_df, 'avoid', subid, sesid)
 
-    ##### Connectivity 
+    ##### Connectivity
     # Write out time series
     np.savetxt(sesoutdir+'/'+sub+'_'+ses+'_task-avoid_atlas-seitz_timeseries.csv',
         avoid_time_series, delimiter=',')

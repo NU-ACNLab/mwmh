@@ -67,8 +67,8 @@ power_vars = ['{}_power2'.format(c) for c
                      in confound_vars]
 power_deriv_vars = ['{}_derivative1_power2'.format(c) for c
                      in confound_vars]
-#final_confounds = confound_vars + deriv_vars + power_vars + power_deriv_vars #36, but singular
-final_confounds = confound_vars
+final_confounds = confound_vars + deriv_vars + power_vars + power_deriv_vars #36, but singular
+#final_confounds = confound_vars
 
 confounds_faces_df = confounds_faces_df[final_confounds]
 

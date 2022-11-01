@@ -67,8 +67,8 @@ power_vars = ['{}_power2'.format(c) for c
                      in confound_vars]
 power_deriv_vars = ['{}_derivative1_power2'.format(c) for c
                      in confound_vars]
-#final_confounds = confound_vars + deriv_vars + power_vars + power_deriv_vars
-final_confounds = confound_vars
+final_confounds = confound_vars + deriv_vars + power_vars + power_deriv_vars
+#final_confounds = confound_vars
 
 confounds_avoid_df = confounds_avoid_df[final_confounds]
 
@@ -98,10 +98,10 @@ events_categ_avoid_df['trial_type'] = categ
 
 #https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.replace.html
 events_categ_avoid_df = events_categ_avoid_df.replace({'trial_type': {'000100000':'avoid',
-                            '100000000':'fix1', '000000100':'gain10',
-                            '010000000':'fix2', '001000000':'approach',
-                            '000000010':'lose10', '000001000':'gain50',
-                            '000000001':'lose50'}})
+                            '100000000':'fix1', '000010000':'nothing',
+                            '000000100':'gain10', '010000000':'fix2',
+                            '001000000':'approach', '000000010':'lose10',
+                            '000001000':'gain50', '000000001':'lose50'}})
 
 # Remove fixation rows
 events_categ_avoid_df = events_categ_avoid_df[~events_categ_avoid_df['trial_type'].str.contains('fix')]
