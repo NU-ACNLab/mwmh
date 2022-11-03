@@ -13,6 +13,8 @@ from nilearn.glm.first_level import make_first_level_design_matrix
 from nilearn.plotting import plot_design_matrix
 from nilearn.glm.first_level import FirstLevelModel
 import numpy as np
+import matplotlib
+matplotlib.use('pdf')
 import matplotlib.pyplot as plt
 from nilearn.plotting import plot_contrast_matrix
 from nilearn import plotting
@@ -139,6 +141,7 @@ faces_glm = faces_model.fit(faces_img, events_categ_faces_df, confounds=confound
 #WHAT IS GOING ON HERE? UserWarning: Mean values of 0 observed. The data have probably been centered. Scaling might not work as expected?
 #faces_glm.generate_report() #missing 1 required positional argument: 'contrasts'
 design_matrix = faces_model.design_matrices_[0]
+plt.ioff()
 plot_design_matrix(design_matrix, output_file=outdir+sub+'/'+ses+'/'+sub+'_'+ses+'_task-faces_design_matrix.pdf')
 #^ QUESTION: Why does global signal look constant?
 #Not because high mean and low SD - tried scaling and looked the same

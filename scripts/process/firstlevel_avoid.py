@@ -13,6 +13,8 @@ from nilearn.glm.first_level import make_first_level_design_matrix
 from nilearn.plotting import plot_design_matrix
 from nilearn.glm.first_level import FirstLevelModel
 import numpy as np
+import matplotlib
+matplotlib.use('pdf')
 import matplotlib.pyplot as plt
 from nilearn.plotting import plot_contrast_matrix
 from nilearn import plotting
@@ -120,6 +122,7 @@ avoid_glm = avoid_model.fit(avoid_img, events_categ_avoid_df, confounds=confound
 #WHAT IS GOING ON HERE? UserWarning: Mean values of 0 observed.The data have probably been centered.Scaling might not work as expected?
 #avoid_glm.generate_report() #missing 1 required positional argument: 'contrasts'
 design_matrix = avoid_model.design_matrices_[0]
+plt.ioff()
 plot_design_matrix(design_matrix, output_file=outdir+sub+'/'+ses+'/'+sub+'_'+ses+'_task-avoid_design_matrix.pdf')
 
 #design_matrices = make_first_level_design_matrix(frame_times, events,

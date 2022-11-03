@@ -31,16 +31,16 @@ for subdir in subdirs:
             if 'avoid' in tasks_list and 'avoid' in events_list:
                 cmd = ['python3 /projects/b1108/studies/mwmh/scripts/process/firstlevel_avoid.py -i',
                     indir, '-o', outdir, '-b', bidsdir, '-s', sub, '-ss', ses]
-                avoid_script = launchdir+sub+'_'+ses+'_firstlevel_avoid_run.sh'
+                avoid_script = launchdir+sub+'_'+ses+'_task-avoid_run.sh'
                 os.system('cat /projects/b1108/studies/mwmh/scripts/process/sbatchinfo_firstlevel_general.sh > '+avoid_script)
                 os.system('echo '+' '.join(cmd)+' >> '+avoid_script)
                 os.system('chmod +x '+avoid_script)
-                os.system('sbatch -o '+launchdir+sub+'_'+ses+'.txt'+' '+avoid_script)
+                os.system('sbatch -o '+launchdir+sub+'_'+ses+'_task-avoid.txt'+' '+avoid_script)
             if 'faces' in tasks_list and 'faces' in events_list:
                 cmd = ['python3 /projects/b1108/studies/mwmh/scripts/process/firstlevel_faces.py -i',
                     indir, '-o', outdir, '-b', bidsdir, '-s', sub, '-ss', ses]
-                faces_script = launchdir+sub+'_'+ses+'_firstlevel_faces_run.sh'
+                faces_script = launchdir+sub+'_'+ses+'_task-faces_run.sh'
                 os.system('cat /projects/b1108/studies/mwmh/scripts/process/sbatchinfo_firstlevel_general.sh > '+faces_script)
                 os.system('echo '+' '.join(cmd)+' >> '+faces_script)
                 os.system('chmod +x '+faces_script)
-                os.system('sbatch -o '+launchdir+sub+'_'+ses+'.txt'+' '+faces_script)
+                os.system('sbatch -o '+launchdir+sub+'_'+ses+'_task-faces.txt'+' '+faces_script)
