@@ -3,7 +3,7 @@
 ### fFD cutoff.
 ###
 ### Ellyn Butler
-### October 31, 2022
+### October 31, 2022 - November 3, 2022
 
 import os
 import json
@@ -62,19 +62,45 @@ if 'faces' in tasks:
 ################################# Combine tasks ################################
 
 if 'rest' in tasks and 'avoid' in tasks and 'faces' in tasks:
-    corr_matrix = (rest_corr_matrix + avoid_corr_matrix + faces_corr_matrix)/3
+    # Average correlation matrices
+    corrmats = np.array([rest_corr_matrix, avoid_corr_matrix, faces_corr_matrix])
+    corr_matrix = np.nanmean(corrmats, axis=1)
+    # Get the number of non-nan values for each corr matrix
+    num_nonnan = np.count_nonzero(~np.isnan(corrmats), axis=1)
 elif 'rest' in tasks and 'avoid' in tasks:
-    corr_matrix = (rest_corr_matrix + avoid_corr_matrix)/2
+    # Average correlation matrices
+    corrmats = np.array([rest_corr_matrix, avoid_corr_matrix])
+    corr_matrix = np.nanmean(corrmats, axis=1)
+    # Get the number of non-nan values for each corr matrix
+    num_nonnan = np.count_nonzero(~np.isnan(corrmats), axis=1)
 elif 'rest' in tasks and 'faces' in tasks:
-    corr_matrix = (rest_corr_matrix + faces_corr_matrix)/2
+    # Average correlation matrices
+    corrmats = np.array([rest_corr_matrix, faces_corr_matrix])
+    corr_matrix = np.nanmean(corrmats, axis=1)
+    # Get the number of non-nan values for each corr matrix
+    num_nonnan = np.count_nonzero(~np.isnan(corrmats), axis=1)
 elif 'avoid' in tasks and 'faces' in tasks:
-    corr_matrix = (avoid_corr_matrix + faces_corr_matrix)/2
+    # Average correlation matrices
+    corrmats = np.array([avoid_corr_matrix, faces_corr_matrix])
+    corr_matrix = np.nanmean(corrmats, axis=1)
+    # Get the number of non-nan values for each corr matrix
+    num_nonnan = np.count_nonzero(~np.isnan(corrmats), axis=1)
 elif 'rest' in tasks:
     corr_matrix = rest_corr_matrix
+    # Get the number of non-nan values for each corr matrix
+    num_nonnan = np.isnan(corr_matrix)
 elif 'avoid' in tasks:
     corr_matrix = avoid_corr_matrix
+    # Get the number of non-nan values for each corr matrix
+    num_nonnan = np.isnan(corr_matrix)
 elif 'faces' in tasks:
     corr_matrix = faces_corr_matrix
+    # Get the number of non-nan values for each corr matrix
+    num_nonnan = np.isnan(corr_matrix)
+
+# Write out number of non-nan matrices
+np.savetxt(sesoutdir+'/'+sub+'_'+ses+'_atlas-seitz_nonnan.csv',
+    num_nonnan, delimiter=',')
 
 # Create correlation matrix plot
 plt.ioff()
@@ -103,9 +129,6 @@ amyg_df['sesid'] = sesid
 cols = ['subid', 'sesid']
 cols.extend(amyg_cols)
 amyg_df = amyg_df[cols]
-
-# Rename old
-os.rename(sesoutdir+'/'+sub+'_'+ses+'_atlas-seitz_amygcorr.csv', sesoutdir+'/'+sub+'_'+ses+'_atlas-seitz_amygcorr_old.csv')
 
 # Output new
 amyg_df.to_csv(sesoutdir+'/'+sub+'_'+ses+'_atlas-seitz_amygcorr.csv', index=False)
