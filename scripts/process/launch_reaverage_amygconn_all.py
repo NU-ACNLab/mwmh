@@ -47,5 +47,7 @@ for index, row in exclude_df.iterrows():
             os.system('sbatch -o '+launchdir+sub+'_'+ses+'_reaverage_all.txt'+' '+amygconn_script)
             subid_sesid.append(subid+'_'+str(sesid))
         else:
-            os.rename(outdir+'/'+sub+'/'+ses+'/'+sub+'_'+ses+'_atlas-seitz_amygcorr.csv', outdir+'/'+sub+'/'+ses+'/'+sub+'_'+ses+'_atlas-seitz_amygcorr_old2.csv')
+            fname = outdir+'/'+sub+'/'+ses+'/'+sub+'_'+ses+'_atlas-seitz_amygcorr.csv'
+            if os.path.isfile(fname):
+                os.rename(fname, outdir+'/'+sub+'/'+ses+'/'+sub+'_'+ses+'_atlas-seitz_amygcorr_old2.csv')
             subid_sesid.append(subid+'_'+str(sesid))

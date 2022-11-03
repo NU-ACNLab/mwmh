@@ -64,27 +64,27 @@ if 'faces' in tasks:
 if 'rest' in tasks and 'avoid' in tasks and 'faces' in tasks:
     # Average correlation matrices
     corrmats = np.array([rest_corr_matrix, avoid_corr_matrix, faces_corr_matrix])
-    corr_matrix = np.nanmean(corrmats, axis=1)
+    corr_matrix = np.nanmean(corrmats, axis=0)
     # Get the number of non-nan values for each corr matrix
-    num_nonnan = np.count_nonzero(~np.isnan(corrmats), axis=1)
+    num_nonnan = np.count_nonzero(~np.isnan(corrmats), axis=0)
 elif 'rest' in tasks and 'avoid' in tasks:
     # Average correlation matrices
     corrmats = np.array([rest_corr_matrix, avoid_corr_matrix])
-    corr_matrix = np.nanmean(corrmats, axis=1)
+    corr_matrix = np.nanmean(corrmats, axis=0)
     # Get the number of non-nan values for each corr matrix
-    num_nonnan = np.count_nonzero(~np.isnan(corrmats), axis=1)
+    num_nonnan = np.count_nonzero(~np.isnan(corrmats), axis=0)
 elif 'rest' in tasks and 'faces' in tasks:
     # Average correlation matrices
     corrmats = np.array([rest_corr_matrix, faces_corr_matrix])
-    corr_matrix = np.nanmean(corrmats, axis=1)
+    corr_matrix = np.nanmean(corrmats, axis=0)
     # Get the number of non-nan values for each corr matrix
-    num_nonnan = np.count_nonzero(~np.isnan(corrmats), axis=1)
+    num_nonnan = np.count_nonzero(~np.isnan(corrmats), axis=0)
 elif 'avoid' in tasks and 'faces' in tasks:
     # Average correlation matrices
     corrmats = np.array([avoid_corr_matrix, faces_corr_matrix])
-    corr_matrix = np.nanmean(corrmats, axis=1)
+    corr_matrix = np.nanmean(corrmats, axis=0)
     # Get the number of non-nan values for each corr matrix
-    num_nonnan = np.count_nonzero(~np.isnan(corrmats), axis=1)
+    num_nonnan = np.count_nonzero(~np.isnan(corrmats), axis=0)
 elif 'rest' in tasks:
     corr_matrix = rest_corr_matrix
     # Get the number of non-nan values for each corr matrix
