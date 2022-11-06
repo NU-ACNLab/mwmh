@@ -14,7 +14,7 @@ from nilearn.input_data import NiftiLabelsMasker #0.8.1
 from nilearn import plotting
 from nilearn import signal
 from nilearn import image
-import scipy.signal as sgnl
+import scipy.signal as sgnl #1.5.4
 import sys, getopt
 from calc_ffd import calc_ffd
 from remove_trs import remove_trs
