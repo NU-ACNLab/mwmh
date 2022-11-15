@@ -2,7 +2,7 @@
 ### at both time points
 ###
 ### Ellyn Butler
-### July 19, 2022
+### July 19, 2022 - November 7, 2022
 
 # NOTE: This raw data is not on Quest because it is PHI
 
@@ -13,11 +13,18 @@
 
 
 
-dob_df <- read.csv('/Users/flutist4129/Documents/Northwestern/studies/mwmh/data/raw/demographics/MWMH_V1_DOB.csv')
-v1_df <- read.csv('/Users/flutist4129/Documents/Northwestern/studies/mwmh/data/raw/demographics/V1_Dates.csv')
-v2_df <- read.csv('/Users/flutist4129/Documents/Northwestern/studies/mwmh/data/raw/demographics/V2_Dates.csv')
+dob_df <- read.csv('/Users/flutist4129/Documents/Northwestern/studies/mwmh/data/raw/demographic/MWMH_V1_DOB.csv')
+dob_df <- dob_df[!is.na(dob_df$ID), ]
+v1_df <- read.csv('/Users/flutist4129/Documents/Northwestern/studies/mwmh/data/raw/demographic/V1_Dates.csv')
+v1_df <- v1_df[!is.na(v1_df$ID), ]
+v2_df <- read.csv('/Users/flutist4129/Documents/Northwestern/studies/mwmh/data/raw/demographic/V2_Dates.csv')
+v2_df <- v2_df[!is.na(v2_df$ID), ]
 
+# Insert dates that are missing from these csvs, but can be found in dicom headers
+v2_df[v2_df$ID == 133, 'DOV_MRI_V2'] <- '1/26/19'
+v2_df[v2_df$ID == 370, 'DOV_MRI_V2'] <- '2/21/19'
 
+# Convert into dates
 names(dob_df) <- c('subid', 'dob')
 dob_df$subid <- paste0('MWMH', dob_df$subid)
 dob_df$dob <- as.Date(dob_df$dob, '%m/%d/%Y')
@@ -36,18 +43,18 @@ v2_df$dov_mri <- as.Date(v2_df$dov_mri, '%m/%d/%y')
 
 visit_df <- rbind(v1_df, v2_df)
 
-final_df <- merge(visit_df, dob_df, by='subid')
+final_df <- merge(visit_df, dob_df, by='subid', all=TRUE)
 final_df <- final_df[, c('subid', 'sesid', 'dob', 'dov_lab', 'dov_mri')]
 
 final_df$age_lab <- as.numeric((final_df$dov_lab - final_df$dob)/365.25)
-final_df$age_mri <- as.numeric((final_df$dov_lab - final_df$dob)/365.25)
+final_df$age_mri <- as.numeric((final_df$dov_mri - final_df$dob)/365.25)
 final_df$days_mri_minus_lab <- as.numeric(final_df$dov_mri - final_df$dov_lab)
 
 
-write.csv(final_df, paste0('/Users/flutist4129/Documents/Northwestern/studies/mwmh/data/processed/demographics/dob_dov_', Sys.Date(), '.csv'), row.names=FALSE)
+write.csv(final_df, paste0('/Users/flutist4129/Documents/Northwestern/studies/mwmh/data/processed/demographic/dob_dov_', Sys.Date(), '.csv'), row.names=FALSE)
 
 quest_df <- final_df[, c('subid', 'sesid', 'dov_lab', 'dov_mri', 'age_lab', 'age_mri', 'days_mri_minus_lab')]
-write.csv(quest_df, paste0('/Users/flutist4129/Documents/Northwestern/studies/mwmh/data/processed/demographics/age_visits_', Sys.Date(), '.csv'), row.names=FALSE)
+write.csv(quest_df, paste0('/Users/flutist4129/Documents/Northwestern/studies/mwmh/data/processed/demographic/age_visits_', Sys.Date(), '.csv'), row.names=FALSE)
 
 
 ##### Basic description of dates of visits

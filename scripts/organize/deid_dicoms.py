@@ -17,7 +17,6 @@ for sesdir in sesdirs:
     sequences = os.popen('ls '+sesdir+'/SCANS/').read().split("\n")[:-1]
     sequences = [seq for seq in sequences if seq != 'junk']
     sequences = [seq for seq in sequences if '99' not in seq]
-    sub = sesdir.split('/')[4].split('-')[1]
     ses = sesdir.split('/')[5].split('-')[1]
     for seq in sequences:
         if os.path.isdir(sesdir+'/SCANS/'+seq+'/DICOM/'):
