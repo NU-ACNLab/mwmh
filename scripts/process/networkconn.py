@@ -69,8 +69,9 @@ for net in networks:
     net_corr = net_corr.iloc[net_indices]
     net_corr = net_corr.to_numpy()
     numi = len(net_indices)
+    #numnan = np.count_nonzero(np.isnan(net_corr))
     ave_conn = (np.sum(net_corr) - numi)/(2*(numi*numi - numi)) # TO DO Jun 29: figure out what to do about nans
     ave_dict[net] = ave_conn
 
-ave_df = pd.DataFrame.from_dict(ave_dict)
-param_df.to_csv(sesoutdir+sub+'_'+ses+'_networkconn.csv', index=False)
+ave_df = pd.DataFrame(ave_dict, index=[0])
+ave_df.to_csv(sesoutdir+sub+'_'+ses+'_networkconn.csv', index=False)
