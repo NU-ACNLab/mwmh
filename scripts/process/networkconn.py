@@ -74,4 +74,4 @@ for net in networks:
     ave_dict[net] = ave_conn
 
 ave_df = pd.DataFrame(ave_dict, index=[0])
-ave_df.to_csv(sesoutdir+sub+'_'+ses+'_networkconn.csv', index=False)
+ave_df.to_csv(sesoutdir+'/'+sub+'_'+ses+'_networkconn.csv', index=False)

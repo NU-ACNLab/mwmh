@@ -30,7 +30,7 @@ for subdir in subdirs:
             cmd = ['python3 /projects/b1108/studies/mwmh/scripts/process/networkconn.py -i',
                     indir, '-o', outdir, '-s', sub, '-ss', ses]
             networkconn_script = launchdir+sub+'_'+ses+'_networkconn_run.sh'
-            os.system('cat /projects/b1108/studies/mwmh/scripts/process/sbatchinfo_40min_general.sh > '+amygconn_script)
+            os.system('cat /projects/b1108/studies/mwmh/scripts/process/sbatchinfo_40min_general.sh > '+networkconn_script)
             os.system('echo '+' '.join(cmd)+' >> '+networkconn_script)
             os.system('chmod +x '+networkconn_script)
             os.system('sbatch -o '+launchdir+sub+'_'+ses+'.txt'+' '+networkconn_script)
