@@ -62,13 +62,27 @@ ave_dict = {
     'Reward':[]
 }
 
+# without networks that are missing a region (or more)
+#for net in networks:
+#    # get the row numbers for the regions that are part of the network
+#    net_indices = network_df[network_df['netName'] == net].index
+#    net_corr = corr_matrix[net_indices]
+#    net_corr = net_corr.iloc[net_indices]
+#    net_corr = net_corr.to_numpy()
+#    numi = len(net_indices)
+#    ave_conn = (np.sum(net_corr) - numi)/(2*(numi*numi - numi)) # TO DO Jun 29: figure out what to do about nans
+#    ave_dict[net] = ave_conn
+
+# with networks that are missing a region (or more)
 for net in networks:
     # get the row numbers for the regions that are part of the network
     net_indices = network_df[network_df['netName'] == net].index
     net_corr = corr_matrix[net_indices]
     net_corr = net_corr.iloc[net_indices]
     net_corr = net_corr.to_numpy()
-    numi = len(net_indices)
+    net_corr = net_corr[~np.isnan(net_corr).all(axis=1), :]
+    net_corr = net_corr[:, ~np.isnan(net_corr).all(axis=0)]
+    numi = net_corr.shape[1]
     #numnan = np.count_nonzero(np.isnan(net_corr))
     ave_conn = (np.sum(net_corr) - numi)/(2*(numi*numi - numi)) # TO DO Jun 29: figure out what to do about nans
     ave_dict[net] = ave_conn
