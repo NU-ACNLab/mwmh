@@ -84,5 +84,4 @@ def postproc_rest_space_mni(sub, ses, funcindir, bidssesdir, sesoutdir):
     sesid = ses.split('-')[1]
 
     rest_qual_df = get_qual_metrics(confounds_rest_df, 'rest', subid, sesid)
-
-    return rest_qual_df
+    rest_qual_df.to_csv(sesoutdir+'/'+sub+'_'+ses+'_space-MNI152NLin6Asym_task-rest_quality.csv', index=False)

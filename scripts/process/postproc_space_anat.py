@@ -58,11 +58,11 @@ bidssesdir = os.path.join(bidssubdir, ses)
 ############################ Process available tasks ###########################
 
 if 'rest' in tasks:
-    rest_space_anat_qual_df = postproc_rest_space_anat(sub, ses, funcindir, bidssesdir, sesoutdir)
-    rest_space_mni_qual_df = postproc_rest_space_mni(sub, ses, funcindir, bidssesdir, sesoutdir)
+    postproc_rest_space_anat(sub, ses, funcindir, bidssesdir, sesoutdir)
+    postproc_rest_space_mni(sub, ses, funcindir, bidssesdir, sesoutdir)
 if 'avoid' in tasks:
-    avoid_space_anat_qual_df = postproc_avoid_space_anat(sub, ses, funcindir, bidssesdir, sesoutdir)
-    avoid_space_anat_qual_df = postproc_avoid_space_mni(sub, ses, funcindir, bidssesdir, sesoutdir)
+    postproc_avoid_space_anat(sub, ses, funcindir, bidssesdir, sesoutdir)
+    postproc_avoid_space_mni(sub, ses, funcindir, bidssesdir, sesoutdir)
 if 'faces' in tasks:
-    faces_space_anat_qual_df = postproc_faces_space_anat(sub, ses, funcindir, bidssesdir, sesoutdir)
-    faces_space_mni_qual_df = postproc_faces_space_mni(sub, ses, funcindir, bidssesdir, sesoutdir)
+    postproc_faces_space_anat(sub, ses, funcindir, bidssesdir, sesoutdir)
+    postproc_faces_space_mni(sub, ses, funcindir, bidssesdir, sesoutdir)
