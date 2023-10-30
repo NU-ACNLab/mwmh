@@ -1,6 +1,5 @@
 ### This script adapts code from ChatGPT to create ciftis from subject fmri data
-### https://neurostars.org/t/volume-to-surface-mapping-mri-vol2surf-using-fmriprep-outputs/4079/13
-### https://www.humanconnectome.org/software/workbench-command
+### https://netneurolab.github.io/neuromaps/user_guide/transformations.html
 ### Resampling-FreeSurfer-HCP.pdf
 ### Oct 19, 2023: This code is currently configured for a subject that has one session
 ###
@@ -42,60 +41,16 @@ freeview -f ${SUBJECTS_DIR}/sub-${subid}/surf/lh.pial:overlay=${sssurfdir}/sub-$
 mris_convert ${ssfreedir}/surf/lh.sphere ${sssurfdir}/lh.sphere.gii
 mris_convert ${ssfreedir}/surf/rh.sphere ${sssurfdir}/rh.sphere.gii
 
-##### 3) Convert the BOLD data on the subject's native freesurfer surface to gifti format
+##### 3) Resample surfaces into fsaverage
+mri_surf2surf --sval ${sssurfdir}/sub-${subid}_ses-${sesid}_task-rest_space-T1w_desc-preproc_bold_lh.mgh \
+  --tval ${sssurfdir}/sub-${subid}_ses-${sesid}_task-rest_space-fsaverage_desc-preproc_bold_lh.mgh \
+  --s sub-${subid} --trgsubject fsaverage --hemi lh --cortex
+mri_surf2surf --sval ${sssurfdir}/sub-${subid}_ses-${sesid}_task-rest_space-T1w_desc-preproc_bold_rh.mgh \
+  --tval ${sssurfdir}/sub-${subid}_ses-${sesid}_task-rest_space-fsaverage_desc-preproc_bold_rh.mgh \
+  --s sub-${subid} --trgsubject fsaverage --hemi rh --cortex
+
+##### 4) Convert the BOLD data in fsaverage space to gifti format
 mri_convert ${sssurfdir}/sub-${subid}_ses-${sesid}_task-rest_space-T1w_desc-preproc_bold_lh.mgh \
-  ${sssurfdir}/sub-${subid}_ses-${sesid}_task-rest_space-T1w_desc-preproc_bold_lh.func.gii
+  ${sssurfdir}/sub-${subid}_ses-${sesid}_task-rest_space-fsaverage_desc-preproc_bold_lh.func.gii
 mri_convert ${sssurfdir}/sub-${subid}_ses-${sesid}_task-rest_space-T1w_desc-preproc_bold_rh.mgh \
-  ${sssurfdir}/sub-${subid}_ses-${sesid}_task-rest_space-T1w_desc-preproc_bold_rh.func.gii
-
-##### 4) Get registration gifti from subject's native freesurfer surface space
-#####    to fsLR32k space (?)
-wb_shortcuts -freesurfer-resample-prep ${ssfreedir}/surf/lh.white \
-  ${ssfreedir}/surf/lh.pial \
-  ${ssfreedir}/surf/lh.sphere.reg \
-  ${hcptempdir}/fs_LR-deformed_to-fsaverage.L.sphere.32k_fs_LR.surf.gii \
-  ${sssurfdir}/lh.midthickness.surf.gii \
-  ${sssurfdir}/sub-${subid}.L.midthickness.32k_fs_LR.surf.gii \
-  ${sssurfdir}/lh.sphere.reg.surf.gii
-wb_shortcuts -freesurfer-resample-prep ${ssfreedir}/surf/rh.white \
-  ${ssfreedir}/surf/rh.pial \
-  ${ssfreedir}/surf/rh.sphere.reg \
-  ${hcptempdir}/fs_LR-deformed_to-fsaverage.R.sphere.32k_fs_LR.surf.gii \
-  ${sssurfdir}/rh.midthickness.surf.gii \
-  ${sssurfdir}/sub-${subid}.R.midthickness.32k_fs_LR.surf.gii \
-  ${sssurfdir}/rh.sphere.reg.surf.gii
-
-##### 5) Use the registration gifti from (4) to project the BOLD data on the
-#####    subject's native freesurfer surface to fsLR32k space
-wb_command -metric-resample ${sssurfdir}/sub-${subid}_ses-${sesid}_task-rest_space-T1w_desc-preproc_bold_lh.func.gii \
-  ${sssurfdir}/lh.sphere.reg.surf.gii \
-  ${hcptempdir}/fs_LR-deformed_to-fsaverage.L.sphere.32k_fs_LR.surf.gii \
-  ADAP_BARY_AREA \
-  ${sssurfdir}/sub-${subid}_ses-${sesid}.task-rest.L.32k_fs_LR.func.gii \
-  -area-surfs ${sssurfdir}/lh.midthickness.surf.gii \
-  ${sssurfdir}/sub-${subid}.L.midthickness.32k_fs_LR.surf.gii
-wb_command -metric-resample ${sssurfdir}/sub-${subid}_ses-${sesid}_task-rest_space-T1w_desc-preproc_bold_rh.func.gii \
-  ${sssurfdir}/rh.sphere.reg.surf.gii \
-  ${hcptempdir}/fs_LR-deformed_to-fsaverage.R.sphere.32k_fs_LR.surf.gii \
-  ADAP_BARY_AREA \
-  ${sssurfdir}/sub-${subid}_ses-${sesid}.task-rest.R.32k_fs_LR.func.gii \
-  -area-surfs ${sssurfdir}/rh.midthickness.surf.gii \
-  ${sssurfdir}/sub-${subid}.R.midthickness.32k_fs_LR.surf.gii
-
-##### 6) Set the structure parameter so that wb_view knows how to display the data
-wb_command -set-structure ${sssurfdir}/sub-${subid}_ses-${sesid}.task-rest.L.32k_fs_LR.func.gii CORTEX_LEFT
-wb_command -set-structure ${sssurfdir}/sub-${subid}_ses-${sesid}.task-rest.R.32k_fs_LR.func.gii CORTEX_RIGHT
-
-# View the BOLD data on the fsLR32k surface
-wb_view ${sssurfdir}/sub-${subid}.L.midthickness.32k_fs_LR.surf.gii \
-  ${sssurfdir}/sub-${subid}_ses-${sesid}.task-rest.L.32k_fs_LR.func.gii \
-  ${sssurfdir}/sub-${subid}.R.midthickness.32k_fs_LR.surf.gii \
-  ${sssurfdir}/sub-${subid}_ses-${sesid}.task-rest.R.32k_fs_LR.func.gii \
-  ${ssprepdir}/anat/sub-${subid}_ses-${sesid}_desc-preproc_T1w.nii.gz
-
-
-wb_command -file-information ${sssurfdir}/sub-${subid}_ses-${sesid}.task-rest.L.32k_fs_LR.func.gii
-# returns "Maps to Volume:           false"
-
-##### 7) Combine surfaces in fsLR32k space and subcortical data in MNI152NLin6Asym
-#####    space to create ciftis for use in templateICAr
+  ${sssurfdir}/sub-${subid}_ses-${sesid}_task-rest_space-fsaverage_desc-preproc_bold_rh.func.gii
