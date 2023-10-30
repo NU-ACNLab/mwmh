@@ -18,11 +18,14 @@ tfdir="/projects/b1108/templateflow"
 fslrdir=${tfdir}"/tpl-fsLR"
 
 # Local
+scriptsdir="/Users/flutist4129/Documents/Northwestern/studies/mwmh/scripts/process/"
 ssfreedir="/Users/flutist4129/Documents/Northwestern/studies/mwmh/data/processed/neuroimaging/fmriprep_23.1.4/sourcedata/freesurfer/sub-"${subid}
 ssprepdir="/Users/flutist4129/Documents/Northwestern/studies/mwmh/data/processed/neuroimaging/fmriprep_23.1.4/sub-"${subid}"/ses-"${sesid}
 sssurfdir="/Users/flutist4129/Documents/Northwestern/studies/mwmh/data/processed/neuroimaging/surf/sub-"${subid}"/ses-"${sesid}
 hcptempdir="/Users/flutist4129/Documents/Northwestern/hcp/global/templates/standard_mesh_atlases/resample_fsaverage"
-export SUBJECTS_DIR="/Users/flutist4129/Documents/Northwestern/studies/mwmh/data/processed/neuroimaging/fmriprep_23.1.4/sourcedata/freesurfer"
+export SUBJECTS_DIR="/"
+mysubs="/Users/flutist4129/Documents/Northwestern/studies/mwmh/data/processed/neuroimaging/fmriprep_23.1.4/sourcedata/freesurfer"
+fssubs="/Applications/freesurfer/7.4.1/subjects"
 tfdir="/Users/flutist4129/Documents/templateflow"
 fslrdir=${tfdir}"/tpl-fsLR"
 
@@ -35,22 +38,33 @@ mri_vol2surf --src ${ssprepdir}/func/sub-${subid}_ses-${sesid}_task-rest_space-T
   --regheader sub-${subid} --hemi rh
 
 # View the BOLD data on the subject's native freesurfer surface
-freeview -f ${SUBJECTS_DIR}/sub-${subid}/surf/lh.pial:overlay=${sssurfdir}/sub-${subid}_ses-${sesid}_task-rest_space-T1w_desc-preproc_bold_lh.mgh:overlay_threshold=2,5
+freeview -f ${mysubs}/sub-${subid}/surf/lh.pial:overlay=${sssurfdir}/sub-${subid}_ses-${sesid}_task-rest_space-T1w_desc-preproc_bold_lh.mgh:overlay_threshold=2,5
 
-##### 2) Convert the freesurfer spherical surface to gifti format
-mris_convert ${ssfreedir}/surf/lh.sphere ${sssurfdir}/lh.sphere.gii
-mris_convert ${ssfreedir}/surf/rh.sphere ${sssurfdir}/rh.sphere.gii
-
-##### 3) Resample surfaces into fsaverage
+##### 2) Resample surfaces into fsaverage
 mri_surf2surf --sval ${sssurfdir}/sub-${subid}_ses-${sesid}_task-rest_space-T1w_desc-preproc_bold_lh.mgh \
-  --tval ${sssurfdir}/sub-${subid}_ses-${sesid}_task-rest_space-fsaverage_desc-preproc_bold_lh.mgh \
-  --s sub-${subid} --trgsubject fsaverage --hemi lh --cortex
+  --tval ${sssurfdir}/sub-${subid}_ses-${sesid}_task-rest_space-fsaverage5_desc-preproc_bold_lh.mgh \
+  --s ${mysubs}/sub-${subid} --trgsubject ${fssubs}/fsaverage5 --hemi lh --cortex
 mri_surf2surf --sval ${sssurfdir}/sub-${subid}_ses-${sesid}_task-rest_space-T1w_desc-preproc_bold_rh.mgh \
-  --tval ${sssurfdir}/sub-${subid}_ses-${sesid}_task-rest_space-fsaverage_desc-preproc_bold_rh.mgh \
-  --s sub-${subid} --trgsubject fsaverage --hemi rh --cortex
+  --tval ${sssurfdir}/sub-${subid}_ses-${sesid}_task-rest_space-fsaverage5_desc-preproc_bold_rh.mgh \
+  --s ${mysubs}/sub-${subid} --trgsubject ${fssubs}/fsaverage5 --hemi rh --cortex
 
-##### 4) Convert the BOLD data in fsaverage space to gifti format
-mri_convert ${sssurfdir}/sub-${subid}_ses-${sesid}_task-rest_space-T1w_desc-preproc_bold_lh.mgh \
-  ${sssurfdir}/sub-${subid}_ses-${sesid}_task-rest_space-fsaverage_desc-preproc_bold_lh.func.gii
-mri_convert ${sssurfdir}/sub-${subid}_ses-${sesid}_task-rest_space-T1w_desc-preproc_bold_rh.mgh \
-  ${sssurfdir}/sub-${subid}_ses-${sesid}_task-rest_space-fsaverage_desc-preproc_bold_rh.func.gii
+##### 3) Convert the BOLD data in fsaverage space to gifti format
+mri_convert ${sssurfdir}/sub-${subid}_ses-${sesid}_task-rest_space-fsaverage5_desc-preproc_bold_lh.mgh \
+  ${sssurfdir}/sub-${subid}_ses-${sesid}_task-rest_space-fsaverage5_desc-preproc_bold_lh.func.gii
+mri_convert ${sssurfdir}/sub-${subid}_ses-${sesid}_task-rest_space-fsaverage5_desc-preproc_bold_rh.mgh \
+  ${sssurfdir}/sub-${subid}_ses-${sesid}_task-rest_space-fsaverage5_desc-preproc_bold_rh.func.gii
+
+##### 4) (python script to get from fsaverage to fslr32k)
+
+# (steps to get the midthickness? try just finding paths to midthickness in fslr32k directly)
+python3 ${scriptsdir}/create_ciftis.py # ${subid} ${sesid}
+
+# View the BOLD data on the fsLR32k surface
+wb_command -set-structure ${sssurfdir}/sub-${subid}_ses-${sesid}_space-fslr32k_task-rest_lh.func.gii CORTEX_LEFT
+wb_command -set-structure ${sssurfdir}/sub-${subid}_ses-${sesid}_space-fslr32k_task-rest_rh.func.gii CORTEX_RIGHT
+
+wb_view ${sssurfdir}/sub-${subid}.L.midthickness.32k_fs_LR.surf.gii \
+  ${sssurfdir}/sub-${subid}_ses-${sesid}_space-fslr32k_task-rest_lh.func.gii \
+  ${sssurfdir}/sub-${subid}.R.midthickness.32k_fs_LR.surf.gii \
+  ${sssurfdir}/sub-${subid}_ses-${sesid}_space-fslr32k_task-rest_rh.func.gii \
+  ${ssprepdir}/anat/sub-${subid}_ses-${sesid}_desc-preproc_T1w.nii.gz

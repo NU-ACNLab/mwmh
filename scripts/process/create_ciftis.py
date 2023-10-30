@@ -10,16 +10,17 @@ import nibabel as nib
 
 subid = 'MWMH212'
 sesid = '2'
+sub = 'sub-'+subid
+ses = 'ses-'+sesid
 
 surfdir = '/Users/flutist4129/Documents/Northwestern/studies/mwmh/data/processed/neuroimaging/surf/'
 sssurfdir = surfdir+'sub-'+subid+'/ses-'+sesid+'/'
-surf_lh = nib.load(sssurfdir+'sub-'+subid+'_ses-'+sesid+'_task-rest_space-fsaverage_desc-preproc_bold_lh.func.gii')
-surf_rh = nib.load(sssurfdir+'sub-'+subid+'_ses-'+sesid+'_task-rest_space-fsaverage_desc-preproc_bold_rh.func.gii')
+surf_lh = nib.load(sssurfdir+sub+'_'+ses+'_task-rest_space-fsaverage5_desc-preproc_bold_lh.func.gii')
+surf_rh = nib.load(sssurfdir+sub+'_'+ses+'_task-rest_space-fsaverage5_desc-preproc_bold_rh.func.gii')
 
+surf_fslr = transforms.fsaverage_to_fslr([surf_lh, surf_rh], '32k')
+surf_fslr_lh = surf_fslr[0]
+surf_fslr_rh = surf_fslr[1]
 
-fslr_lh = transforms.fsaverage_to_fslr(surf_lh, '32k', hemi='L')
-fslr_rh = transforms.fsaverage_to_fslr(surf_rh, '32k', hemi='R')
-
-
-img = nib.load('/projects/b1108/studies/mwmh/data/processed/neuroimaging/fmriprep/sub-MWMH212/ses-2/func/')
-fslr = transforms.mni152_to_fslr(neurosynth, '32k')
+surf_fslr_lh.to_filename(sssurfdir+'/'+sub+'_'+ses+'_space-fslr32k_task-rest_lh.func.gii')
+surf_fslr_rh.to_filename(sssurfdir+'/'+sub+'_'+ses+'_space-fslr32k_task-rest_rh.func.gii')
