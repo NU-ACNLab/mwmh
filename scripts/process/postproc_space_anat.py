@@ -1,7 +1,7 @@
 ### This script conducts the post-processing steps after fmriprep
 ###
 ### Ellyn Butler
-### October 19, 2022
+### October 19, 2023
 
 # Python version: 3.8.4
 import os
