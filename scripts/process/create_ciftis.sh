@@ -4,7 +4,7 @@
 ### Oct 19, 2023: This code is currently configured for a subject that has one session
 ###
 ### Ellyn Butler
-### September 26, 2023 - October 19, 2023
+### September 26, 2023 - November 9, 2023
 
 subid="MWMH212"
 sesid="2"
@@ -18,6 +18,7 @@ tfdir="/projects/b1108/templateflow"
 fslrdir=${tfdir}"/tpl-fsLR"
 
 # Local
+surfdir="/Users/flutist4129/Documents/Northwestern/studies/mwmh/data/processed/neuroimaging/surf"
 scriptsdir="/Users/flutist4129/Documents/Northwestern/studies/mwmh/scripts/process/"
 ssfreedir="/Users/flutist4129/Documents/Northwestern/studies/mwmh/data/processed/neuroimaging/fmriprep_23.1.4/sourcedata/freesurfer/sub-"${subid}
 ssprepdir="/Users/flutist4129/Documents/Northwestern/studies/mwmh/data/processed/neuroimaging/fmriprep_23.1.4/sub-"${subid}"/ses-"${sesid}
@@ -48,11 +49,38 @@ mri_surf2surf --sval ${sssurfdir}/sub-${subid}_ses-${sesid}_task-rest_space-T1w_
   --tval ${sssurfdir}/sub-${subid}_ses-${sesid}_task-rest_space-fsaverage5_desc-preproc_bold_rh.mgh \
   --s ${mysubs}/sub-${subid} --trgsubject ${fssubs}/fsaverage5 --hemi rh --cortex
 
+# View the BOLD data on fsaverage5 surface (Nov 9: looks good)
+freeview -f ${fssubs}/fsaverage5/surf/lh.pial:overlay=${sssurfdir}/sub-${subid}_ses-${sesid}_task-rest_space-fsaverage5_desc-preproc_bold_lh.mgh:overlay_threshold=2,5
+
 ##### 3) Convert the BOLD data in fsaverage space to gifti format
 mri_convert ${sssurfdir}/sub-${subid}_ses-${sesid}_task-rest_space-fsaverage5_desc-preproc_bold_lh.mgh \
   ${sssurfdir}/sub-${subid}_ses-${sesid}_task-rest_space-fsaverage5_desc-preproc_bold_lh.func.gii
 mri_convert ${sssurfdir}/sub-${subid}_ses-${sesid}_task-rest_space-fsaverage5_desc-preproc_bold_rh.mgh \
   ${sssurfdir}/sub-${subid}_ses-${sesid}_task-rest_space-fsaverage5_desc-preproc_bold_rh.func.gii
+
+wb_command -set-structure ${sssurfdir}/sub-${subid}_ses-${sesid}_task-rest_space-fsaverage5_desc-preproc_bold_lh.func.gii CORTEX_LEFT
+wb_command -set-structure ${sssurfdir}/sub-${subid}_ses-${sesid}_task-rest_space-fsaverage5_desc-preproc_bold_rh.func.gii CORTEX_RIGHT
+
+# Generate midthickness surfaces for lh and rh (if they don't already exist)
+#mris_expand -thickness ${fssubs}/fsaverage5/surf/lh.white 0.5 ${surfdir}/lh.midthickness
+#mris_expand -thickness ${fssubs}/fsaverage5/surf/rh.white 0.5 ${surfdir}/rh.midthickness
+
+# Convert the midthickness surfaces to GIFTI format
+mris_convert ${fssubs}/fsaverage5/surf/lh.pial ${surfdir}/lh.pial.surf.gii
+mris_convert ${fssubs}/fsaverage5/surf/rh.pial ${surfdir}/rh.pial.surf.gii
+
+wb_command -set-structure ${surfdir}/lh.pial.surf.gii CORTEX_LEFT
+wb_command -set-structure ${surfdir}/rh.pial.surf.gii CORTEX_RIGHT
+
+wb_view ${surfdir}/lh.pial.surf.gii \
+  ${sssurfdir}/sub-${subid}_ses-${sesid}_task-rest_space-fsaverage5_desc-preproc_bold_lh.func.gii \
+  ${surfdir}/rh.pial.surf.gii \
+  ${sssurfdir}/sub-${subid}_ses-${sesid}_task-rest_space-fsaverage5_desc-preproc_bold_rh.func.gii # Nov 9: why isn't this working? Not seeing any data on the surface
+
+wb_view ${hcptempdir}/fsaverage5_std_sphere.L.10k_fsavg_L.surf.gii \
+  ${sssurfdir}/sub-${subid}_ses-${sesid}_task-rest_space-fsaverage5_desc-preproc_bold_lh.func.gii \
+  ${hcptempdir}/fsaverage5_std_sphere.R.10k_fsavg_R.surf.gii \
+  ${sssurfdir}/sub-${subid}_ses-${sesid}_task-rest_space-fsaverage5_desc-preproc_bold_rh.func.gii # Nov 9: why isn't this working? Not seeing any data on the surface... maybe functional data is all 0s because of earlier problem?
 
 ##### 4) (python script to get from fsaverage to fslr32k)
 
@@ -60,9 +88,10 @@ mri_convert ${sssurfdir}/sub-${subid}_ses-${sesid}_task-rest_space-fsaverage5_de
 python3 ${scriptsdir}/create_ciftis.py # ${subid} ${sesid}
 
 # View the BOLD data on the fsLR32k surface
-wb_command -set-structure ${sssurfdir}/sub-${subid}_ses-${sesid}_space-fslr32k_task-rest_lh.func.gii CORTEX_LEFT
-wb_command -set-structure ${sssurfdir}/sub-${subid}_ses-${sesid}_space-fslr32k_task-rest_rh.func.gii CORTEX_RIGHT
+wb_command -set-structure ${sssurfdir}/sub-${subid}_ses-${sesid}_task-rest_space-fslr32k_desc-preproc_bold_lh.func.gii CORTEX_LEFT
+wb_command -set-structure ${sssurfdir}/sub-${subid}_ses-${sesid}_task-rest_space-fslr32k_desc-preproc_bold_rh.func.gii CORTEX_RIGHT
 
+# Nov 9: Not working. Seems like somehow vertices and TRs are getting confused
 wb_view ${sssurfdir}/sub-${subid}.L.midthickness.32k_fs_LR.surf.gii \
   ${sssurfdir}/sub-${subid}_ses-${sesid}_space-fslr32k_task-rest_lh.func.gii \
   ${sssurfdir}/sub-${subid}.R.midthickness.32k_fs_LR.surf.gii \

@@ -22,5 +22,5 @@ surf_fslr = transforms.fsaverage_to_fslr([surf_lh, surf_rh], '32k')
 surf_fslr_lh = surf_fslr[0]
 surf_fslr_rh = surf_fslr[1]
 
-surf_fslr_lh.to_filename(sssurfdir+'/'+sub+'_'+ses+'_space-fslr32k_task-rest_lh.func.gii')
-surf_fslr_rh.to_filename(sssurfdir+'/'+sub+'_'+ses+'_space-fslr32k_task-rest_rh.func.gii')
+surf_fslr_lh.to_filename(sssurfdir+'/'+sub+'_'+ses+'_task-rest_space-fslr32k_desc-preproc_bold_lh.func.gii')
+surf_fslr_rh.to_filename(sssurfdir+'/'+sub+'_'+ses+'_task-rest_space-fslr32k_desc-preproc_bold_rh.func.gii')
