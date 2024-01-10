@@ -3,7 +3,7 @@
 ### Ellyn Butler
 ### September 7, 2023 - September 26, 2023
 
-# --output-spaces fsLR --cifti-output 91k
+# --output-spaces fsLR --cifti-output 91k (--project-goodvoxels)
 
 import os
 import shutil

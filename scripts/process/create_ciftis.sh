@@ -38,6 +38,8 @@ mri_vol2surf --src ${ssprepdir}/func/sub-${subid}_ses-${sesid}_task-rest_space-T
   --out ${sssurfdir}/sub-${subid}_ses-${sesid}_task-rest_space-T1w_desc-preproc_bold_rh.mgh \
   --regheader sub-${subid} --hemi rh
 
+# Jan 9, 2024: Use sub-<subject_label>_from-T1w_to-fsnative_mode-image_xfm.txt?
+
 # View the BOLD data on the subject's native freesurfer surface
 freeview -f ${mysubs}/sub-${subid}/surf/lh.pial:overlay=${sssurfdir}/sub-${subid}_ses-${sesid}_task-rest_space-T1w_desc-preproc_bold_lh.mgh:overlay_threshold=2,5
 

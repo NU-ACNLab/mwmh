@@ -19,6 +19,7 @@ surf_lh = sssurfdir+sub+'_'+ses+'_task-rest_space-fsaverage5_desc-preproc_bold_l
 surf_rh = sssurfdir+sub+'_'+ses+'_task-rest_space-fsaverage5_desc-preproc_bold_rh.func.gii'
 
 #surf_lh_nii = nib.load(surf_lh)
+# Jan 9, 2024: I suspect that neuromaps can't handle timeseries
 surf_fslr = transforms.fsaverage_to_fslr([surf_lh, surf_rh], '32k') #surf_lh_nii.darrays[<indexes TR>].data.shape... (10242,)
 surf_fslr_lh = surf_fslr[0]
 surf_fslr_rh = surf_fslr[1]
