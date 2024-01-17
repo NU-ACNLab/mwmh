@@ -1,12 +1,12 @@
 ### This script cleans the demographics file that Greg sent Ellyn in July 2022
 ###
 ### Ellyn Butler
-### August 22, 2022 - November 7, 2022
+### August 22, 2022 - December 4, 2023
 
 library('dplyr')
 
 racebmipub_df <- read.csv('/projects/b1108/studies/mwmh/data/raw/demographic/MWMH_EB_July2022.csv')
-age_df <- read.csv('/projects/b1108/studies/mwmh/data/processed/demographic/age_visits_2022-11-07.csv')
+age_df <- read.csv('/projects/b1108/studies/mwmh/data/processed/demographic/age_visits_2023-12-04.csv') # was age_visits_2022-11-07.csv
 # ^ Had to calculate the ages locally because we can't store birthdates on Quest
 sexipr_df <- read.csv('/projects/b1108/studies/mwmh/data/raw/immune/cell_counts_sex_mwmh_sept27_2022.csv')
 

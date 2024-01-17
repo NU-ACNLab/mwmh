@@ -5,7 +5,7 @@
 ### Oct 19, 2023: This code is currently configured for a subject that has one session
 ###
 ### Ellyn Butler
-### September 26, 2023 - October 19, 2023
+### September 26, 2023 - January 11, 2023
 
 subid="MWMH212"
 sesid="2"
@@ -26,6 +26,30 @@ hcptempdir="/Users/flutist4129/Documents/Northwestern/hcp/global/templates/stand
 export SUBJECTS_DIR="/Users/flutist4129/Documents/Northwestern/studies/mwmh/data/processed/neuroimaging/fmriprep_23.1.4/sourcedata/freesurfer"
 tfdir="/Users/flutist4129/Documents/templateflow"
 fslrdir=${tfdir}"/tpl-fsLR"
+
+##### 0)
+
+# a) first calculating the transformation of a T1 image that is in sync with your
+# fMRI data to the freesurfer space using `fslregister`. Make sure to write out
+# the transformation file 'register.dat'
+fslregister --mov ${ssprepdir}/anat/sub-MWMH212_ses-2_desc-preproc_T1w.nii.gz \
+  --s sub-${subid} --reg ${sssurfdir}/register.dat
+  # January 17, 2024: WARNING: possible left-right reversal... hwo do I check this?
+# to check results, run the following command (looks good!)
+#tkregisterfv --mov ${ssprepdir}/anat/sub-MWMH212_ses-2_desc-preproc_T1w.nii.gz \
+#  --reg ${sssurfdir}/register.dat --surf orig
+
+# b) apply this registration file to the fMRI data using `mris_preproc` with
+# `--target fsaverage` and --iv set to the path of your register.dat file.
+# ... I think I actually want to get it into the freesurfer T1w volume space
+mri_vol2vol --mov ${ssprepdir}/func/sub-${subid}_ses-${sesid}_task-rest_space-T1w_desc-preproc_bold.nii.gz \
+            --targ ${ssfreedir}/mri/T1.mgz \
+            --o ${sssurfdir}/func/sub-${subid}_ses-${sesid}_task-rest_space-fs_desc-preproc_bold.nii.gz \
+            --reg ${sssurfdir}/register.dat \
+            --interp trilinear
+
+
+
 
 ##### 1) Project the subject's BOLD data to their native freesurfer surface
 mri_vol2surf --src ${ssprepdir}/func/sub-${subid}_ses-${sesid}_task-rest_space-T1w_desc-preproc_bold.nii.gz \

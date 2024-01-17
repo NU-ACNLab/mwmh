@@ -2,7 +2,7 @@
 ### at both time points
 ###
 ### Ellyn Butler
-### July 19, 2022 - November 7, 2022
+### July 19, 2022 - December 4, 2023
 
 # NOTE: This raw data is not on Quest because it is PHI
 
@@ -23,6 +23,10 @@ v2_df <- v2_df[!is.na(v2_df$ID), ]
 # Insert dates that are missing from these csvs, but can be found in dicom headers
 v2_df[v2_df$ID == 133, 'DOV_MRI_V2'] <- '1/26/19'
 v2_df[v2_df$ID == 370, 'DOV_MRI_V2'] <- '2/21/19'
+
+# Correct the data entry error (Added December 4, 2023, as per Greg's email)
+# Grabbed the correct date from the dicom header: ID Acquisition Date//20170210
+v1_df[v1_df$ID == 361, 'DOV_MRI_V1'] <- '2/10/17'
 
 # Convert into dates
 names(dob_df) <- c('subid', 'dob')
@@ -63,27 +67,27 @@ write.csv(quest_df, paste0('/Users/flutist4129/Documents/Northwestern/studies/mw
 complete_df <- final_df[!is.na(final_df$days_mri_minus_lab), ]
 numses <- nrow(complete_df) #490
 
-# What percent of sessions had mri performed after the lab? 76.94%
+# What percent of sessions had mri performed after the lab? 76.83%
 mri_b4_lab_df <- complete_df[complete_df$days_mri_minus_lab > 0, ]
 mri_b4_lab_numses <- nrow(mri_b4_lab_df)
 mri_b4_lab_numses/numses
 
-# What percent of sessions had mri performed on the same day as the lab? 16.73%
+# What percent of sessions had mri performed on the same day as the lab? 17.07%
 mri_same_lab_df <- complete_df[complete_df$days_mri_minus_lab == 0, ]
 mri_same_lab_numses <- nrow(mri_same_lab_df)
 mri_same_lab_numses/numses
 
-# What percent of sessions had mri performed after the lab? 6.33%
+# What percent of sessions had mri performed after the lab? 6.09%
 mri_aft_lab_df <- complete_df[complete_df$days_mri_minus_lab < 0, ]
 mri_aft_lab_numses <- nrow(mri_aft_lab_df)
 mri_aft_lab_numses/numses
 
-# What is the average number of days that the mri comes after the lab session? 22.52
+# What is the average number of days that the mri comes after the lab session? 24.03
 mean(complete_df$days_mri_minus_lab)
 
 # Descriptive statistics for age at the mri visit
-summary(complete_df[complete_df$sesid == 1, 'age_mri']) #min=11.88, med=13.95, mean=13.96, max=15.34
-summary(complete_df[complete_df$sesid == 2, 'age_mri']) #min=13.93, med=15.98, mean=16.00, max=17.25
+summary(complete_df[complete_df$sesid == 1, 'age_mri']) #min=11.93, med=14.05, mean=14.03, max=15.37
+summary(complete_df[complete_df$sesid == 2, 'age_mri']) #min=13.95, med=16.05, mean=16.05, max=17.89
 
 
 
