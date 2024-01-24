@@ -83,8 +83,8 @@ mri_vol2surf --src ${sssurfdir}/sub-${subid}_ses-${sesid}_task-rest_space-fs_des
   --out ${sssurfdir}/sub-${subid}_ses-${sesid}_task-rest_space-fs_desc-preproc_bold_rh.mgh \
   --regheader sub-${subid} --hemi rh
 
-# View the BOLD data on the subject's native freesurfer surface
-freeview -f ${SUBJECTS_DIR}/sub-${subid}/surf/lh.pial:overlay=${sssurfdir}/sub-${subid}_ses-${sesid}_task-rest_space-fs_desc-preproc_bold_lh.mgh:overlay_threshold=2,5
+# View the BOLD data on the subject's native freesurfer surface (VERY USEFUL)
+#freeview -f ${SUBJECTS_DIR}/sub-${subid}/surf/lh.pial:overlay=${sssurfdir}/sub-${subid}_ses-${sesid}_task-rest_space-fs_desc-preproc_bold_lh.mgh:overlay_threshold=2,5
 
 ##### 2) Convert the freesurfer spherical surface to gifti format
 mris_convert ${ssfreedir}/surf/lh.sphere ${sssurfdir}/lh.sphere.gii
@@ -134,12 +134,12 @@ wb_command -metric-resample ${sssurfdir}/sub-${subid}_ses-${sesid}_task-rest_spa
 wb_command -set-structure ${sssurfdir}/sub-${subid}_ses-${sesid}.task-rest.L.32k_fs_LR.func.gii CORTEX_LEFT
 wb_command -set-structure ${sssurfdir}/sub-${subid}_ses-${sesid}.task-rest.R.32k_fs_LR.func.gii CORTEX_RIGHT
 
-# View the BOLD data on the fsLR32k surface
-wb_view ${sssurfdir}/sub-${subid}.L.midthickness.32k_fs_LR.surf.gii \
-  ${sssurfdir}/sub-${subid}_ses-${sesid}.task-rest.L.32k_fs_LR.func.gii \
-  ${sssurfdir}/sub-${subid}.R.midthickness.32k_fs_LR.surf.gii \
-  ${sssurfdir}/sub-${subid}_ses-${sesid}.task-rest.R.32k_fs_LR.func.gii \
-  ${ssprepdir}/anat/sub-${subid}_ses-${sesid}_desc-preproc_T1w.nii.gz
+# View the BOLD data on the fsLR32k surface (VERY USEFUL)
+#wb_view ${sssurfdir}/sub-${subid}.L.midthickness.32k_fs_LR.surf.gii \
+#  ${sssurfdir}/sub-${subid}_ses-${sesid}.task-rest.L.32k_fs_LR.func.gii \
+#  ${sssurfdir}/sub-${subid}.R.midthickness.32k_fs_LR.surf.gii \
+#  ${sssurfdir}/sub-${subid}_ses-${sesid}.task-rest.R.32k_fs_LR.func.gii \
+#  ${ssprepdir}/anat/sub-${subid}_ses-${sesid}_desc-preproc_T1w.nii.gz
 
 
 wb_command -file-information ${sssurfdir}/sub-${subid}_ses-${sesid}.task-rest.L.32k_fs_LR.func.gii
