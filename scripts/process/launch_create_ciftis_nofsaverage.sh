@@ -11,4 +11,4 @@
 
 /projects/b1108/studies/mwmh/scripts/process/create_ciftis_nofsaverage.sh
 
-#sbatch -o '/projects/b1108/studies/mwmh/data/processed/neuroimaging/launch/try_create_ciftis_nofsaverage.txt /projects/b1108/studies/mwmh/scripts/process/launch_create_ciftis_nofsaverage.sh
+#sbatch -o /projects/b1108/studies/mwmh/data/processed/neuroimaging/launch/try_create_ciftis_nofsaverage.txt /projects/b1108/studies/mwmh/scripts/process/launch_create_ciftis_nofsaverage.sh
