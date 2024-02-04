@@ -37,7 +37,7 @@ fslrdir=${tfdir}"/tpl-fsLR"
 # a) first calculating the transformation of a T1 image that is in sync with your
 # fMRI data to the freesurfer space using `fslregister`. Make sure to write out
 # the transformation file 'register.dat'
-fslregister --mov ${ssprepdir}/anat/sub-MWMH212_ses-2_desc-preproc_T1w.nii.gz \
+fslregister --mov ${ssprepdir}/anat/sub-${subid}_ses-${sesid}_desc-preproc_T1w.nii.gz \
   --s sub-${subid} --reg ${sssurfdir}/register.dat
   # January 17, 2024: WARNING: possible left-right reversal... hwo do I check this?
 # to check results, run the following command (looks good!)
