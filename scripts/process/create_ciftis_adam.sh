@@ -14,6 +14,10 @@ subid="MWMH212"
 sesid="2"
 
 
+# TO DO
+# 1) Clean up paths - naming, when they are instantiated, and task
+# 2) Make any directories that need making
+
 # load needed modules (maybe not needed on your cluster)
 #ml biology #what is this needed for?
 #ml workbench
@@ -44,6 +48,7 @@ fslrfMRI_R=${neurodir}/surf/sub-${subid}/ses-${sesid}/sub-${subid}_ses-${sesid}_
 
 # hcp directory
 hcptempdir=/projects/b1108/hcp/global/templates/standard_mesh_atlases/resample_fsaverage
+#hcptempdir=/Users/flutist4129/Documents/Northwestern/hcp/global/templates/standard_mesh_atlases/resample_fsaverage
 
 # fslr midthickness
 midthick_L=/projects/b1108/templates/HCP_S1200_GroupAvg_v1/S1200.L.midthickness_MSMAll.32k_fs_LR.surf.gii
@@ -52,7 +57,38 @@ midthick_R=/projects/b1108/templates/HCP_S1200_GroupAvg_v1/S1200.L.midthickness_
 #midthick_R=/Users/flutist4129/Documents/Northwestern/templates/HCP_S1200_GroupAvg_v1/S1200.R.midthickness_MSMAll.32k_fs_LR.surf.gii
 
 
-##### 1) map t1-space bold to native freesurfer (note: no -volume-roi flag, assuming this is an SNR mask)
+##### 1) Get tasks
+
+
+##### 2) Convert freesurfer T1w image to a nifti
+mri_convert ${freedir}/mri/T1.mgz ${neurodir}/surf/sub-${subid}/ses-${sesid}/fs_T1w.nii.gz
+
+##### 6) convert .reg files into giftis
+# left
+wb_shortcuts -freesurfer-resample-prep ${fsurfdir}/lh.white ${fsurfdir}/lh.pial \
+  ${fsurfdir}/lh.sphere.reg ${hcptempdir}/fs_LR-deformed_to-fsaverage.L.sphere.32k_fs_LR.surf.gii \
+  ${surfdir}/sub-${subid}.L.midthickness.native.surf.gii \
+  ${neurodir}/surf/sub-${subid}/ses-${sesid}/sub-${subid}.L.midthickness.32k_fs_LR.surf.gii \
+  ${fsurfdir}/lh.sphere.reg.surf.gii
+
+# right
+wb_shortcuts -freesurfer-resample-prep ${fsurfdir}/rh.white $fsurfdir/rh.pial \
+  ${fsurfdir}/rh.sphere.reg ${hcptempdir}/fs_LR-deformed_to-fsaverage.R.sphere.32k_fs_LR.surf.gii \
+  ${surfdir}/sub-${subid}.R.midthickness.native.surf.gii \
+  ${neurodir}/surf/sub-${subid}/ses-${sesid}/sub-${subid}.R.midthickness.32k_fs_LR.surf.gii \
+  ${fsurfdir}/rh.sphere.reg.surf.gii
+
+##### 3) apply ANTs transformation to functional image to get it from fMRIPrep's
+#####    T1w space into freesurfer's T1w space
+
+/projects/b1108/studies/mwmh/scripts/process/fp_to_fs_transform.py \
+  -i \
+  -o \
+  -s \
+  -ss \
+  -t ${tasks}
+
+##### 4) map t1-space bold to native freesurfer (note: no -volume-roi flag, assuming this is an SNR mask)
 # left
 wb_command -volume-to-surface-mapping ${VolumefMRI} ${surfdir}/sub-${subid}_ses-${sesid}_hemi-L_midthickness.surf.gii \
   ${nativesurfMRI_L} -ribbon-constrained ${surfdir}/sub-${subid}_ses-${sesid}_hemi-L_white.surf.gii \
@@ -63,7 +99,7 @@ wb_command -volume-to-surface-mapping ${VolumefMRI} ${surfdir}/sub-${subid}_ses-
   ${nativesurfMRI_R} -ribbon-constrained ${surfdir}/sub-${subid}_ses-${sesid}_hemi-R_white.surf.gii \
   ${surfdir}/sub-${subid}_ses-${sesid}_hemi-R_pial.surf.gii
 
-##### 2) dilate by ten, consistent b/w fmriprep and dcan hcp pipeline
+##### 5) dilate by ten, consistent b/w fmriprep and dcan hcp pipeline
 # (would love to know how they converged on this value. Note: input and output are same)
 # left
 wb_command -metric-dilate ${nativesurfMRI_L} \
@@ -75,45 +111,39 @@ wb_command -metric-dilate ${nativesurfMRI_R} \
   ${surfdir}/sub-${subid}_ses-${sesid}_hemi-R_midthickness.surf.gii 10 \
   ${nativesurfMRI_R} -nearest
 
-##### 3) convert .reg files into giftis
-# left
-wb_shortcuts -freesurfer-resample-prep ${fsurfdir}/lh.white ${fsurfdir}/lh.pial \
-  ${fsurfdir}/lh.sphere.reg ${hcptempdir}/fs_LR-deformed_to-fsaverage.L.sphere.32k_fs_LR.surf.gii \
-  ${surfdir}/sub-${subid}.L.midthickness.native.surf.gii \
-  ${fsurfdir}/sub-${subid}.L.midthickness.32k_fs_LR.surf.gii ${fsurfdir}/lh.sphere.reg.surf.gii
-
-# right
-wb_shortcuts -freesurfer-resample-prep ${fsurfdir}/rh.white $fsurfdir/rh.pial \
-  ${fsurfdir}/rh.sphere.reg ${hcptempdir}/fs_LR-deformed_to-fsaverage.R.sphere.32k_fs_LR.surf.gii \
-  ${surfdir}/sub-${subj}.R.midthickness.native.surf.gii \
-  ${fsurfdir}/sub-${subid}.R.midthickness.32k_fs_LR.surf.gii ${fsurfdir}/rh.sphere.reg.surf.gii
-
-##### 4) resample native surface to fslr
+##### 7) resample native surface to fslr
 # (note: omission of roi use again)
 # left
-wb_command -metric-resample $nativesurfMRI_L ${fsurfdir}/lh.sphere.reg.surf.gii \
+wb_command -metric-resample ${nativesurfMRI_L} ${fsurfdir}/lh.sphere.reg.surf.gii \
   ${hcptempdir}/fs_LR-deformed_to-fsaverage.L.sphere.32k_fs_LR.surf.gii ADAP_BARY_AREA \
   ${fslrfMRI_L} -area-surfs ${surfdir}/sub-${subid}_ses-${sesid}_hemi-L_midthickness.surf.gii \
   ${midthick_L}
 
 # right
-wb_command -metric-resample $nativesurfMRI_R ${fsurfdir}/rh.sphere.reg.surf.gii \
+wb_command -metric-resample ${nativesurfMRI_R} ${fsurfdir}/rh.sphere.reg.surf.gii \
   ${hcptempdir}/fs_LR-deformed_to-fsaverage.R.sphere.32k_fs_LR.surf.gii ADAP_BARY_AREA \
   ${fslrfMRI_R} -area-surfs ${surfdir}/sub-${subid}_ses-${sesid}_hemi-R_midthickness.surf.gii \
   ${midthick_R}
 
-##### 5) Set the structure parameter so that wb_view knows how to display the data
-wb_command -set-structure ${sssurfdir}/sub-${subid}_ses-${sesid}.task-rest.L.32k_fs_LR.func.gii CORTEX_LEFT
-wb_command -set-structure ${sssurfdir}/sub-${subid}_ses-${sesid}.task-rest.R.32k_fs_LR.func.gii CORTEX_RIGHT
+##### 8) Set the structure parameter so that wb_view knows how to display the data
+wb_command -set-structure ${fslrfMRI_L} CORTEX_LEFT
+wb_command -set-structure ${fslrfMRI_R} CORTEX_RIGHT
 
-##### 6) Convert freesurfer T1w image to a nifti
-mri_convert ${freedir}/mri/T1.mgz ${neurodir}/surf/sub-${subid}/ses-${sesid}/fs_T1w.nii.gz
+#mri_convert ${freedir}/mri/lh.ribbon.mgz ${neurodir}/surf/sub-${subid}/ses-${sesid}/lh_ribbon.nii.gz
 
 # View the BOLD data on the fsLR32k surface (VERY USEFUL)... doesn't look good
 wb_view ${neurodir}/surf/sub-${subid}/ses-${sesid}/sub-${subid}.L.midthickness.32k_fs_LR.surf.gii \
-  ${neurodir}/surf/sub-${subid}/ses-${sesid}/sub-${subid}_ses-${sesid}_task-rest.L.fslr.func.gii \
+  ${fslrfMRI_L} \
   ${neurodir}/surf/sub-${subid}/ses-${sesid}/sub-${subid}.R.midthickness.32k_fs_LR.surf.gii \
-  ${neurodir}/surf/sub-${subid}/ses-${sesid}/sub-${subid}_ses-${sesid}_task-rest.R.fslr.func.gii \
+  ${fslrfMRI_R} \
   ${neurodir}/surf/sub-${subid}/ses-${sesid}/fs_T1w.nii.gz
 
-##### 6) https://neurostars.org/t/any-way-to-convert-a-metric-gifti-to-a-scalar-cifti/19623
+wb_view ${neurodir}/surf/sub-${subid}/ses-${sesid}/sub-${subid}.L.midthickness.32k_fs_LR.surf.gii \
+  ${neurodir}/surf/sub-${subid}/ses-${sesid}/sub-${subid}.R.midthickness.32k_fs_LR.surf.gii \
+  ${neurodir}/fmriprep_23.1.4/sub-${subid}/ses-${sesid}/func/sub-${subid}_ses-${sesid}_task-rest_space-fsLR_den-91k_bold.dtseries.nii \
+  ${neurodir}/surf/sub-${subid}/ses-${sesid}/fs_T1w.nii.gz
+
+##### 9) Mask out medial wall
+
+##### 10) Convert from gifti to cifti
+# https://neurostars.org/t/any-way-to-convert-a-metric-gifti-to-a-scalar-cifti/19623
