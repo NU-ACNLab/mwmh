@@ -1,101 +1,141 @@
-### This script adapts code from ChatGPT to create ciftis from subject fmri data
-### https://netneurolab.github.io/neuromaps/user_guide/transformations.html
-### Resampling-FreeSurfer-HCP.pdf
-### Oct 19, 2023: This code is currently configured for a subject that has one session
+### This script creates ciftis from subject fmri data
 ###
-### Ellyn Butler
-### September 26, 2023 - November 9, 2023
+### https://neurostars.org/t/volume-to-surface-mapping-mri-vol2surf-using-fmriprep-outputs/4079/13
+### https://www.humanconnectome.org/software/workbench-command
+### https://surfer.nmr.mgh.harvard.edu/fswiki/mri_vol2vol
+### https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/FNIRT/UserGuide#Now_what.3F_--_applywarp.21
+### Resampling-FreeSurfer-HCP.pdf
+###
+### Ellyn Butler & Adam Pines
+### February 4, 2024 - February 26, 2024
 
 subid="MWMH212"
-sesid="2"
-# Quest
-ssfreedir="/projects/b1108/studies/mwmh/data/processed/neuroimaging/fmriprep_23.1.4/sourcedata/freesurfer/sub-"${subid}
-ssprepdir="/projects/b1108/studies/mwmh/data/processed/neuroimaging/fmriprep_23.1.4/sub-"${subid}"/ses-"${sesid}
-sssurfdir="/projects/b1108/studies/mwmh/data/processed/neuroimaging/surf/sub-"${subid}"/ses-"${sesid}
-hcptempdir="/projects/b1108/hcp/global/templates/standard_mesh_atlases/resample_fsaverage"
-export SUBJECTS_DIR="/projects/b1108/studies/mwmh/data/processed/neuroimaging/fmriprep_23.1.4/sourcedata/freesurfer"
-tfdir="/projects/b1108/templateflow"
-fslrdir=${tfdir}"/tpl-fsLR"
+sesid="2" 
+numses=
+tasks=
 
-# Local
-surfdir="/Users/flutist4129/Documents/Northwestern/studies/mwmh/data/processed/neuroimaging/surf"
-scriptsdir="/Users/flutist4129/Documents/Northwestern/studies/mwmh/scripts/process/"
-ssfreedir="/Users/flutist4129/Documents/Northwestern/studies/mwmh/data/processed/neuroimaging/fmriprep_23.1.4/sourcedata/freesurfer/sub-"${subid}
-ssprepdir="/Users/flutist4129/Documents/Northwestern/studies/mwmh/data/processed/neuroimaging/fmriprep_23.1.4/sub-"${subid}"/ses-"${sesid}
-sssurfdir="/Users/flutist4129/Documents/Northwestern/studies/mwmh/data/processed/neuroimaging/surf/sub-"${subid}"/ses-"${sesid}
-hcptempdir="/Users/flutist4129/Documents/Northwestern/hcp/global/templates/standard_mesh_atlases/resample_fsaverage"
-export SUBJECTS_DIR="/"
-mysubs="/Users/flutist4129/Documents/Northwestern/studies/mwmh/data/processed/neuroimaging/fmriprep_23.1.4/sourcedata/freesurfer"
-fssubs="/Applications/freesurfer/7.4.1/subjects"
-tfdir="/Users/flutist4129/Documents/templateflow"
-fslrdir=${tfdir}"/tpl-fsLR"
 
-##### 1) Project the subject's BOLD data to their native freesurfer surface
-mri_vol2surf --src ${ssprepdir}/func/sub-${subid}_ses-${sesid}_task-rest_space-T1w_desc-preproc_bold.nii.gz \
-  --out ${sssurfdir}/sub-${subid}_ses-${sesid}_task-rest_space-T1w_desc-preproc_bold_lh.mgh \
-  --regheader sub-${subid} --hemi lh
-mri_vol2surf --src ${ssprepdir}/func/sub-${subid}_ses-${sesid}_task-rest_space-T1w_desc-preproc_bold.nii.gz \
-  --out ${sssurfdir}/sub-${subid}_ses-${sesid}_task-rest_space-T1w_desc-preproc_bold_rh.mgh \
-  --regheader sub-${subid} --hemi rh
+# TO DO
+# 1) Clean up paths - naming, when they are instantiated, and task
+# 2) Make any directories that need making
+# 3) Don't redo surface structural processing - check if files already exist
 
-# Jan 9, 2024: Use sub-<subject_label>_from-T1w_to-fsnative_mode-image_xfm.txt?
+# load needed modules (maybe not needed on your cluster)
+#ml biology #what is this needed for?
+#ml workbench
+#ml freesurfer
 
-# View the BOLD data on the subject's native freesurfer surface
-freeview -f ${mysubs}/sub-${subid}/surf/lh.pial:overlay=${sssurfdir}/sub-${subid}_ses-${sesid}_task-rest_space-T1w_desc-preproc_bold_lh.mgh:overlay_threshold=2,5
 
-##### 2) Resample surfaces into fsaverage
-mri_surf2surf --sval ${sssurfdir}/sub-${subid}_ses-${sesid}_task-rest_space-T1w_desc-preproc_bold_lh.mgh \
-  --tval ${sssurfdir}/sub-${subid}_ses-${sesid}_task-rest_space-fsaverage5_desc-preproc_bold_lh.mgh \
-  --s ${mysubs}/sub-${subid} --trgsubject ${fssubs}/fsaverage5 --hemi lh --cortex
-mri_surf2surf --sval ${sssurfdir}/sub-${subid}_ses-${sesid}_task-rest_space-T1w_desc-preproc_bold_rh.mgh \
-  --tval ${sssurfdir}/sub-${subid}_ses-${sesid}_task-rest_space-fsaverage5_desc-preproc_bold_rh.mgh \
-  --s ${mysubs}/sub-${subid} --trgsubject ${fssubs}/fsaverage5 --hemi rh --cortex
+##### 0) set file paths
+neurodir=/projects/b1108/studies/mwmh/data/processed/neuroimaging
+#neurodir=/Users/flutist4129/Documents/Northwestern/studies/mwmh/data/processed/neuroimaging
 
-# View the BOLD data on fsaverage5 surface (Nov 9: looks good)
-freeview -f ${fssubs}/fsaverage5/surf/lh.pial:overlay=${sssurfdir}/sub-${subid}_ses-${sesid}_task-rest_space-fsaverage5_desc-preproc_bold_lh.mgh:overlay_threshold=2,5
+# set input directories
+if [ ${numses} == 1 ]; then
+  anatindir=${neurodir}/fmriprep_23.2.0/sub-${subid}/ses-${sesid}/anat
+else
+  anatindir=${neurodir}/fmriprep_23.2.0/sub-${subid}/anat
+fi
+funcindir=${neurodir}/fmriprep_23.2.0/sub-${subid}/ses-${sesid}/func
 
-##### 3) Convert the BOLD data in fsaverage space to gifti format
-mri_convert ${sssurfdir}/sub-${subid}_ses-${sesid}_task-rest_space-fsaverage5_desc-preproc_bold_lh.mgh \
-  ${sssurfdir}/sub-${subid}_ses-${sesid}_task-rest_space-fsaverage5_desc-preproc_bold_lh.func.gii
-mri_convert ${sssurfdir}/sub-${subid}_ses-${sesid}_task-rest_space-fsaverage5_desc-preproc_bold_rh.mgh \
-  ${sssurfdir}/sub-${subid}_ses-${sesid}_task-rest_space-fsaverage5_desc-preproc_bold_rh.func.gii
+# set output directories
+anatoutdir=${neurodir}/surf/sub-${subid}/anat
+mkdir ${neurodir}/surf/sub-${subid}/
+mkdir ${anatoutdir}
+funcoutdir=${neurodir}/surf/sub-${subid}/ses-${sesid}/func
+mkdir ${neurodir}/surf/sub-${subid}/ses-${sesid}/
+mkdir ${funcoutdir}
 
-wb_command -set-structure ${sssurfdir}/sub-${subid}_ses-${sesid}_task-rest_space-fsaverage5_desc-preproc_bold_lh.func.gii CORTEX_LEFT
-wb_command -set-structure ${sssurfdir}/sub-${subid}_ses-${sesid}_task-rest_space-fsaverage5_desc-preproc_bold_rh.func.gii CORTEX_RIGHT
+# this is the feesurfer surf dir: for registration (spherical)
+freedir=${neurodir}/fmriprep_23.2.0/sourcedata/freesurfer/sub-${subid}
 
-# Generate midthickness surfaces for lh and rh (if they don't already exist)
-#mris_expand -thickness ${fssubs}/fsaverage5/surf/lh.white 0.5 ${surfdir}/lh.midthickness
-#mris_expand -thickness ${fssubs}/fsaverage5/surf/rh.white 0.5 ${surfdir}/rh.midthickness
+# hcp directory
+hcptempdir=/projects/b1108/hcp/global/templates/standard_mesh_atlases/resample_fsaverage
+#hcptempdir=/Users/flutist4129/Documents/Northwestern/hcp/global/templates/standard_mesh_atlases/resample_fsaverage
 
-# Convert the midthickness surfaces to GIFTI format
-mris_convert ${fssubs}/fsaverage5/surf/lh.pial ${surfdir}/lh.pial.surf.gii
-mris_convert ${fssubs}/fsaverage5/surf/rh.pial ${surfdir}/rh.pial.surf.gii
+# fslr midthickness
+midthick_L=/projects/b1108/templates/HCP_S1200_GroupAvg_v1/S1200.L.midthickness_MSMAll.32k_fs_LR.surf.gii
+midthick_R=/projects/b1108/templates/HCP_S1200_GroupAvg_v1/S1200.L.midthickness_MSMAll.32k_fs_LR.surf.gii
+#midthick_L=/Users/flutist4129/Documents/Northwestern/templates/HCP_S1200_GroupAvg_v1/S1200.L.midthickness_MSMAll.32k_fs_LR.surf.gii
+#midthick_R=/Users/flutist4129/Documents/Northwestern/templates/HCP_S1200_GroupAvg_v1/S1200.R.midthickness_MSMAll.32k_fs_LR.surf.gii
 
-wb_command -set-structure ${surfdir}/lh.pial.surf.gii CORTEX_LEFT
-wb_command -set-structure ${surfdir}/rh.pial.surf.gii CORTEX_RIGHT
+##### 1) Convert freesurfer T1w image to a nifti
+mri_convert ${freedir}/mri/T1.mgz ${neurodir}/surf/sub-${subid}/anat/fs_T1w.nii.gz
 
-wb_view ${surfdir}/lh.pial.surf.gii \
-  ${sssurfdir}/sub-${subid}_ses-${sesid}_task-rest_space-fsaverage5_desc-preproc_bold_lh.func.gii \
-  ${surfdir}/rh.pial.surf.gii \
-  ${sssurfdir}/sub-${subid}_ses-${sesid}_task-rest_space-fsaverage5_desc-preproc_bold_rh.func.gii # Nov 9: why isn't this working? Not seeing any data on the surface
+##### 2) convert .reg files into giftis
+# left
+wb_shortcuts -freesurfer-resample-prep ${freedir}/surf/lh.white ${freedir}/surf/lh.pial \
+  ${freedir}/surf/lh.sphere.reg ${hcptempdir}/fs_LR-deformed_to-fsaverage.L.sphere.32k_fs_LR.surf.gii \
+  ${anatoutdir}/sub-${subid}.L.midthickness.native.surf.gii \
+  ${anatoutdir}/sub-${subid}.L.midthickness.32k_fs_LR.surf.gii \
+  ${freedir}/surf/lh.sphere.reg.surf.gii
 
-wb_view ${hcptempdir}/fsaverage5_std_sphere.L.10k_fsavg_L.surf.gii \
-  ${sssurfdir}/sub-${subid}_ses-${sesid}_task-rest_space-fsaverage5_desc-preproc_bold_lh.func.gii \
-  ${hcptempdir}/fsaverage5_std_sphere.R.10k_fsavg_R.surf.gii \
-  ${sssurfdir}/sub-${subid}_ses-${sesid}_task-rest_space-fsaverage5_desc-preproc_bold_rh.func.gii # Nov 9: why isn't this working? Not seeing any data on the surface... maybe functional data is all 0s because of earlier problem?
+# right
+wb_shortcuts -freesurfer-resample-prep ${freedir}/surf/rh.white ${freedir}/surf/rh.pial \
+  ${freedir}/surf/rh.sphere.reg ${hcptempdir}/fs_LR-deformed_to-fsaverage.R.sphere.32k_fs_LR.surf.gii \
+  ${anatoutdir}/sub-${subid}.R.midthickness.native.surf.gii \
+  ${anatoutdir}/sub-${subid}.R.midthickness.32k_fs_LR.surf.gii \
+  ${freedir}/surf/rh.sphere.reg.surf.gii
 
-##### 4) (python script to get from fsaverage to fslr32k)
+for sesid in ${sesids}; do
+    for task in ${tasks}; do
+      # set t1 space fmri volume location
+      VolumefMRI=${funcindir}/sub-${subid}_ses-${sesid}_task-${task}_space-fsnative_desc-postproc_bold.nii.gz
+      VolumefMRI_fs=${funcoutdir}/sub-${subid}_ses-${sesid}_task-${task}_space-fsnative_desc-postproc_bold.nii.gz
 
-# (steps to get the midthickness? try just finding paths to midthickness in fslr32k directly)
-python3 ${scriptsdir}/create_ciftis.py # ${subid} ${sesid}
+      # this one is to-be-created as an intermediate
+      nativesurfMRI_L=${funcoutdir}/sub-${subid}_ses-${sesid}_task-${task}.L.native.func.gii
+      nativesurfMRI_R=${funcoutdir}/sub-${subid}_ses-${sesid}_task-${task}.R.native.func.gii
 
-# View the BOLD data on the fsLR32k surface
-wb_command -set-structure ${sssurfdir}/sub-${subid}_ses-${sesid}_task-rest_space-fslr32k_desc-preproc_bold_lh.func.gii CORTEX_LEFT
-wb_command -set-structure ${sssurfdir}/sub-${subid}_ses-${sesid}_task-rest_space-fslr32k_desc-preproc_bold_rh.func.gii CORTEX_RIGHT
+      # and then these are output
+      fslrfMRI_L=${funcoutdir}/sub-${subid}_ses-${sesid}_task-${task}.L.fslr.func.gii
+      fslrfMRI_R=${funcoutdir}/sub-${subid}_ses-${sesid}_task-${task}.R.fslr.func.gii
 
-# Nov 9: Not working. Seems like somehow vertices and TRs are getting confused
-wb_view ${sssurfdir}/sub-${subid}.L.midthickness.32k_fs_LR.surf.gii \
-  ${sssurfdir}/sub-${subid}_ses-${sesid}_space-fslr32k_task-rest_lh.func.gii \
-  ${sssurfdir}/sub-${subid}.R.midthickness.32k_fs_LR.surf.gii \
-  ${sssurfdir}/sub-${subid}_ses-${sesid}_space-fslr32k_task-rest_rh.func.gii \
-  ${ssprepdir}/anat/sub-${subid}_ses-${sesid}_desc-preproc_T1w.nii.gz
+      ##### 3) map t1-space bold to native freesurfer (note: no -volume-roi flag, assuming this is an SNR mask)
+      # left
+      wb_command -volume-to-surface-mapping ${VolumefMRI} ${anatindir}/sub-${subid}_ses-${sesid}_hemi-L_midthickness.surf.gii \
+        ${nativesurfMRI_L} -ribbon-constrained ${anatindir}/sub-${subid}_ses-${sesid}_hemi-L_white.surf.gii \
+        ${anatindir}/sub-${subid}_ses-${sesid}_hemi-L_pial.surf.gii
+
+      # right
+      wb_command -volume-to-surface-mapping ${VolumefMRI} ${anatindir}/sub-${subid}_ses-${sesid}_hemi-R_midthickness.surf.gii \
+        ${nativesurfMRI_R} -ribbon-constrained ${anatindir}/sub-${subid}_ses-${sesid}_hemi-R_white.surf.gii \
+        ${anatindir}/sub-${subid}_ses-${sesid}_hemi-R_pial.surf.gii
+
+      ##### 4) dilate by ten, consistent b/w fmriprep and dcan hcp pipeline
+      # (would love to know how they converged on this value. Note: input and output are same)
+      # left
+      wb_command -metric-dilate ${nativesurfMRI_L} \
+        ${anatindir}/sub-${subid}_ses-${sesid}_hemi-L_midthickness.surf.gii 10 \
+        ${nativesurfMRI_L} -nearest
+
+      # right
+      wb_command -metric-dilate ${nativesurfMRI_R} \
+        ${anatindir}/sub-${subid}_ses-${sesid}_hemi-R_midthickness.surf.gii 10 \
+        ${nativesurfMRI_R} -nearest
+
+      ##### 5) resample native surface to fslr
+      # (note: omission of roi use again)
+      # left
+      wb_command -metric-resample ${nativesurfMRI_L} ${freedir}/surf/lh.sphere.reg.surf.gii \
+        ${hcptempdir}/fs_LR-deformed_to-fsaverage.L.sphere.32k_fs_LR.surf.gii ADAP_BARY_AREA \
+        ${fslrfMRI_L} -area-surfs ${anatindir}/sub-${subid}_ses-${sesid}_hemi-L_midthickness.surf.gii \
+        ${midthick_L}
+
+      # right
+      wb_command -metric-resample ${nativesurfMRI_R} ${freedir}/surf/rh.sphere.reg.surf.gii \
+        ${hcptempdir}/fs_LR-deformed_to-fsaverage.R.sphere.32k_fs_LR.surf.gii ADAP_BARY_AREA \
+        ${fslrfMRI_R} -area-surfs ${anatindir}/sub-${subid}_ses-${sesid}_hemi-R_midthickness.surf.gii \
+        ${midthick_R}
+
+      ##### 6) Set the structure parameter so that wb_view knows how to display the data
+      wb_command -set-structure ${fslrfMRI_L} CORTEX_LEFT
+      wb_command -set-structure ${fslrfMRI_R} CORTEX_RIGHT
+
+      ##### 7) Convert from gifti to cifti
+      # https://neurostars.org/t/any-way-to-convert-a-metric-gifti-to-a-scalar-cifti/19623
+      wb_command -cifti-create-dense-scalar ${funcoutdir}/sub-${subid}_ses-${sesid}_task-${task}_space-fsLR_desc-postproc_bold.dscalar.nii \
+        -left-metric ${fslrfMRI_L} \
+        -right-metric ${fslrfMRI_R}
+  done
+done
