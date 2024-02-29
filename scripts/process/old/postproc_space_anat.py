@@ -1,7 +1,7 @@
 ### This script conducts the post-processing steps after fmriprep
 ###
 ### Ellyn Butler
-### November 22, 2021 - February 27, 2024
+### October 19, 2023
 
 # Python version: 3.8.4
 import os
@@ -20,12 +20,12 @@ import matplotlib.pyplot as plt
 import scipy.signal as sgnl
 import sys, getopt
 import argparse
-from postproc_rest_space_T1w import postproc_rest
-from postproc_avoid_space_T1w import postproc_avoid
-from postproc_faces_space_T1w import postproc_faces
+from postproc_rest_space_anat import postproc_rest_space_anat
+from postproc_avoid_space_anat import postproc_avoid_space_anat
+from postproc_faces_space_anat import postproc_faces_space_anat
 
 parser = argparse.ArgumentParser()
-parser.add_argument('-i', default='/projects/b1108/studies/mwmh/data/processed/neuroimaging/fmriprep_23.2.0/')
+parser.add_argument('-i', default='/projects/b1108/studies/mwmh/data/processed/neuroimaging/fmriprep_23.1.4/')
 parser.add_argument('-o', default='/projects/b1108/studies/mwmh/data/processed/neuroimaging/postproc/')
 parser.add_argument('-b', default='/projects/b1108/studies/mwmh/data/raw/neuroimaging/bids/')
 parser.add_argument('-s')
@@ -54,11 +54,15 @@ os.makedirs(os.path.join(outdir, sub, ses), exist_ok=True)
 bidssubdir = os.path.join(bidsdir, sub)
 bidssesdir = os.path.join(bidssubdir, ses)
 
+
 ############################ Process available tasks ###########################
 
 if 'rest' in tasks:
-    postproc_rest(sub, ses, funcindir, bidssesdir, sesoutdir)
+    postproc_rest_space_anat(sub, ses, funcindir, bidssesdir, sesoutdir)
+    postproc_rest_space_mni(sub, ses, funcindir, bidssesdir, sesoutdir)
 if 'avoid' in tasks:
-    postproc_avoid(sub, ses, funcindir, bidssesdir, sesoutdir)
+    postproc_avoid_space_anat(sub, ses, funcindir, bidssesdir, sesoutdir)
+    postproc_avoid_space_mni(sub, ses, funcindir, bidssesdir, sesoutdir)
 if 'faces' in tasks:
-    postproc_faces(sub, ses, funcindir, bidssesdir, sesoutdir)
+    postproc_faces_space_anat(sub, ses, funcindir, bidssesdir, sesoutdir)
+    postproc_faces_space_mni(sub, ses, funcindir, bidssesdir, sesoutdir)

@@ -77,11 +77,11 @@ def postproc_rest_space_mni(sub, ses, funcindir, bidssesdir, sesoutdir):
 
     ##### Censor volumes identified as having fFD > .1
     rest_cen2, confounds_rest_df = remove_trs(rest_band, confounds_rest_df, replace=False)
-    rest_cen2.to_filename(sesoutdir+'/'+sub+'_'+ses+'space-MNI152NLin6Asym_task-rest_final.nii.gz')
+    rest_cen2.to_filename(sesoutdir+'/'+sub+'_'+ses+'_task-rest_space-MNI152NLin6Asym_desc-postproc_bold.nii.gz')
 
     ##### Quality Metrics
     subid = sub.split('-')[1]
     sesid = ses.split('-')[1]
 
     rest_qual_df = get_qual_metrics(confounds_rest_df, 'rest', subid, sesid)
-    rest_qual_df.to_csv(sesoutdir+'/'+sub+'_'+ses+'_space-MNI152NLin6Asym_task-rest_quality.csv', index=False)
+    rest_qual_df.to_csv(sesoutdir+'/'+sub+'_'+ses+'_task-rest_space-MNI152NLin6Asym_quality.csv', index=False)

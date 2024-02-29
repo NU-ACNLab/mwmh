@@ -14,17 +14,8 @@ sesid="2"
 numses=
 tasks=
 
-
 # TO DO
-# 1) Clean up paths - naming, when they are instantiated, and task
-# 2) Make any directories that need making
-# 3) Don't redo surface structural processing - check if files already exist
-
-# load needed modules (maybe not needed on your cluster)
-#ml biology #what is this needed for?
-#ml workbench
-#ml freesurfer
-
+# Change funcindir to be postproc
 
 ##### 0) set file paths
 neurodir=/projects/b1108/studies/mwmh/data/processed/neuroimaging
@@ -80,7 +71,7 @@ wb_shortcuts -freesurfer-resample-prep ${freedir}/surf/rh.white ${freedir}/surf/
 for sesid in ${sesids}; do
     for task in ${tasks}; do
       # set t1 space fmri volume location
-      VolumefMRI=${funcindir}/sub-${subid}_ses-${sesid}_task-${task}_space-fsnative_desc-postproc_bold.nii.gz
+      VolumefMRI=${funcindir}/sub-${subid}_ses-${sesid}_task-${task}_space-T1w_desc-postproc_bold.nii.gz
       VolumefMRI_fs=${funcoutdir}/sub-${subid}_ses-${sesid}_task-${task}_space-fsnative_desc-postproc_bold.nii.gz
 
       # this one is to-be-created as an intermediate
@@ -91,14 +82,40 @@ for sesid in ${sesids}; do
       fslrfMRI_L=${funcoutdir}/sub-${subid}_ses-${sesid}_task-${task}.L.fslr.func.gii
       fslrfMRI_R=${funcoutdir}/sub-${subid}_ses-${sesid}_task-${task}.R.fslr.func.gii
 
+      ##### 3) apply ANTs transformation to functional image to get it from fMRIPrep's
+      #####    T1w space into freesurfer's T1w space
+      trans=${anatindir}/sub-${subid}_ses-${sesid}_from-T1w_to-fsnative_mode-image_xfm.txt
+
+      if [ ${task} == "rest" ]; then
+        ImageMath 4 ${funcoutdir}/TR.nii.gz TimeSeriesDisassemble ${VolumefMRI}
+        trs=`find ${funcoutdir} -name "TR*"`
+        for tr in ${trs}; do
+          antsApplyTransforms \
+            -d 3 -e 3 \
+            -i ${tr} \
+            -r ${anatoutdir}/fs_T1w.nii.gz \
+            -t ${trans} \
+            -o ${tr}
+        done
+        ImageMath 4 ${VolumefMRI_fs} TimeSeriesAssemble ${funcoutdir}/TR* -v
+      else
+        antsApplyTransforms \
+          -d 3 -e 3 -v 1 \
+          -i ${VolumefMRI} \
+          -r ${anatoutdir}/fs_T1w.nii.gz \
+          -t ${trans} \
+          -o ${VolumefMRI_fs} \
+          --float
+      fi
+
       ##### 3) map t1-space bold to native freesurfer (note: no -volume-roi flag, assuming this is an SNR mask)
       # left
-      wb_command -volume-to-surface-mapping ${VolumefMRI} ${anatindir}/sub-${subid}_ses-${sesid}_hemi-L_midthickness.surf.gii \
+      wb_command -volume-to-surface-mapping ${VolumefMRI_fs} ${anatindir}/sub-${subid}_ses-${sesid}_hemi-L_midthickness.surf.gii \
         ${nativesurfMRI_L} -ribbon-constrained ${anatindir}/sub-${subid}_ses-${sesid}_hemi-L_white.surf.gii \
         ${anatindir}/sub-${subid}_ses-${sesid}_hemi-L_pial.surf.gii
 
       # right
-      wb_command -volume-to-surface-mapping ${VolumefMRI} ${anatindir}/sub-${subid}_ses-${sesid}_hemi-R_midthickness.surf.gii \
+      wb_command -volume-to-surface-mapping ${VolumefMRI_fs} ${anatindir}/sub-${subid}_ses-${sesid}_hemi-R_midthickness.surf.gii \
         ${nativesurfMRI_R} -ribbon-constrained ${anatindir}/sub-${subid}_ses-${sesid}_hemi-R_white.surf.gii \
         ${anatindir}/sub-${subid}_ses-${sesid}_hemi-R_pial.surf.gii
 

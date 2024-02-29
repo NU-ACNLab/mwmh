@@ -119,11 +119,11 @@ def postproc_avoid_space_anat(sub, ses, funcindir, bidssesdir, sesoutdir):
 
     ##### Censor volumes identified as having fFD > .1
     avoid_cen2, confounds_avoid_df = remove_trs(avoid_band, confounds_avoid_df, replace=False)
-    avoid_cen2.to_filename(sesoutdir+'/'+sub+'_'+ses+'_space-T1w_task-avoid_final.nii.gz')
+    avoid_cen2.to_filename(sesoutdir+'/'+sub+'_'+ses+'_task-avoid_space-T1w_desc-postproc_bold.nii.gz')
 
     ##### Quality Metrics
     subid = sub.split('-')[1]
     sesid = ses.split('-')[1]
 
     avoid_qual_df = get_qual_metrics(confounds_avoid_df, 'avoid', subid, sesid)
-    avoid_qual_df.to_csv(sesoutdir+'/'+sub+'_'+ses+'_space-T1w_task-avoid_quality.csv', index=False)
+    avoid_qual_df.to_csv(sesoutdir+'/'+sub+'_'+ses+'_task-avoid_space-T1w_quality.csv', index=False)

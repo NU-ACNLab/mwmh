@@ -1,7 +1,7 @@
 ### This script conducts the post-processing steps after fmriprep for faces
 ###
 ### Ellyn Butler
-### November 22, 2021 - October 19, 2022
+### November 22, 2021 - February 27, 2024
 
 # Python version: 3.8.4
 import os
@@ -136,11 +136,11 @@ def postproc_faces_space_mni(sub, ses, funcindir, bidssesdir, sesoutdir):
 
     ##### Censor volumes identified as having fFD > .1
     faces_cen2, confounds_faces_df = remove_trs(faces_band, confounds_faces_df, replace=False)
-    faces_cen2.to_filename(sesoutdir+'/'+sub+'_'+ses+'_space-MNI152NLin6Asym_task-faces_final.nii.gz')
+    faces_cen2.to_filename(sesoutdir+'/'+sub+'_'+ses+'_task-faces_space-MNI152NLin6Asym_desc-postproc_bold.nii.gz')
 
     ##### Quality Metrics
     subid = sub.split('-')[1]
     sesid = ses.split('-')[1]
 
     faces_qual_df = get_qual_metrics(confounds_faces_df, 'faces', subid, sesid)
-    faces_qual_df.to_csv(sesoutdir+'/'+sub+'_'+ses+'_space-MNI152NLin6Asym_task-faces_quality.csv', index=False)
+    faces_qual_df.to_csv(sesoutdir+'/'+sub+'_'+ses+'_task-faces_space-MNI152NLin6Asym_quality.csv', index=False)

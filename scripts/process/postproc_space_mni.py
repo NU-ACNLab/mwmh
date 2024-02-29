@@ -1,7 +1,7 @@
 ### This script conducts the post-processing steps after fmriprep
 ###
 ### Ellyn Butler
-### November 22, 2021 - February 27, 2024
+### November 22, 2021 - October 20, 2022
 
 # Python version: 3.8.4
 import os
@@ -20,9 +20,9 @@ import matplotlib.pyplot as plt
 import scipy.signal as sgnl
 import sys, getopt
 import argparse
-from postproc_rest_space_T1w import postproc_rest
-from postproc_avoid_space_T1w import postproc_avoid
-from postproc_faces_space_T1w import postproc_faces
+from postproc_rest_space_mni import postproc_rest
+from postproc_avoid_space_mni import postproc_avoid
+from postproc_faces_space_mni import postproc_faces
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-i', default='/projects/b1108/studies/mwmh/data/processed/neuroimaging/fmriprep_23.2.0/')

@@ -1,7 +1,7 @@
 ### This script conducts the post-processing steps after fmriprep for avoid
 ###
 ### Ellyn Butler
-### October 19, 2023
+### October 19, 2023 - February 27, 2024
 
 # Python version: 3.8.4
 import os
@@ -119,11 +119,11 @@ def postproc_avoid_space_mni(sub, ses, funcindir, bidssesdir, sesoutdir):
 
     ##### Censor volumes identified as having fFD > .1
     avoid_cen2, confounds_avoid_df = remove_trs(avoid_band, confounds_avoid_df, replace=False)
-    avoid_cen2.to_filename(sesoutdir+'/'+sub+'_'+ses+'_space-MNI152NLin6Asym_task-avoid_final.nii.gz')
+    avoid_cen2.to_filename(sesoutdir+'/'+sub+'_'+ses+'_task-avoid_space-MNI152NLin6Asym_desc-postproc_bold.nii.gz')
 
     ##### Quality Metrics
     subid = sub.split('-')[1]
     sesid = ses.split('-')[1]
 
     avoid_qual_df = get_qual_metrics(confounds_avoid_df, 'avoid', subid, sesid)
-    avoid_qual_df.to_csv(sesoutdir+'/'+sub+'_'+ses+'_space-MNI152NLin6Asym_task-avoid_quality.csv', index=False)
+    avoid_qual_df.to_csv(sesoutdir+'/'+sub+'_'+ses+'_task-avoid_space-MNI152NLin6Asym_quality.csv', index=False)

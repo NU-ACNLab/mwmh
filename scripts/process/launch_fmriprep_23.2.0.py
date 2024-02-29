@@ -54,7 +54,7 @@ for subdir in subdirs:
                 '-w ', workdir,
                 '--fs-license-file /opt/freesurfer/license.txt',
                 '--use-syn-sdc', '--force-syn',
-                '--output-spaces MNI152NLin6Asym fsnative',
+                '--output-spaces MNI152NLin6Asym anat',
                 '--skull-strip-template OASIS30ANTs']
             fmriprep_script = launchdir+sub+'_fmriprep_run.sh'
             os.system('cat /projects/b1108/studies/mwmh/scripts/process/sbatchinfo_general_extralong.sh > '+fmriprep_script) #_long
@@ -77,7 +77,7 @@ for subdir in subdirs:
                 '-w ', workdir,
                 '--fs-license-file /opt/freesurfer/license.txt',
                 '--use-syn-sdc', '--force-syn',
-                '--output-spaces MNI152NLin6Asym fsnative',
+                '--output-spaces MNI152NLin6Asym anat',
                 '--skull-strip-template OASIS30ANTs']
             fmriprep_script = launchdir+sub+'_fmriprep_run.sh'
             os.system('cat /projects/b1108/studies/mwmh/scripts/process/sbatchinfo_general_extralong.sh > '+fmriprep_script)
@@ -117,7 +117,7 @@ for subdir in subdirs:
                         '-w ', workdir,
                         '--fs-license-file /opt/freesurfer/license.txt',
                         '--use-syn-sdc', '--force-syn',
-                        '--output-spaces MNI152NLin6Asym fsnative',
+                        '--output-spaces MNI152NLin6Asym anat',
                         '--skull-strip-template OASIS30ANTs']
                     fmriprep_script = launchdir+sub+'_fmriprep_run.sh'
                     os.system('cat /projects/b1108/studies/mwmh/scripts/process/sbatchinfo_general_extralong.sh > '+fmriprep_script) #_long
@@ -140,7 +140,7 @@ for subdir in subdirs:
                         '-w ', workdir,
                         '--fs-license-file /opt/freesurfer/license.txt',
                         '--use-syn-sdc', '--force-syn',
-                        '--output-spaces MNI152NLin6Asym fsnative',
+                        '--output-spaces MNI152NLin6Asym anat',
                         '--skull-strip-template OASIS30ANTs']
                     fmriprep_script = launchdir+sub+'_fmriprep_run.sh'
                     os.system('cat /projects/b1108/studies/mwmh/scripts/process/sbatchinfo_general_extralong.sh > '+fmriprep_script)

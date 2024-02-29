@@ -136,11 +136,11 @@ def postproc_faces_space_anat(sub, ses, funcindir, bidssesdir, sesoutdir):
 
     ##### Censor volumes identified as having fFD > .1
     faces_cen2, confounds_faces_df = remove_trs(faces_band, confounds_faces_df, replace=False)
-    faces_cen2.to_filename(sesoutdir+'/'+sub+'_'+ses+'_space-T1w_task-faces_final.nii.gz')
+    faces_cen2.to_filename(sesoutdir+'/'+sub+'_'+ses+'_task-faces_space-T1w_desc-postproc_bold.nii.gz')
 
     ##### Quality Metrics
     subid = sub.split('-')[1]
     sesid = ses.split('-')[1]
 
     faces_qual_df = get_qual_metrics(confounds_faces_df, 'faces', subid, sesid)
-    faces_qual_df.to_csv(sesoutdir+'/'+sub+'_'+ses+'_space-T1w_task-faces_quality.csv', index=False)
+    faces_qual_df.to_csv(sesoutdir+'/'+sub+'_'+ses+'_task-faces_space-T1w_quality.csv', index=False)
