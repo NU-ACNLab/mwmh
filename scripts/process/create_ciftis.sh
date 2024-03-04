@@ -7,7 +7,7 @@
 ### Resampling-FreeSurfer-HCP.pdf
 ###
 ### Ellyn Butler & Adam Pines
-### February 4, 2024 - February 26, 2024
+### February 4, 2024 - February 29, 2024
 
 subid="MWMH212"
 sesid="2" 
@@ -15,7 +15,8 @@ numses=
 tasks=
 
 # TO DO
-# Change funcindir to be postproc
+# 1) Change funcindir to be postproc
+# 2) Change all surface files to be direct outputs from freesurfer (will need to convert them with mris_convert)
 
 ##### 0) set file paths
 neurodir=/projects/b1108/studies/mwmh/data/processed/neuroimaging
@@ -97,7 +98,18 @@ for sesid in ${sesids}; do
             -t ${trans} \
             -o ${tr}
         done
-        ImageMath 4 ${VolumefMRI_fs} TimeSeriesAssemble ${funcoutdir}/TR* -v
+
+        # Assemble in chunks
+        chunks=`seq 10 1 21`
+        for i in ${chunks}; do
+          if test -f ${funcoutdir}/TR${i}00.nii.gz; then
+            ImageMath 4 ${funcoutdir}/TR${i}XX.nii.gz TimeSeriesAssemble 0.555 0 ${funcoutdir}/TR${i}*
+          fi
+        done
+
+        # Assemble the chunks
+        ImageMath 4 ${VolumefMRI_fs} TimeSeriesAssemble 0.555 0 ${funcoutdir}/TR*XX.nii.gz
+        rm ${funcoutdir}/TR*
       else
         antsApplyTransforms \
           -d 3 -e 3 -v 1 \
