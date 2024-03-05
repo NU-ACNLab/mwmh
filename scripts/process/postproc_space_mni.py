@@ -20,9 +20,9 @@ import matplotlib.pyplot as plt
 import scipy.signal as sgnl
 import sys, getopt
 import argparse
-from postproc_rest_space_mni import postproc_rest
-from postproc_avoid_space_mni import postproc_avoid
-from postproc_faces_space_mni import postproc_faces
+from postproc_rest_space_mni import postproc_rest_space_mni
+from postproc_avoid_space_mni import postproc_avoid_space_mni
+from postproc_faces_space_mni import postproc_faces_space_mni
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-i', default='/projects/b1108/studies/mwmh/data/processed/neuroimaging/fmriprep_23.2.0/')
@@ -57,8 +57,8 @@ bidssesdir = os.path.join(bidssubdir, ses)
 ############################ Process available tasks ###########################
 
 if 'rest' in tasks:
-    postproc_rest(sub, ses, funcindir, bidssesdir, sesoutdir)
+    postproc_rest_space_mni(sub, ses, funcindir, bidssesdir, sesoutdir)
 if 'avoid' in tasks:
-    postproc_avoid(sub, ses, funcindir, bidssesdir, sesoutdir)
+    postproc_avoid_space_mni(sub, ses, funcindir, bidssesdir, sesoutdir)
 if 'faces' in tasks:
-    postproc_faces(sub, ses, funcindir, bidssesdir, sesoutdir)
+    postproc_faces_space_mni(sub, ses, funcindir, bidssesdir, sesoutdir)
