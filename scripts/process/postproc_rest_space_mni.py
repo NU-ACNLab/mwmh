@@ -24,7 +24,7 @@ from cubic_interp import cubic_interp
 def postproc_rest_space_mni(sub, ses, funcindir, bidssesdir, sesoutdir):
     # Location of the pre-processed fMRI & mask
     flist = os.listdir(funcindir)
-    file_rest = os.path.join(funcindir, [x for x in flist if ('space-MNI152NLin6Asym_preproc_bold.nii.gz' in x and 'task-rest' in x)][0])
+    file_rest = os.path.join(funcindir, [x for x in flist if ('space-MNI152NLin6Asym_desc-preproc_bold.nii.gz' in x and 'task-rest' in x)][0])
     file_rest_mask = os.path.join(funcindir, [x for x in flist if ('space-MNI152NLin6Asym_brain_mask.nii.gz' in x and 'task-rest' in x)][0])
     rest_mask_img = nib.load(file_rest_mask)
 
