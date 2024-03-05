@@ -143,4 +143,4 @@ def postproc_faces_space_anat(sub, ses, funcindir, bidssesdir, sesoutdir):
     sesid = ses.split('-')[1]
 
     faces_qual_df = get_qual_metrics(confounds_faces_df, 'faces', subid, sesid)
-    faces_qual_df.to_csv(sesoutdir+'/'+sub+'_'+ses+'_task-faces_space-T1w_quality.csv', index=False)
+    faces_qual_df.to_csv(sesoutdir+'/'+sub+'_'+ses+'_task-faces_quality.csv', index=False)

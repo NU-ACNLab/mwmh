@@ -126,4 +126,4 @@ def postproc_avoid_space_anat(sub, ses, funcindir, bidssesdir, sesoutdir):
     sesid = ses.split('-')[1]
 
     avoid_qual_df = get_qual_metrics(confounds_avoid_df, 'avoid', subid, sesid)
-    avoid_qual_df.to_csv(sesoutdir+'/'+sub+'_'+ses+'_task-avoid_space-T1w_quality.csv', index=False)
+    avoid_qual_df.to_csv(sesoutdir+'/'+sub+'_'+ses+'_task-avoid_quality.csv', index=False)

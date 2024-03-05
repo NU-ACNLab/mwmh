@@ -45,14 +45,14 @@ mkdir ${funcoutdir}
 freedir=${neurodir}/fmriprep_23.2.0/sourcedata/freesurfer/sub-${subid}
 
 # hcp directory
-hcptempdir=/projects/b1108/hcp/global/templates/standard_mesh_atlases/resampleaverage
-#hcptempdir=/Users/flutist4129/Documents/Northwestern/hcp/global/templates/standard_mesh_atlases/resampleaverage
+hcptempdir=/projects/b1108/hcp/global/templates/standard_mesh_atlases/resample_fsaverage
+#hcptempdir=/Users/flutist4129/Documents/Northwestern/hcp/global/templates/standard_mesh_atlases/resample_fsaverage
 
 # fslr midthickness
-midthick_L=/projects/b1108/templates/HCP_S1200_GroupAvg_v1/S1200.L.midthickness_MSMAll.32k_LR.surf.gii
-midthick_R=/projects/b1108/templates/HCP_S1200_GroupAvg_v1/S1200.L.midthickness_MSMAll.32k_LR.surf.gii
-#midthick_L=/Users/flutist4129/Documents/Northwestern/templates/HCP_S1200_GroupAvg_v1/S1200.L.midthickness_MSMAll.32k_LR.surf.gii
-#midthick_R=/Users/flutist4129/Documents/Northwestern/templates/HCP_S1200_GroupAvg_v1/S1200.R.midthickness_MSMAll.32k_LR.surf.gii
+midthick_L=/projects/b1108/templates/HCP_S1200_GroupAvg_v1/S1200.L.midthickness_MSMAll.32k_fs_LR.surf.gii
+midthick_R=/projects/b1108/templates/HCP_S1200_GroupAvg_v1/S1200.L.midthickness_MSMAll.32k_fs_LR.surf.gii
+#midthick_L=/Users/flutist4129/Documents/Northwestern/templates/HCP_S1200_GroupAvg_v1/S1200.L.midthickness_MSMAll.32k_fs_LR.surf.gii
+#midthick_R=/Users/flutist4129/Documents/Northwestern/templates/HCP_S1200_GroupAvg_v1/S1200.R.midthickness_MSMAll.32k_fs_LR.surf.gii
 
 ##### 1) Convert freesurfer T1w image to a nifti
 mri_convert ${freedir}/mri/T1.mgz ${neurodir}/surf/sub-${subid}/anat/fs_T1w.nii.gz
@@ -60,22 +60,24 @@ mri_convert ${freedir}/mri/T1.mgz ${neurodir}/surf/sub-${subid}/anat/fs_T1w.nii.
 ##### 2) convert .reg files into giftis
 # left
 wb_shortcuts -freesurfer-resample-prep ${freedir}/surf/lh.white ${freedir}/surf/lh.pial \
-  ${freedir}/surf/lh.sphere.reg ${hcptempdir}/fs_LR-deformed_to-fsaverage.L.sphere.32k_LR.surf.gii \
+  ${freedir}/surf/lh.sphere.reg ${hcptempdir}/fs_LR-deformed_to-fsaverage.L.sphere.32k_fs_LR.surf.gii \
   ${anatoutdir}/sub-${subid}.L.midthickness.native.surf.gii \
-  ${anatoutdir}/sub-${subid}.L.midthickness.32k_LR.surf.gii \
+  ${anatoutdir}/sub-${subid}.L.midthickness.32k_fs_LR.surf.gii \
   ${anatoutdir}/lh.sphere.reg.surf.gii
 
 # right
 wb_shortcuts -freesurfer-resample-prep ${freedir}/surf/rh.white ${freedir}/surf/rh.pial \
-  ${freedir}/surf/rh.sphere.reg ${hcptempdir}/fs_LR-deformed_to-fsaverage.R.sphere.32k_LR.surf.gii \
+  ${freedir}/surf/rh.sphere.reg ${hcptempdir}/fs_LR-deformed_to-fsaverage.R.sphere.32k_fs_LR.surf.gii \
   ${anatoutdir}/sub-${subid}.R.midthickness.native.surf.gii \
-  ${anatoutdir}/sub-${subid}.R.midthickness.32k_LR.surf.gii \
+  ${anatoutdir}/sub-${subid}.R.midthickness.32k_fs_LR.surf.gii \
   ${anatoutdir}/rh.sphere.reg.surf.gii
 
 for sesid in ${sesids}; do
     for task in ${tasks}; do
       # set t1 space fmri volume location
       VolumefMRI=${funcindir}/sub-${subid}_ses-${sesid}_task-${task}_space-T1w_desc-postproc_bold.nii.gz
+      #VolumefMRI_down=${funcoutdir}/sub-${subid}_ses-${sesid}_task-${task}_space-T1w_res-func_desc-postproc_bold.nii.gz
+      VolumefMRI_fs=${funcoutdir}/sub-${subid}_ses-${sesid}_task-${task}_space-fsnative_desc-postproc_bold.nii.gz
 
       # this one is to-be-created as an intermediate
       nativesurfMRI_L=${funcoutdir}/sub-${subid}_ses-${sesid}_task-${task}.L.native.func.gii
@@ -85,14 +87,67 @@ for sesid in ${sesids}; do
       fslrfMRI_L=${funcoutdir}/sub-${subid}_ses-${sesid}_task-${task}.L.fslr.func.gii
       fslrfMRI_R=${funcoutdir}/sub-${subid}_ses-${sesid}_task-${task}.R.fslr.func.gii
 
+      ##### 3) apply ANTs transformation to functional image to get it from fMRIPrep's
+      #####    T1w space into freesurfer's T1w space
+      trans=${anatindir}/sub-${subid}_ses-${sesid}_from-T1w_to-fsnative_mode-image_xfm.txt
+
+      # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! #
+      # !!! Try downsampling to original functional image resolution
+      # ... this would ultimately go in the beginning of postproc and maybe even write to
+      # ... the fmriprep output directory just so we are not storing such large files
+      # NOTE: the voxel dimensions
+      rawimg=${bidsdir}/sub-${subid}_ses-${sesid}_task-${task}_bold.nii.gz
+      outxspc=`fslhd ${rawimg} | grep "pixdim1" | cut -d " " -f 9`
+      outyspc=`fslhd ${rawimg} | grep "pixdim2" | cut -d " " -f 9`
+      outzspc=`fslhd ${rawimg} | grep "pixdim3" | cut -d " " -f 9`
+      ResampleImageBySpacing 4 ${VolumefMRI} ${VolumefMRI_down} ${outxspc} ${outyspc} ${outzspc}
+      ResampleImageBySpacing 3 ${anatoutdir}/fs_T1w.nii.gz ${anatoutdir}/fs_T1w.nii.gz ${outxspc} ${outyspc} ${outzspc}
+
+      # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! #
+
+      # March 4, 2024: This works, but the images are huge
+      if [ ${task} == "rest" ]; then
+        ImageMath 4 ${funcoutdir}/TR.nii.gz TimeSeriesDisassemble ${VolumefMRI}
+        trs=`find ${funcoutdir} -name "TR*"`
+        for tr in ${trs}; do
+          antsApplyTransforms \
+            -d 3 -e 3 \
+            -i ${tr} \
+            -r ${anatoutdir}/fs_T1w.nii.gz \
+            -t ${trans} \
+            -o ${tr}
+        done
+
+        # Assemble in chunks
+        chunks=`seq 10 1 21`
+        lengthTR=`fslhd ${rawimg} | grep "pixdim4" | cut -d " " -f 9`
+        for i in ${chunks}; do
+          if test -f ${funcoutdir}/TR${i}00.nii.gz; then
+            ImageMath 4 ${funcoutdir}/TR${i}XX.nii.gz TimeSeriesAssemble ${lengthTR} 0 ${funcoutdir}/TR${i}*
+          fi
+        done
+
+        # Assemble the chunks
+        ImageMath 4 ${VolumefMRI_fs} TimeSeriesAssemble 0.555 0 ${funcoutdir}/TR*XX.nii.gz
+        rm ${funcoutdir}/TR*
+      else
+        antsApplyTransforms \
+          -d 3 -e 3 -v 1 \
+          -i ${VolumefMRI} \
+          -r ${anatoutdir}/fs_T1w.nii.gz \
+          -t ${trans} \
+          -o ${VolumefMRI_fs} \
+          --float
+      fi
+
       ##### 3) map t1-space bold to native freesurfer (note: no -volume-roi flag, assuming this is an SNR mask)
       # left
-      wb_command -volume-to-surface-mapping ${VolumefMRI} ${anatindir}/sub-${subid}_ses-${sesid}_hemi-L_midthickness.surf.gii \
+      wb_command -volume-to-surface-mapping ${VolumefMRI_fs} ${anatindir}/sub-${subid}_ses-${sesid}_hemi-L_midthickness.surf.gii \
         ${nativesurfMRI_L} -ribbon-constrained ${anatindir}/sub-${subid}_ses-${sesid}_hemi-L_white.surf.gii \
         ${anatindir}/sub-${subid}_ses-${sesid}_hemi-L_pial.surf.gii
 
       # right
-      wb_command -volume-to-surface-mapping ${VolumefMRI} ${anatindir}/sub-${subid}_ses-${sesid}_hemi-R_midthickness.surf.gii \
+      wb_command -volume-to-surface-mapping ${VolumefMRI_fs} ${anatindir}/sub-${subid}_ses-${sesid}_hemi-R_midthickness.surf.gii \
         ${nativesurfMRI_R} -ribbon-constrained ${anatindir}/sub-${subid}_ses-${sesid}_hemi-R_white.surf.gii \
         ${anatindir}/sub-${subid}_ses-${sesid}_hemi-R_pial.surf.gii
 
@@ -112,13 +167,13 @@ for sesid in ${sesids}; do
       # (note: omission of roi use again)
       # left
       wb_command -metric-resample ${nativesurfMRI_L} ${anatoutdir}/lh.sphere.reg.surf.gii \
-        ${hcptempdir}/fs_LR-deformed_to-fsaverage.L.sphere.32k_LR.surf.gii ADAP_BARY_AREA \
+        ${hcptempdir}/fs_LR-deformed_to-fsaverage.L.sphere.32k_fs_LR.surf.gii ADAP_BARY_AREA \
         ${fslrfMRI_L} -area-surfs ${anatindir}/sub-${subid}_ses-${sesid}_hemi-L_midthickness.surf.gii \
         ${midthick_L}
 
       # right
       wb_command -metric-resample ${nativesurfMRI_R} ${anatoutdir}/rh.sphere.reg.surf.gii \
-        ${hcptempdir}/fs_LR-deformed_to-fsaverage.R.sphere.32k_LR.surf.gii ADAP_BARY_AREA \
+        ${hcptempdir}/fs_LR-deformed_to-fsaverage.R.sphere.32k_fs_LR.surf.gii ADAP_BARY_AREA \
         ${fslrfMRI_R} -area-surfs ${anatindir}/sub-${subid}_ses-${sesid}_hemi-R_midthickness.surf.gii \
         ${midthick_R}
 

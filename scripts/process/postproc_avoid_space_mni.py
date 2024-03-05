@@ -21,7 +21,6 @@ import sys, getopt
 from calc_ffd import calc_ffd
 from remove_trs import remove_trs
 from cubic_interp import cubic_interp
-from get_qual_metrics import get_qual_metrics
 
 
 def postproc_avoid_space_mni(sub, ses, funcindir, bidssesdir, sesoutdir):
@@ -124,6 +123,3 @@ def postproc_avoid_space_mni(sub, ses, funcindir, bidssesdir, sesoutdir):
     ##### Quality Metrics
     subid = sub.split('-')[1]
     sesid = ses.split('-')[1]
-
-    avoid_qual_df = get_qual_metrics(confounds_avoid_df, 'avoid', subid, sesid)
-    avoid_qual_df.to_csv(sesoutdir+'/'+sub+'_'+ses+'_task-avoid_space-MNI152NLin6Asym_quality.csv', index=False)
