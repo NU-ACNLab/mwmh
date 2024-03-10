@@ -7,105 +7,102 @@
 ### Resampling-FreeSurfer-HCP.pdf
 ###
 ### Ellyn Butler & Adam Pines
-### February 4, 2024 - March 4, 2024
+### February 4, 2024 - March 5, 2024
 
-subid="MWMH212"
-sesid="2" 
-numses=
-tasks=
 
-# TO DO
-# 1) Change funcindir to be postproc
-# 2) Change all surface files to be direct outputs from freesurfer (will need to convert them with mris_convert)
-# 3) Try downsampling before antsApplyTransform (and if that works, add to the beginning of the postproc script)
-# 4) See if I can set the output resolution to be the same as the initial resolution
+while getopts s:ss:t: flag
+do
+    case "${flag}" in
+        s) sub=${OPTARG};;
+        ss) ses=${OPTARG};;
+        t) tasks=${OPTARG};;
+    esac
+done
+
 
 ##### 0) set file paths
-bidsdir=/projects/b1108/studies/mwmh/data/raw/neuroimaging/bids/sub-${subid}/ses-${sesid}/func
+bidsdir=/projects/b1108/studies/mwmh/data/raw/neuroimaging/bids/${sub}/${ses}/func
 neurodir=/projects/b1108/studies/mwmh/data/processed/neuroimaging
-#neurodir=/Users/flutist4129/Documents/Northwestern/studies/mwmh/data/processed/neuroimaging
 
 # set input directories
+numses=`find ${neurodir}/fmriprep_23.2.0/${sub} -type d -name "ses-*" | wc -l`
 if [ ${numses} == 1 ]; then
-  anatindir=${neurodir}/fmriprep_23.2.0/sub-${subid}/ses-${sesid}/anat
+  anatindir=${neurodir}/fmriprep_23.2.0/${sub}/${ses}/anat
 else
-  anatindir=${neurodir}/fmriprep_23.2.0/sub-${subid}/anat
+  anatindir=${neurodir}/fmriprep_23.2.0/${sub}/anat
 fi
-funcindir=${neurodir}/fmriprep_23.2.0/sub-${subid}/ses-${sesid}/func
+funcindir=${neurodir}/postproc/${sub}/${ses}/func
 
 # set output directories
-anatoutdir=${neurodir}/surf/sub-${subid}/anat
-mkdir ${neurodir}/surf/sub-${subid}/
+anatoutdir=${neurodir}/surf/${sub}/anat
+mkdir ${neurodir}/surf/${sub}/
 mkdir ${anatoutdir}
-funcoutdir=${neurodir}/surf/sub-${subid}/ses-${sesid}/func
-mkdir ${neurodir}/surf/sub-${subid}/ses-${sesid}/
+funcoutdir=${neurodir}/surf/${sub}/${ses}/func
+mkdir ${neurodir}/surf/${sub}/${ses}/
 mkdir ${funcoutdir}
 
 # this is the feesurfer surf dir: for registration (spherical)
-freedir=${neurodir}/fmriprep_23.2.0/sourcedata/freesurfer/sub-${subid}
+freedir=${neurodir}/fmriprep_23.2.0/sourcedata/freesurfer/${sub}
 
 # hcp directory
 hcptempdir=/projects/b1108/hcp/global/templates/standard_mesh_atlases/resampleaverage
-#hcptempdir=/Users/flutist4129/Documents/Northwestern/hcp/global/templates/standard_mesh_atlases/resampleaverage
 
 # fslr midthickness
 midthick_L=/projects/b1108/templates/HCP_S1200_GroupAvg_v1/S1200.L.midthickness_MSMAll.32k_LR.surf.gii
 midthick_R=/projects/b1108/templates/HCP_S1200_GroupAvg_v1/S1200.L.midthickness_MSMAll.32k_LR.surf.gii
-#midthick_L=/Users/flutist4129/Documents/Northwestern/templates/HCP_S1200_GroupAvg_v1/S1200.L.midthickness_MSMAll.32k_LR.surf.gii
-#midthick_R=/Users/flutist4129/Documents/Northwestern/templates/HCP_S1200_GroupAvg_v1/S1200.R.midthickness_MSMAll.32k_LR.surf.gii
 
 ##### 1) Convert freesurfer T1w image to a nifti
-mri_convert ${freedir}/mri/T1.mgz ${neurodir}/surf/sub-${subid}/anat/fs_T1w.nii.gz
+mri_convert ${freedir}/mri/T1.mgz ${neurodir}/surf/${sub}/anat/fs_T1w.nii.gz
 
 ##### 2) convert .reg files into giftis
 # left
 wb_shortcuts -freesurfer-resample-prep ${freedir}/surf/lh.white ${freedir}/surf/lh.pial \
   ${freedir}/surf/lh.sphere.reg ${hcptempdir}/fs_LR-deformed_to-fsaverage.L.sphere.32k_LR.surf.gii \
-  ${anatoutdir}/sub-${subid}.L.midthickness.native.surf.gii \
-  ${anatoutdir}/sub-${subid}.L.midthickness.32k_LR.surf.gii \
+  ${anatoutdir}/${sub}.L.midthickness.native.surf.gii \
+  ${anatoutdir}/${sub}.L.midthickness.32k_LR.surf.gii \
   ${anatoutdir}/lh.sphere.reg.surf.gii
 
 # right
 wb_shortcuts -freesurfer-resample-prep ${freedir}/surf/rh.white ${freedir}/surf/rh.pial \
   ${freedir}/surf/rh.sphere.reg ${hcptempdir}/fs_LR-deformed_to-fsaverage.R.sphere.32k_LR.surf.gii \
-  ${anatoutdir}/sub-${subid}.R.midthickness.native.surf.gii \
-  ${anatoutdir}/sub-${subid}.R.midthickness.32k_LR.surf.gii \
+  ${anatoutdir}/${sub}.R.midthickness.native.surf.gii \
+  ${anatoutdir}/${sub}.R.midthickness.32k_LR.surf.gii \
   ${anatoutdir}/rh.sphere.reg.surf.gii
 
 for sesid in ${sesids}; do
     for task in ${tasks}; do
       # set t1 space fmri volume location
-      VolumefMRI=${funcindir}/sub-${subid}_ses-${sesid}_task-${task}_space-T1w_desc-postproc_bold.nii.gz
+      VolumefMRI=${funcindir}/${sub}_${ses}_task-${task}_space-T1w_desc-postproc_bold.nii.gz
 
       # this one is to-be-created as an intermediate
-      nativesurfMRI_L=${funcoutdir}/sub-${subid}_ses-${sesid}_task-${task}.L.native.func.gii
-      nativesurfMRI_R=${funcoutdir}/sub-${subid}_ses-${sesid}_task-${task}.R.native.func.gii
+      nativesurfMRI_L=${funcoutdir}/${sub}_${ses}_task-${task}.L.native.func.gii
+      nativesurfMRI_R=${funcoutdir}/${sub}_${ses}_task-${task}.R.native.func.gii
 
       # and then these are output
-      fslrfMRI_L=${funcoutdir}/sub-${subid}_ses-${sesid}_task-${task}.L.fslr.func.gii
-      fslrfMRI_R=${funcoutdir}/sub-${subid}_ses-${sesid}_task-${task}.R.fslr.func.gii
+      fslrfMRI_L=${funcoutdir}/${sub}_${ses}_task-${task}.L.fslr.func.gii
+      fslrfMRI_R=${funcoutdir}/${sub}_${ses}_task-${task}.R.fslr.func.gii
 
       ##### 3) map t1-space bold to native freesurfer (note: no -volume-roi flag, assuming this is an SNR mask)
       # left
-      wb_command -volume-to-surface-mapping ${VolumefMRI} ${anatindir}/sub-${subid}_ses-${sesid}_hemi-L_midthickness.surf.gii \
-        ${nativesurfMRI_L} -ribbon-constrained ${anatindir}/sub-${subid}_ses-${sesid}_hemi-L_white.surf.gii \
-        ${anatindir}/sub-${subid}_ses-${sesid}_hemi-L_pial.surf.gii
+      wb_command -volume-to-surface-mapping ${VolumefMRI} ${anatindir}/${sub}_${ses}_hemi-L_midthickness.surf.gii \
+        ${nativesurfMRI_L} -ribbon-constrained ${anatindir}/${sub}_${ses}_hemi-L_white.surf.gii \
+        ${anatindir}/${sub}_${ses}_hemi-L_pial.surf.gii
 
       # right
-      wb_command -volume-to-surface-mapping ${VolumefMRI} ${anatindir}/sub-${subid}_ses-${sesid}_hemi-R_midthickness.surf.gii \
-        ${nativesurfMRI_R} -ribbon-constrained ${anatindir}/sub-${subid}_ses-${sesid}_hemi-R_white.surf.gii \
-        ${anatindir}/sub-${subid}_ses-${sesid}_hemi-R_pial.surf.gii
+      wb_command -volume-to-surface-mapping ${VolumefMRI} ${anatindir}/${sub}_${ses}_hemi-R_midthickness.surf.gii \
+        ${nativesurfMRI_R} -ribbon-constrained ${anatindir}/${sub}_${ses}_hemi-R_white.surf.gii \
+        ${anatindir}/${sub}_${ses}_hemi-R_pial.surf.gii
 
       ##### 4) dilate by ten, consistent b/w fmriprep and dcan hcp pipeline
       # (would love to know how they converged on this value. Note: input and output are same)
       # left
       wb_command -metric-dilate ${nativesurfMRI_L} \
-        ${anatindir}/sub-${subid}_ses-${sesid}_hemi-L_midthickness.surf.gii 10 \
+        ${anatindir}/${sub}_${ses}_hemi-L_midthickness.surf.gii 10 \
         ${nativesurfMRI_L} -nearest
 
       # right
       wb_command -metric-dilate ${nativesurfMRI_R} \
-        ${anatindir}/sub-${subid}_ses-${sesid}_hemi-R_midthickness.surf.gii 10 \
+        ${anatindir}/${sub}_${ses}_hemi-R_midthickness.surf.gii 10 \
         ${nativesurfMRI_R} -nearest
 
       ##### 5) resample native surface to fslr
@@ -113,13 +110,13 @@ for sesid in ${sesids}; do
       # left
       wb_command -metric-resample ${nativesurfMRI_L} ${anatoutdir}/lh.sphere.reg.surf.gii \
         ${hcptempdir}/fs_LR-deformed_to-fsaverage.L.sphere.32k_LR.surf.gii ADAP_BARY_AREA \
-        ${fslrfMRI_L} -area-surfs ${anatindir}/sub-${subid}_ses-${sesid}_hemi-L_midthickness.surf.gii \
+        ${fslrfMRI_L} -area-surfs ${anatindir}/${sub}_${ses}_hemi-L_midthickness.surf.gii \
         ${midthick_L}
 
       # right
       wb_command -metric-resample ${nativesurfMRI_R} ${anatoutdir}/rh.sphere.reg.surf.gii \
         ${hcptempdir}/fs_LR-deformed_to-fsaverage.R.sphere.32k_LR.surf.gii ADAP_BARY_AREA \
-        ${fslrfMRI_R} -area-surfs ${anatindir}/sub-${subid}_ses-${sesid}_hemi-R_midthickness.surf.gii \
+        ${fslrfMRI_R} -area-surfs ${anatindir}/${sub}_${ses}_hemi-R_midthickness.surf.gii \
         ${midthick_R}
 
       ##### 6) Set the structure parameter so that wb_view knows how to display the data
@@ -128,7 +125,7 @@ for sesid in ${sesids}; do
 
       ##### 7) Convert from gifti to cifti
       # https://neurostars.org/t/any-way-to-convert-a-metric-gifti-to-a-scalar-cifti/19623
-      wb_command -cifti-create-dense-scalar ${funcoutdir}/sub-${subid}_ses-${sesid}_task-${task}_space-fsLR_desc-postproc_bold.dscalar.nii \
+      wb_command -cifti-create-dense-scalar ${funcoutdir}/${sub}_${ses}_task-${task}_space-fsLR_desc-postproc_bold.dscalar.nii \
         -left-metric ${fslrfMRI_L} \
         -right-metric ${fslrfMRI_R}
   done

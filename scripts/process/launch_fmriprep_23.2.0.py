@@ -1,7 +1,7 @@
 ### This script generates submission scripts for fmriprep for the first visit
 ###
 ### Ellyn Butler
-### February 26, 2024
+### February 26, 2024 - March 10, 2024
 
 # --output-spaces fsLR --cifti-output 91k (--project-goodvoxels)
 
@@ -88,19 +88,19 @@ for subdir in subdirs:
     else:
         # delete working directory
         participant_label = sub.split('-')[1]
-        subworkdir = workdir+'fmriprep_wf/single_subject_'+participant_label+'_wf'
-        if os.path.exists(subworkdir):
-            shutil.rmtree(subworkdir)
-        # but if there are errors in the log file, delete old output and rerun
+        #subworkdir = workdir+'fmriprep_wf/single_subject_'+participant_label+'_wf'
+        #if os.path.exists(subworkdir):
+        #    shutil.rmtree(subworkdir)
+        # but if there are errors in the log file, rerun with more memory
         txtlog = launchdir+sub+'.txt'
         with open(txtlog) as myfile:
             if 'ERROR' in myfile.read():
                 # delete faulty output
-                shutil.rmtree(outdir+sub)
-                os.mkdir(outdir+sub)
-                print(sub)
+                #shutil.rmtree(outdir+sub)
+                #os.mkdir(outdir+sub)
+                #print(sub)
                 # delete old log
-                os.remove(txtlog)
+                #os.remove(txtlog)
                 sessions = os.listdir(indir+sub)
                 if len(sessions) > 1:
                     for ses in sessions:
@@ -120,7 +120,7 @@ for subdir in subdirs:
                         '--output-spaces MNI152NLin6Asym anat',
                         '--skull-strip-template OASIS30ANTs']
                     fmriprep_script = launchdir+sub+'_fmriprep_run.sh'
-                    os.system('cat /projects/b1108/studies/mwmh/scripts/process/sbatchinfo_general_extralong.sh > '+fmriprep_script) #_long
+                    os.system('cat /projects/b1108/studies/mwmh/scripts/process/sbatchinfo_general_extralong30.sh > '+fmriprep_script) #_long
                     os.system('echo '+' '.join(cmd)+' >> '+fmriprep_script)
                     os.system('chmod +x '+fmriprep_script)
                     os.system('sbatch -o '+launchdir+sub+'.txt'+' '+fmriprep_script)
@@ -143,7 +143,17 @@ for subdir in subdirs:
                         '--output-spaces MNI152NLin6Asym anat',
                         '--skull-strip-template OASIS30ANTs']
                     fmriprep_script = launchdir+sub+'_fmriprep_run.sh'
-                    os.system('cat /projects/b1108/studies/mwmh/scripts/process/sbatchinfo_general_extralong.sh > '+fmriprep_script)
+                    os.system('cat /projects/b1108/studies/mwmh/scripts/process/sbatchinfo_general_extralong30.sh > '+fmriprep_script)
                     os.system('echo '+' '.join(cmd)+' >> '+fmriprep_script)
                     os.system('chmod +x '+fmriprep_script)
                     os.system('sbatch -o '+launchdir+sub+'.txt'+' '+fmriprep_script)
+
+i=0
+for subdir in subdirs:
+    sub = subdir.split('/')[9]
+    txtlog = launchdir+sub+'.txt'
+    with open(txtlog) as myfile:
+        if 'ERROR' in myfile.read():
+            print(sub)
+            i=i+1
+# 47 sessions got errored out, many because of memory issues
