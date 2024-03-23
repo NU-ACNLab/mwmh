@@ -46,11 +46,12 @@ for subdir in subdirs:
                 index = np.argwhere(tasks_list == 'faces')
                 tasks_list = np.delete(tasks_list, index)
             # If the rest scan is too short, you can't process it
-            rest_img = nib.load(indir+sub+'/'+ses+'/func/'+sub+'_'+ses+'_task-rest_space-MNI152NLin6Asym_desc-preproc_bold.nii.gz')
-            if rest_img.shape[3] < 34:
-                index = np.argwhere(tasks_list == 'rest')
-                tasks_list = np.delete(tasks_list, index)
-            if len(tasks_list) > 0:
+            if os.path.exists(indir+sub+'/'+ses+'/func/'+sub+'_'+ses+'_task-rest_space-MNI152NLin6Asym_desc-preproc_bold.nii.gz'):
+                rest_img = nib.load(indir+sub+'/'+ses+'/func/'+sub+'_'+ses+'_task-rest_space-MNI152NLin6Asym_desc-preproc_bold.nii.gz')
+                if rest_img.shape[3] < 34:
+                    index = np.argwhere(tasks_list == 'rest')
+                    tasks_list = np.delete(tasks_list, index)
+            if len(tasks_list) > 0 and len(os.listdir(outdir+sub+'/'+ses)) == 0:
                 # anat space
                 tasks = ' '.join(tasks_list)
                 cmd = ['python3 /projects/b1108/studies/mwmh/scripts/process/postproc_space_anat.py -i',
