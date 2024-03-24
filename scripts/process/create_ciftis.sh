@@ -10,12 +10,17 @@
 ### February 4, 2024 - March 5, 2024
 
 
-while getopts s:ss:t: flag
-do
-    case "${flag}" in
-        s) sub=${OPTARG};;
-        ss) ses=${OPTARG};;
-        t) tasks=${OPTARG};;
+while getopts ":s:ss:t:" option; do
+    case "${option}" in
+        s) 
+          sub="${OPTARG}"
+          ;;
+        ss) 
+          ses="${OPTARG}"
+          ;;
+        t) 
+          tasks="${OPTARG}"
+          ;;
     esac
 done
 
