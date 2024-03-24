@@ -38,7 +38,7 @@ for subdir in subdirs:
             tasks_list = np.unique([i.split('/')[11].split('_')[2].split('-')[1] for i in ses_bold_imgs])
             tasks = ' '.join(tasks_list)
             cmd = ['bash /projects/b1108/studies/mwmh/scripts/process/create_ciftis.sh -s', 
-                   sub, '-ss', ses, '-t', tasks]
+                   sub, '-e', ses, '-t', tasks]
             create_ciftis_script = launchdir+sub+'_'+ses+'_create_ciftis_run.sh'
             os.system('cat /projects/b1108/studies/mwmh/scripts/process/sbatchinfo_40min_general.sh > '+create_ciftis_script)
             os.system('echo '+' '.join(cmd)+' >> '+create_ciftis_script)

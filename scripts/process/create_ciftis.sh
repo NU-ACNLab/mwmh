@@ -10,12 +10,12 @@
 ### February 4, 2024 - March 5, 2024
 
 
-while getopts ":s:ss:t:" option; do
+while getopts ":s:e:t:" option; do
     case "${option}" in
         s) 
           sub="${OPTARG}"
           ;;
-        ss) 
+        e) 
           ses="${OPTARG}"
           ;;
         t) 
