@@ -10,7 +10,7 @@
 ### February 4, 2024 - March 5, 2024
 
 
-while getopts ":s:e:t:" option; do
+while getopts ":s:e:" option; do
     case "${option}" in
         s) 
           sub="${OPTARG}"
@@ -18,32 +18,17 @@ while getopts ":s:e:t:" option; do
         e) 
           sessions="${OPTARG}"
           ;;
-        t) 
-          tasks="${OPTARG}"
-          ;;
     esac
 done
 
 module load connectome_workbench/1.5.0
 
 ##### 0) set file paths
-bidsdir=/projects/b1108/studies/mwmh/data/raw/neuroimaging/bids/${sub}/${ses}/func
 neurodir=/projects/b1108/studies/mwmh/data/processed/neuroimaging
-
-# set input directories
-numses=`find ${neurodir}/fmriprep_23.2.0/${sub} -type d -name "ses-*" | wc -l`
-if [ ${numses} == 1 ]; then
-  anatindir=${neurodir}/fmriprep_23.2.0/${sub}/${ses}/anat
-else
-  anatindir=${neurodir}/fmriprep_23.2.0/${sub}/anat
-fi
-funcindir=${neurodir}/postproc/${sub}/${ses}
 
 # set output directories
 anatoutdir=${neurodir}/surf/${sub}/anat
 mkdir ${anatoutdir}
-funcoutdir=${neurodir}/surf/${sub}/${ses}/func
-mkdir ${funcoutdir}
 
 # this is the feesurfer surf dir: for registration (spherical)
 freedir=${neurodir}/fmriprep_23.2.0/sourcedata/freesurfer/${sub}
@@ -74,6 +59,28 @@ wb_shortcuts -freesurfer-resample-prep ${freedir}/surf/rh.white ${freedir}/surf/
   ${anatoutdir}/rh.sphere.reg.surf.gii
 
 for ses in ${sessions}; do
+    task_paths=`find ${neurodir}/postproc/${sub}/${ses}/ -name "*quality.csv"`
+    tasks=""
+    for task_path in ${task_paths}; do
+      thistask=`echo ${task_path} | cut -d "/" -f 12 | cut -d "_" -f 3 | cut -d "-" -f 2`
+      tasks="${thistask} ${tasks}"
+    done
+
+    # set input directories
+    bidsdir=/projects/b1108/studies/mwmh/data/raw/neuroimaging/bids/${sub}/${ses}/func
+    numses=`find ${neurodir}/fmriprep_23.2.0/${sub} -type d -name "ses-*" | wc -l`
+
+    if [ ${numses} == 1 ]; then
+      anatindir=${neurodir}/fmriprep_23.2.0/${sub}/${ses}/anat
+    else
+      anatindir=${neurodir}/fmriprep_23.2.0/${sub}/anat
+    fi
+    funcindir=${neurodir}/postproc/${sub}/${ses}
+
+    # set output directories
+    funcoutdir=${neurodir}/surf/${sub}/${ses}/func
+    mkdir ${funcoutdir}
+
     for task in ${tasks}; do
       # set t1 space fmri volume location
       VolumefMRI=${funcindir}/${sub}_${ses}_task-${task}_space-T1w_desc-postproc_bold.nii.gz

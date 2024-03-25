@@ -1,7 +1,7 @@
 ### This script generates submission scripts for fmriprep for the first visit
 ###
 ### Ellyn Butler
-### March 5, 2024
+### March 5, 2024 - March 25, 2024
 
 
 import os
@@ -34,13 +34,11 @@ for subdir in subdirs:
         if not os.path.exists(outdir+sub+'/'+ses):
             os.mkdir(outdir+sub+'/'+ses)
     if len(sub_bold_imgs) > 0:
-        tasks_list = np.unique([i.split('/')[11].split('_')[2].split('-')[1] for i in ses_bold_imgs])
         sesids = ' '.join(sessions)
-        tasks = ' '.join(tasks_list)
         cmd = ['bash /projects/b1108/studies/mwmh/scripts/process/create_ciftis.sh -s', 
-                sub, '-e', ses, '-t', tasks]
+                sub, '-e', ses]
         create_ciftis_script = launchdir+sub+'_'+ses+'_create_ciftis_run.sh'
         os.system('cat /projects/b1108/studies/mwmh/scripts/process/sbatchinfo_40min_10G_general.sh > '+create_ciftis_script)
         os.system('echo '+' '.join(cmd)+' >> '+create_ciftis_script)
         os.system('chmod +x '+create_ciftis_script)
-        os.system('sbatch -o '+launchdir+sub+'_'+ses+'_space_anat.txt'+' '+create_ciftis_script)
+        os.system('sbatch -o '+launchdir+sub+'_'+ses+'.txt'+' '+create_ciftis_script)
