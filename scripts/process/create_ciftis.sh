@@ -51,7 +51,7 @@ mkdir ${funcoutdir}
 freedir=${neurodir}/fmriprep_23.2.0/sourcedata/freesurfer/${sub}
 
 # hcp directory
-hcptempdir=/projects/b1108/hcp/global/templates/standard_mesh_atlases/resampleaverage
+hcptempdir=/projects/b1108/hcp/global/templates/standard_mesh_atlases/resample_fsaverage
 
 # fslr midthickness
 midthick_L=/projects/b1108/templates/HCP_S1200_GroupAvg_v1/S1200.L.midthickness_MSMAll.32k_LR.surf.gii
