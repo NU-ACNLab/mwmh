@@ -24,6 +24,7 @@ while getopts ":s:e:t:" option; do
     esac
 done
 
+module load connectome_workbench/1.5.0
 
 ##### 0) set file paths
 bidsdir=/projects/b1108/studies/mwmh/data/raw/neuroimaging/bids/${sub}/${ses}/func
