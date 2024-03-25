@@ -40,7 +40,7 @@ for subdir in subdirs:
         cmd = ['bash /projects/b1108/studies/mwmh/scripts/process/create_ciftis.sh -s', 
                 sub, '-e', ses, '-t', tasks]
         create_ciftis_script = launchdir+sub+'_'+ses+'_create_ciftis_run.sh'
-        os.system('cat /projects/b1108/studies/mwmh/scripts/process/sbatchinfo_40min_general.sh > '+create_ciftis_script)
+        os.system('cat /projects/b1108/studies/mwmh/scripts/process/sbatchinfo_40min_10G_general.sh > '+create_ciftis_script)
         os.system('echo '+' '.join(cmd)+' >> '+create_ciftis_script)
         os.system('chmod +x '+create_ciftis_script)
         os.system('sbatch -o '+launchdir+sub+'_'+ses+'_space_anat.txt'+' '+create_ciftis_script)
