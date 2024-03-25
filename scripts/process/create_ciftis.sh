@@ -63,14 +63,14 @@ mri_convert ${freedir}/mri/T1.mgz ${neurodir}/surf/${sub}/anat/fs_T1w.nii.gz
 ##### 2) convert .reg files into giftis
 # left
 wb_shortcuts -freesurfer-resample-prep ${freedir}/surf/lh.white ${freedir}/surf/lh.pial \
-  ${freedir}/surf/lh.sphere.reg ${hcptempdir}/fs_LR-deformed_to-fsaverage.L.sphere.32k_LR.surf.gii \
+  ${freedir}/surf/lh.sphere.reg ${hcptempdir}/fs_LR-deformed_to-fsaverage.L.sphere.32k_fs_LR.surf.gii \
   ${anatoutdir}/${sub}.L.midthickness.native.surf.gii \
   ${anatoutdir}/${sub}.L.midthickness.32k_LR.surf.gii \
   ${anatoutdir}/lh.sphere.reg.surf.gii
 
 # right
 wb_shortcuts -freesurfer-resample-prep ${freedir}/surf/rh.white ${freedir}/surf/rh.pial \
-  ${freedir}/surf/rh.sphere.reg ${hcptempdir}/fs_LR-deformed_to-fsaverage.R.sphere.32k_LR.surf.gii \
+  ${freedir}/surf/rh.sphere.reg ${hcptempdir}/fs_LR-deformed_to-fsaverage.R.sphere.32k_fs_LR.surf.gii \
   ${anatoutdir}/${sub}.R.midthickness.native.surf.gii \
   ${anatoutdir}/${sub}.R.midthickness.32k_LR.surf.gii \
   ${anatoutdir}/rh.sphere.reg.surf.gii
@@ -115,13 +115,13 @@ for sesid in ${sesids}; do
       # (note: omission of roi use again)
       # left
       wb_command -metric-resample ${nativesurfMRI_L} ${anatoutdir}/lh.sphere.reg.surf.gii \
-        ${hcptempdir}/fs_LR-deformed_to-fsaverage.L.sphere.32k_LR.surf.gii ADAP_BARY_AREA \
+        ${hcptempdir}/fs_LR-deformed_to-fsaverage.L.sphere.32k_fs_LR.surf.gii ADAP_BARY_AREA \
         ${fslrfMRI_L} -area-surfs ${anatindir}/${sub}_${ses}_hemi-L_midthickness.surf.gii \
         ${midthick_L}
 
       # right
       wb_command -metric-resample ${nativesurfMRI_R} ${anatoutdir}/rh.sphere.reg.surf.gii \
-        ${hcptempdir}/fs_LR-deformed_to-fsaverage.R.sphere.32k_LR.surf.gii ADAP_BARY_AREA \
+        ${hcptempdir}/fs_LR-deformed_to-fsaverage.R.sphere.32k_fs_LR.surf.giiADAP_BARY_AREA \
         ${fslrfMRI_R} -area-surfs ${anatindir}/${sub}_${ses}_hemi-R_midthickness.surf.gii \
         ${midthick_R}
 
