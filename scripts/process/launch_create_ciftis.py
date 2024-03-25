@@ -33,14 +33,14 @@ for subdir in subdirs:
     for ses in sessions:
         if not os.path.exists(outdir+sub+'/'+ses):
             os.mkdir(outdir+sub+'/'+ses)
-        ses_bold_imgs = glob.glob(indir+sub+'/'+ses+'/*bold.nii.gz')
-        if len(ses_bold_imgs) > 0:
-            tasks_list = np.unique([i.split('/')[11].split('_')[2].split('-')[1] for i in ses_bold_imgs])
-            tasks = ' '.join(tasks_list)
-            cmd = ['bash /projects/b1108/studies/mwmh/scripts/process/create_ciftis.sh -s', 
-                   sub, '-e', ses, '-t', tasks]
-            create_ciftis_script = launchdir+sub+'_'+ses+'_create_ciftis_run.sh'
-            os.system('cat /projects/b1108/studies/mwmh/scripts/process/sbatchinfo_40min_general.sh > '+create_ciftis_script)
-            os.system('echo '+' '.join(cmd)+' >> '+create_ciftis_script)
-            os.system('chmod +x '+create_ciftis_script)
-            os.system('sbatch -o '+launchdir+sub+'_'+ses+'_space_anat.txt'+' '+create_ciftis_script)
+    if len(sub_bold_imgs) > 0:
+        tasks_list = np.unique([i.split('/')[11].split('_')[2].split('-')[1] for i in ses_bold_imgs])
+        sesids = ' '.join(sessions)
+        tasks = ' '.join(tasks_list)
+        cmd = ['bash /projects/b1108/studies/mwmh/scripts/process/create_ciftis.sh -s', 
+                sub, '-e', ses, '-t', tasks]
+        create_ciftis_script = launchdir+sub+'_'+ses+'_create_ciftis_run.sh'
+        os.system('cat /projects/b1108/studies/mwmh/scripts/process/sbatchinfo_40min_general.sh > '+create_ciftis_script)
+        os.system('echo '+' '.join(cmd)+' >> '+create_ciftis_script)
+        os.system('chmod +x '+create_ciftis_script)
+        os.system('sbatch -o '+launchdir+sub+'_'+ses+'_space_anat.txt'+' '+create_ciftis_script)

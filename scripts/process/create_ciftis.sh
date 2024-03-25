@@ -16,7 +16,7 @@ while getopts ":s:e:t:" option; do
           sub="${OPTARG}"
           ;;
         e) 
-          ses="${OPTARG}"
+          sessions="${OPTARG}"
           ;;
         t) 
           tasks="${OPTARG}"
@@ -37,14 +37,12 @@ if [ ${numses} == 1 ]; then
 else
   anatindir=${neurodir}/fmriprep_23.2.0/${sub}/anat
 fi
-funcindir=${neurodir}/postproc/${sub}/${ses}/func
+funcindir=${neurodir}/postproc/${sub}/${ses}
 
 # set output directories
 anatoutdir=${neurodir}/surf/${sub}/anat
-mkdir ${neurodir}/surf/${sub}/
 mkdir ${anatoutdir}
 funcoutdir=${neurodir}/surf/${sub}/${ses}/func
-mkdir ${neurodir}/surf/${sub}/${ses}/
 mkdir ${funcoutdir}
 
 # this is the feesurfer surf dir: for registration (spherical)
@@ -54,8 +52,8 @@ freedir=${neurodir}/fmriprep_23.2.0/sourcedata/freesurfer/${sub}
 hcptempdir=/projects/b1108/hcp/global/templates/standard_mesh_atlases/resample_fsaverage
 
 # fslr midthickness
-midthick_L=/projects/b1108/templates/HCP_S1200_GroupAvg_v1/S1200.L.midthickness_MSMAll.32k_LR.surf.gii
-midthick_R=/projects/b1108/templates/HCP_S1200_GroupAvg_v1/S1200.L.midthickness_MSMAll.32k_LR.surf.gii
+midthick_L=/projects/b1108/templates/HCP_S1200_GroupAvg_v1/S1200.L.midthickness_MSMAll.32k_fs_LR.surf.gii
+midthick_R=/projects/b1108/templates/HCP_S1200_GroupAvg_v1/S1200.L.midthickness_MSMAll.32k_fs_LR.surf.gii
 
 ##### 1) Convert freesurfer T1w image to a nifti
 mri_convert ${freedir}/mri/T1.mgz ${neurodir}/surf/${sub}/anat/fs_T1w.nii.gz
@@ -75,7 +73,7 @@ wb_shortcuts -freesurfer-resample-prep ${freedir}/surf/rh.white ${freedir}/surf/
   ${anatoutdir}/${sub}.R.midthickness.32k_LR.surf.gii \
   ${anatoutdir}/rh.sphere.reg.surf.gii
 
-for sesid in ${sesids}; do
+for ses in ${sessions}; do
     for task in ${tasks}; do
       # set t1 space fmri volume location
       VolumefMRI=${funcindir}/${sub}_${ses}_task-${task}_space-T1w_desc-postproc_bold.nii.gz
@@ -89,41 +87,79 @@ for sesid in ${sesids}; do
       fslrfMRI_R=${funcoutdir}/${sub}_${ses}_task-${task}.R.fslr.func.gii
 
       ##### 3) map t1-space bold to native freesurfer (note: no -volume-roi flag, assuming this is an SNR mask)
-      # left
-      wb_command -volume-to-surface-mapping ${VolumefMRI} ${anatindir}/${sub}_${ses}_hemi-L_midthickness.surf.gii \
-        ${nativesurfMRI_L} -ribbon-constrained ${anatindir}/${sub}_${ses}_hemi-L_white.surf.gii \
-        ${anatindir}/${sub}_${ses}_hemi-L_pial.surf.gii
+      if [ ${numses} == 1 ]; then
+        # left
+        wb_command -volume-to-surface-mapping ${VolumefMRI} ${anatindir}/${sub}_${ses}_hemi-L_midthickness.surf.gii \
+          ${nativesurfMRI_L} -ribbon-constrained ${anatindir}/${sub}_${ses}_hemi-L_white.surf.gii \
+          ${anatindir}/${sub}_${ses}_hemi-L_pial.surf.gii
 
-      # right
-      wb_command -volume-to-surface-mapping ${VolumefMRI} ${anatindir}/${sub}_${ses}_hemi-R_midthickness.surf.gii \
-        ${nativesurfMRI_R} -ribbon-constrained ${anatindir}/${sub}_${ses}_hemi-R_white.surf.gii \
-        ${anatindir}/${sub}_${ses}_hemi-R_pial.surf.gii
+        # right
+        wb_command -volume-to-surface-mapping ${VolumefMRI} ${anatindir}/${sub}_${ses}_hemi-R_midthickness.surf.gii \
+          ${nativesurfMRI_R} -ribbon-constrained ${anatindir}/${sub}_${ses}_hemi-R_white.surf.gii \
+          ${anatindir}/${sub}_${ses}_hemi-R_pial.surf.gii
+      else
+        # left
+        wb_command -volume-to-surface-mapping ${VolumefMRI} ${anatindir}/${sub}_hemi-L_midthickness.surf.gii \
+          ${nativesurfMRI_L} -ribbon-constrained ${anatindir}/${sub}_hemi-L_white.surf.gii \
+          ${anatindir}/${sub}_hemi-L_pial.surf.gii
+
+        # right
+        wb_command -volume-to-surface-mapping ${VolumefMRI} ${anatindir}/${sub}_hemi-R_midthickness.surf.gii \
+          ${nativesurfMRI_R} -ribbon-constrained ${anatindir}/${sub}_hemi-R_white.surf.gii \
+          ${anatindir}/${sub}_hemi-R_pial.surf.gii
+      fi
 
       ##### 4) dilate by ten, consistent b/w fmriprep and dcan hcp pipeline
       # (would love to know how they converged on this value. Note: input and output are same)
-      # left
-      wb_command -metric-dilate ${nativesurfMRI_L} \
-        ${anatindir}/${sub}_${ses}_hemi-L_midthickness.surf.gii 10 \
-        ${nativesurfMRI_L} -nearest
+      if [ ${numses} == 1 ]; then
+        # left
+        wb_command -metric-dilate ${nativesurfMRI_L} \
+          ${anatindir}/${sub}_${ses}_hemi-L_midthickness.surf.gii 10 \
+          ${nativesurfMRI_L} -nearest
 
-      # right
-      wb_command -metric-dilate ${nativesurfMRI_R} \
-        ${anatindir}/${sub}_${ses}_hemi-R_midthickness.surf.gii 10 \
-        ${nativesurfMRI_R} -nearest
+        # right
+        wb_command -metric-dilate ${nativesurfMRI_R} \
+          ${anatindir}/${sub}_${ses}_hemi-R_midthickness.surf.gii 10 \
+          ${nativesurfMRI_R} -nearest
+      else
+        # left
+        wb_command -metric-dilate ${nativesurfMRI_L} \
+          ${anatindir}/${sub}_hemi-L_midthickness.surf.gii 10 \
+          ${nativesurfMRI_L} -nearest
+
+        # right
+        wb_command -metric-dilate ${nativesurfMRI_R} \
+          ${anatindir}/${sub}_hemi-R_midthickness.surf.gii 10 \
+          ${nativesurfMRI_R} -nearest
+      fi
 
       ##### 5) resample native surface to fslr
       # (note: omission of roi use again)
-      # left
-      wb_command -metric-resample ${nativesurfMRI_L} ${anatoutdir}/lh.sphere.reg.surf.gii \
-        ${hcptempdir}/fs_LR-deformed_to-fsaverage.L.sphere.32k_fs_LR.surf.gii ADAP_BARY_AREA \
-        ${fslrfMRI_L} -area-surfs ${anatindir}/${sub}_${ses}_hemi-L_midthickness.surf.gii \
-        ${midthick_L}
+      if [ ${numses} == 1 ]; then
+        # left
+        wb_command -metric-resample ${nativesurfMRI_L} ${anatoutdir}/lh.sphere.reg.surf.gii \
+          ${hcptempdir}/fs_LR-deformed_to-fsaverage.L.sphere.32k_fs_LR.surf.gii ADAP_BARY_AREA \
+          ${fslrfMRI_L} -area-surfs ${anatindir}/${sub}_${ses}_hemi-L_midthickness.surf.gii \
+          ${midthick_L}
 
-      # right
-      wb_command -metric-resample ${nativesurfMRI_R} ${anatoutdir}/rh.sphere.reg.surf.gii \
-        ${hcptempdir}/fs_LR-deformed_to-fsaverage.R.sphere.32k_fs_LR.surf.giiADAP_BARY_AREA \
-        ${fslrfMRI_R} -area-surfs ${anatindir}/${sub}_${ses}_hemi-R_midthickness.surf.gii \
-        ${midthick_R}
+        # right
+        wb_command -metric-resample ${nativesurfMRI_R} ${anatoutdir}/rh.sphere.reg.surf.gii \
+          ${hcptempdir}/fs_LR-deformed_to-fsaverage.R.sphere.32k_fs_LR.surf.gii ADAP_BARY_AREA \
+          ${fslrfMRI_R} -area-surfs ${anatindir}/${sub}_${ses}_hemi-R_midthickness.surf.gii \
+          ${midthick_R}
+      else
+        # left
+        wb_command -metric-resample ${nativesurfMRI_L} ${anatoutdir}/lh.sphere.reg.surf.gii \
+          ${hcptempdir}/fs_LR-deformed_to-fsaverage.L.sphere.32k_fs_LR.surf.gii ADAP_BARY_AREA \
+          ${fslrfMRI_L} -area-surfs ${anatindir}/${sub}_hemi-L_midthickness.surf.gii \
+          ${midthick_L}
+
+        # right
+        wb_command -metric-resample ${nativesurfMRI_R} ${anatoutdir}/rh.sphere.reg.surf.gii \
+          ${hcptempdir}/fs_LR-deformed_to-fsaverage.R.sphere.32k_fs_LR.surf.gii ADAP_BARY_AREA \
+          ${fslrfMRI_R} -area-surfs ${anatindir}/${sub}_hemi-R_midthickness.surf.gii \
+          ${midthick_R}
+      fi
 
       ##### 6) Set the structure parameter so that wb_view knows how to display the data
       wb_command -set-structure ${fslrfMRI_L} CORTEX_LEFT
