@@ -10,13 +10,10 @@
 ### February 4, 2024 - March 5, 2024
 
 
-while getopts ":s:e:" option; do
+while getopts ":s:" option; do
     case "${option}" in
         s) 
           sub="${OPTARG}"
-          ;;
-        e) 
-          sessions="${OPTARG}"
           ;;
     esac
 done
@@ -59,6 +56,7 @@ wb_shortcuts -freesurfer-resample-prep ${freedir}/surf/rh.white ${freedir}/surf/
   ${anatoutdir}/rh.sphere.reg.surf.gii
 
 for ses in ${sessions}; do
+    echo ${ses}
     task_paths=`find ${neurodir}/postproc/${sub}/${ses}/ -name "*quality.csv"`
     tasks=""
     for task_path in ${task_paths}; do
@@ -82,6 +80,7 @@ for ses in ${sessions}; do
     mkdir ${funcoutdir}
 
     for task in ${tasks}; do
+      echo ${task}
       # set t1 space fmri volume location
       VolumefMRI=${funcindir}/${sub}_${ses}_task-${task}_space-T1w_desc-postproc_bold.nii.gz
 
