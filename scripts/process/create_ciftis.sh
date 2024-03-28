@@ -55,6 +55,8 @@ wb_shortcuts -freesurfer-resample-prep ${freedir}/surf/rh.white ${freedir}/surf/
   ${anatoutdir}/${sub}.R.midthickness.32k_LR.surf.gii \
   ${anatoutdir}/rh.sphere.reg.surf.gii
 
+sessions=`find ${neurodir}/postproc/${sub} -name "ses-*" | cut -d "/" -f 11`
+
 for ses in ${sessions}; do
     echo ${ses}
     task_paths=`find ${neurodir}/postproc/${sub}/${ses}/ -name "*quality.csv"`
