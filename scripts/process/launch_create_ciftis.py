@@ -14,7 +14,7 @@ import nibabel as nib
 indir = '/projects/b1108/studies/mwmh/data/processed/neuroimaging/postproc/'
 outdir = '/projects/b1108/studies/mwmh/data/processed/neuroimaging/surf/'
 bidsdir = '/projects/b1108/studies/mwmh/data/raw/neuroimaging/bids/'
-launchdir = '/projects/b1108/studies/mwmh/data/processed/neuroimaging/launch/create_ciftis/'
+launchdir = '/projects/b1108/studies/mwmh/data/processed/neuroimaging/launch/surf/'
 
 if not os.path.exists(outdir):
     os.mkdir(outdir)
@@ -36,7 +36,7 @@ for subdir in subdirs:
     if len(sub_bold_imgs) > 0:
         cmd = ['bash /projects/b1108/studies/mwmh/scripts/process/create_ciftis.sh -s', sub]
         create_ciftis_script = launchdir+sub+'_create_ciftis_run.sh'
-        os.system('cat /projects/b1108/studies/mwmh/scripts/process/sbatchinfo_1hr_10G_general.sh > '+create_ciftis_script)
+        os.system('cat /projects/b1108/studies/mwmh/scripts/process/sbatchinfo_3hr_10G_general.sh > '+create_ciftis_script)
         os.system('echo '+' '.join(cmd)+' >> '+create_ciftis_script)
         os.system('chmod +x '+create_ciftis_script)
         os.system('sbatch -o '+launchdir+sub+'.txt'+' '+create_ciftis_script)
