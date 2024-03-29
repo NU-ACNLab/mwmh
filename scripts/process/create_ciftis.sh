@@ -45,14 +45,14 @@ mri_convert ${freedir}/mri/T1.mgz ${neurodir}/surf/${sub}/anat/fs_T1w.nii.gz
 wb_shortcuts -freesurfer-resample-prep ${freedir}/surf/lh.white ${freedir}/surf/lh.pial \
   ${freedir}/surf/lh.sphere.reg ${hcptempdir}/fs_LR-deformed_to-fsaverage.L.sphere.32k_fs_LR.surf.gii \
   ${anatoutdir}/${sub}.L.midthickness.native.surf.gii \
-  ${anatoutdir}/${sub}.L.midthickness.32k_LR.surf.gii \
+  ${anatoutdir}/${sub}.L.midthickness.32k_fs_LR.surf.gii \
   ${anatoutdir}/lh.sphere.reg.surf.gii
 
 # right
 wb_shortcuts -freesurfer-resample-prep ${freedir}/surf/rh.white ${freedir}/surf/rh.pial \
   ${freedir}/surf/rh.sphere.reg ${hcptempdir}/fs_LR-deformed_to-fsaverage.R.sphere.32k_fs_LR.surf.gii \
   ${anatoutdir}/${sub}.R.midthickness.native.surf.gii \
-  ${anatoutdir}/${sub}.R.midthickness.32k_LR.surf.gii \
+  ${anatoutdir}/${sub}.R.midthickness.32k_fs_LR.surf.gii \
   ${anatoutdir}/rh.sphere.reg.surf.gii
 
 sessions=`find ${neurodir}/postproc/${sub} -name "ses-*" | cut -d "/" -f 11`

@@ -1,0 +1,17 @@
+papers/*
+data/*
+plots/*
+*.csv
+*.docx
+*.xlsx
+*~
+*.DS_Store
+*RData
+*grant/
+*measures/*
+*errors/*
+*eprime/*
+*handbooks/*
+*launch/*
+*__pycache__*
+*.asv*
