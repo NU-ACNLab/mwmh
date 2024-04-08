@@ -71,8 +71,10 @@ Yeo17_names <- Yeo17$meta$cifti$labels$parcels
 xii <- read_cifti(ciftiTools.files()$cifti["dscalar_ones"], brainstructures="all")
 subcort_names <- xii$meta$subcort$labels
 
+template <- #set of mean and between-subject variance maps for Yeo17... where can I get this?
+
 ###### Single subject template estimation - not working
-networks_img <- templateICA(rest_cifti, Yeo17, tvar_method = 'unbiased', 
+networks_img <- templateICA(rest_cifti, template, tvar_method = 'unbiased', 
             scale = 'global', spatial_model = TRUE) 
             # for BOLD, can include multiple images
 
@@ -88,22 +90,3 @@ surf_area(network_membership)
 
 
 
-
-
-nT <- 30
-nV <- 400
-nQ <- 7
-mU <- matrix(rnorm(nV*nQ), nrow=nV)
-mS <- mU %*% diag(seq(nQ, 1)) %*% matrix(rnorm(nQ*nT), nrow=nQ)
-BOLD <- list(B1=mS, B2=mS, B3=mS)
-BOLD <- lapply(BOLD, function(x){x + rnorm(nV*nT, sd=.05)})
-GICA <- mU
-template <- estimate_template(BOLD=BOLD, GICA=mU)
-     
-## Not run:
-     
-estimate_template(
-    run1_cifti_fnames, run2_cifti_fnames,
-    gICA_cifti_fname, brainstructures="all",
-    scale="local", detrend_DCT=7, Q2=NULL, varTol=10
-)
