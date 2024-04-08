@@ -9,10 +9,16 @@
 library(templateICAr)
 library(ciftiTools)
 library(dplyr)
+#library(RNifti)
 ciftiTools.setOption('wb_path', '/Applications/workbench')
 
+subid = 'MWMH317'
+sesid = 1
+task = 'rest'
+
 surf_dir <- '~/Documents/Northwestern/studies/mwmh/data/processed/neuroimaging/surf/'
-rest_path <- paste0(surf_dir, 'sub-MWMH317/ses-1/func/sub-MWMH317_ses-1_task-rest_space-fsLR_desc-postproc_bold.dscalar.nii')
+rest_path <- paste0(surf_dir, 'sub-', subid, '/ses-', sesid, '/func/sub-', subid, 
+    '_ses-', sesid, '_task-', task, '_space-fsLR_desc-postproc_bold.dscalar.nii')
 rest_cifti <- read_cifti(rest_path)
 
 bold_scans <- # vector of paths to all of the bold scans, just practicing with rest now
@@ -29,37 +35,75 @@ mwall_L <- recode(mwall_L, `0`=TRUE, `1`=FALSE)
 mwall_R <- c(mwall_cifti$data$cortex_right)
 mwall_R <- recode(mwall_R, `0`=TRUE, `1`=FALSE)
 
-rest_cifti$meta$cortex$medial_wall_mask$left <- mwall_L
-rest_cifti$meta$cortex$medial_wall_mask$right <- mwall_R
+rest_cifti$data$cortex_left[!mwall_L,] <- NA
+rest_cifti$data$cortex_right[!mwall_R,] <- NA
 
 # set these vertices to NA... not working
 rest_cifti <- move_to_mwall(rest_cifti, values = NA)
 
-###### Downsample surfaces (if necessary)
-resample_cifti()
+###### Downsample surfaces (if necessary)... working
+rest_cifti <- resample_cifti(rest_cifti, resamp_res = 10000)
 
-###### Add in subcortical data
+###### Add in subcortical data - TO DO
 # Load postproc image in MNI space
-rest_mni <- read_xifti()
+postproc_dir <- '~/Documents/Northwestern/studies/mwmh/data/processed/neuroimaging/postproc/'
+rest_mni_path <- paste0(postproc_dir, 'sub-', subid, '/ses-', sesid, '/sub-', subid, 
+    '_ses-', sesid, '_task-', task, '_space-MNI152NLin6Asym_desc-postproc_bold.nii.gz')
+subcort_path <- paste0(surf_dir, 'sub-', subid, '/ses-', sesid, '/func/sub-', subid, 
+    '_ses-', sesid, '_task-', task, '_space-fsLR_desc-subcort_bold.dscalar.nii')
+subcort_atlas_path <- '~/Documents/Northwestern/templates/91282_Greyordinates/91282_Greyordinates.dscalar.nii'
+#rest_mni <- readNifti(rest_mni_path) #from another package, not clear if this will work
+## Example command using wb_command (part of Connectome Workbench)
 
+
+system(paste('wb_command -cifti-create-dense-from-template', subcort_atlas_path, subcort_path,
+                '-volume-all', rest_mni_path))
 # 
 parc_add_subcortex()
 
 # Write out resulting image
 
 ###### Load the template to serve as a prior
-template <- read_cifti()
+Yeo17 <- ciftiTools::load_parc('Yeo_17')
+Yeo17_values <- as.matrix(Yeo17)
+Yeo17_names <- Yeo17$meta$cifti$labels$parcels
 
-###### Single subject template estimation
-networks_img <- templateICA(rest_cifti, template, tvar_method = 'unbiased', 
-            scale = 'global', spatial_model = FALSE)
+xii <- read_cifti(ciftiTools.files()$cifti["dscalar_ones"], brainstructures="all")
+subcort_names <- xii$meta$subcort$labels
+
+###### Single subject template estimation - not working
+networks_img <- templateICA(rest_cifti, Yeo17, tvar_method = 'unbiased', 
+            scale = 'global', spatial_model = TRUE) 
+            # for BOLD, can include multiple images
 
 ###### Identify areas of engagement and deviation
-activations()
+network_membership <- activations(networks_img)
 
 ###### Get the area that each network takes up (expansiveness)
-surf_area()
+surf_area(network_membership)
 
 ###### Estimate within network connectivity
 
 ###### Estimate amygdala betweenness centrality
+
+
+
+
+
+nT <- 30
+nV <- 400
+nQ <- 7
+mU <- matrix(rnorm(nV*nQ), nrow=nV)
+mS <- mU %*% diag(seq(nQ, 1)) %*% matrix(rnorm(nQ*nT), nrow=nQ)
+BOLD <- list(B1=mS, B2=mS, B3=mS)
+BOLD <- lapply(BOLD, function(x){x + rnorm(nV*nT, sd=.05)})
+GICA <- mU
+template <- estimate_template(BOLD=BOLD, GICA=mU)
+     
+## Not run:
+     
+estimate_template(
+    run1_cifti_fnames, run2_cifti_fnames,
+    gICA_cifti_fname, brainstructures="all",
+    scale="local", detrend_DCT=7, Q2=NULL, varTol=10
+)
