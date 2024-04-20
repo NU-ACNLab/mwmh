@@ -7,5 +7,5 @@ wb_view ${anatoutdir}/sub-${subid}.L.midthickness.32k_fs_LR.surf.gii \
 
 wb_view ${anatoutdir}/sub-${subid}.L.midthickness.32k_fs_LR.surf.gii \
     ${anatoutdir}/sub-${subid}.R.midthickness.32k_fs_LR.surf.gii \
-    ${funcindir}/sub-${subid}_ses-${sesid}_task-${task}_space-fsLR_den-91k_bold.dtseries.nii \
+    ${funcoutdir}/sub-${subid}_ses-${sesid}_task-${task}_space-fsLR_desc-postproc_bold.dscalar.nii \
     ${anatoutdir}/fs_T1w.nii.gz

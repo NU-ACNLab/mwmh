@@ -6,6 +6,10 @@
 ### Ellyn Butler
 ### April 1, 2024
 
+neuro_dir <- '~/Documents/Northwestern/studies/mwmh/data/processed/neuroimaging/'
+template_obj <- readRDS(paste0(neuro_dir, 'template/HCP_template_for_tICA.rds'))
+
+# Load libraries
 library(templateICAr)
 library(ciftiTools)
 library(dplyr)
@@ -16,12 +20,14 @@ subid = 'MWMH317'
 sesid = 1
 task = 'rest'
 
-surf_dir <- '~/Documents/Northwestern/studies/mwmh/data/processed/neuroimaging/surf/'
+neuro_dir <- '~/Documents/Northwestern/studies/mwmh/data/processed/neuroimaging/'
+surf_dir <- paste0(neuro_dir, 'surf/')
 rest_path <- paste0(surf_dir, 'sub-', subid, '/ses-', sesid, '/func/sub-', subid, 
     '_ses-', sesid, '_task-', task, '_space-fsLR_desc-postproc_bold.dscalar.nii')
 rest_cifti <- read_cifti(rest_path)
 
 bold_scans <- # vector of paths to all of the bold scans, just practicing with rest now
+
 
 ###### Mask out the medial wall
 # load the medial wall image
@@ -71,10 +77,11 @@ Yeo17_names <- Yeo17$meta$cifti$labels$parcels
 xii <- read_cifti(ciftiTools.files()$cifti["dscalar_ones"], brainstructures="all")
 subcort_names <- xii$meta$subcort$labels
 
-template <- #set of mean and between-subject variance maps for Yeo17... where can I get this?
+#template <- #set of mean and between-subject variance maps for Yeo17... where can I get this?
 
 ###### Single subject template estimation - not working
-networks_img <- templateICA(rest_cifti, template, tvar_method = 'unbiased', 
+template <- template_obj$template
+networks_img <- templateICA(rest_cifti, template_obj, tvar_method = 'unbiased', 
             scale = 'global', spatial_model = TRUE) 
             # for BOLD, can include multiple images
 
