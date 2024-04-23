@@ -48,7 +48,7 @@ rest_cifti$data$cortex_right[!mwall_R,] <- NA
 rest_cifti <- move_to_mwall(rest_cifti, values = NA)
 
 ###### Downsample surfaces (if necessary)... working
-rest_cifti <- resample_cifti(rest_cifti, resamp_res = 10000)
+#rest_cifti <- resample_cifti(rest_cifti, resamp_res = 10000)
 
 ###### Add in subcortical data - TO DO
 # Load postproc image in MNI space
@@ -80,13 +80,12 @@ subcort_names <- xii$meta$subcort$labels
 #template <- #set of mean and between-subject variance maps for Yeo17... where can I get this?
 
 ###### Single subject template estimation - not working
-template <- template_obj$template
 networks_img <- templateICA(rest_cifti, template_obj, tvar_method = 'unbiased', 
-            scale = 'global', spatial_model = TRUE) 
+            scale = 'global', TR = 0.555, scale_sm_FWHM = 0) 
             # for BOLD, can include multiple images
 
 ###### Identify areas of engagement and deviation
-network_membership <- activations(networks_img)
+network_membership <- activations(networks_img, verbose = TRUE)
 
 ###### Get the area that each network takes up (expansiveness)
 surf_area(network_membership)
