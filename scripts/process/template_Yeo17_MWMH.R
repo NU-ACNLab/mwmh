@@ -4,14 +4,19 @@
 ### Ellyn Butler & Damon Pham
 ### April 17, 2024 - 
 
+library(dplyr)
 
 # Input directory
-in_dir <- '/projects/b1108/studies/mwmh/data/processed/neuroimaging/'
-#in_dir <- '~/Documents/Northwestern/studies/mwmh/data/processed/neuroimaging/surf/'
+indir <- '/projects/b1108/studies/mwmh/data/processed/neuroimaging/'
+#indir <- '~/Documents/Northwestern/studies/mwmh/data/processed/neuroimaging/'
 
 # Output directory
-out_dir <- '/projects/b1108/studies/mwmh/data/processed/neuroimaging/template_Yeo17'
-#out_dir <- '~/Documents/Northwestern/studies/mwmh/data/processed/neuroimaging/template_Yeo17'
+outdir <- '/projects/b1108/studies/mwmh/data/processed/neuroimaging/template_Yeo17'
+#outdir <- '~/Documents/Northwestern/studies/mwmh/data/processed/neuroimaging/template_Yeo17'
+
+# HCP directory
+hcp_dir <- '/projects/b1108/templates/HCP_S1200_GroupAvg_v1/'
+#hcp_dir <- '~/Documents/Northwestern/templates/HCP_S1200_GroupAvg_v1/'
 
 # Packages
 #devtools::install_github('mandymejia/fMRItools', '0.4') # Need dev version, not CRAN
@@ -58,39 +63,58 @@ GPARC$meta$cifti$labels[[1]] <- rbind(
   data.frame(Key=-1, Red=1, Green=1, Blue=1, Alpha=0, row.names='BOLD_mwall'),
   GPARC$meta$cifti$labels[[1]]
 )
-GPARC_2 <- as.matrix(GPARC)
-xii1 <- read_cifti(cii_fnames$test[1], idx=1) * 0
-BOLD_mwall <- c(do.call(c, xii1$meta$cortex$medial_wall_mask))
-GPARC_2[!BOLD_mwall,] <- -1
-GPARC <- newdata_xifti(GPARC, GPARC_2)
-GPARC <- move_to_mwall(GPARC, values=-1)
-#GPARC <- resample_xifti(GPARC, resamp_res=12000)
-rm(q, y, z, GPARC_2, BOLD_mwall, xii1)
 
-save(list=ls(), file=paste0(out_dir, 'template_Yeo17_HCP_args.rda'))
+mwall_path <- paste0(hcp_dir, 'Human.MedialWall_Conte69.32k_fs_LR.dlabel.nii')
+mwall_cifti <- read_cifti(mwall_path)
 
-sample <- with(set.seed(0), sample(seq(length(cii_fnames$test)), 200))
+mwall_L <- c(mwall_cifti$data$cortex_left)
+mwall_L <- recode(mwall_L, `0`=TRUE, `1`=FALSE)
+mwall_R <- c(mwall_cifti$data$cortex_right)
+mwall_R <- recode(mwall_R, `0`=TRUE, `1`=FALSE)
 
-temp_subjs <- read.csv(paste0(in_dir, 'tablulated/template_subjs.csv'))
+GPARC$data$cortex_left[!mwall_L,] <- NA
+GPARC$data$cortex_right[!mwall_R,] <- NA
+
+GPARC <- move_to_mwall(GPARC, values = -1) #why not NA?
+
+save(list=ls(), file=paste0(outdir, 'template_Yeo17_HCP_args.rda'))
+
+temp_subjs <- read.csv(paste0(indir, 'tabulated/temp_subjs.csv'))
 
 cii_fnames <- c()
 for (i in 1:nrow(temp_subjs)) {
   subid <- temp_subjs[i, 'subid']
   sesid <- temp_subjs[i, 'sesid']
-  cii_fnames <- c(cii_fnames, paste0(in_dir, 'surf/sub-', subid, '/ses-', 
-                  sesid, '/func/sub-', sesid, '/sub-', subid, '_ses-', sesid, 
+  #cii_fnames <- c(cii_fnames, paste0(indir, 'surf/sub-', subid, '/ses-', 
+  #                sesid, '/func/sub-', sesid, '/sub-', subid, '_ses-', sesid, 
+  #                '_task-rest_space-fsLR_desc-postproc_bold.dscalar.nii'))
+  cii_fnames <- c(cii_fnames, paste0(indir, 'surf/sub-', subid, '_ses-', sesid, 
                   '_task-rest_space-fsLR_desc-postproc_bold.dscalar.nii'))
 }
 
+# Mask out medial walls
+Sys.setenv('R_MAX_VSIZE'=32000000000)
+i = 1
+for (cii_fname in cii_fnames) {
+  cii <- read_cifti(cii_fname)
+  cii$data$cortex_left[!mwall_L,] <- NA
+  cii$data$cortex_right[!mwall_R,] <- NA
+  cii <- move_to_mwall(cii, values = NA)
+  assign(paste0('cii', i), cii)
+  i = i + 1
+} 
+# something is wrong with this file (48): sub-MWMH113_ses-1_task-rest_space-fsLR_desc-postproc_bold.dscalar.nii
+
 temp <- estimate_template(
-  cii_fnames, 
+  mget(paste0('cii', 1:47)), #get(paste0('cii', 1:length(cii_fnames)))
   GPARC,
-  TR = .555, 
+  TR = 0.555, 
+  #hpf = 0, #this isn't working: Cannot apply `hpf` because `TR` was not provided. Either provide `TR` or set `hpf=0`.
   brainstructures = c('left', 'right'),
   #resamp_res=12000,
   FC = FALSE,
   scale_sm_surfL = load_surf('left'),
   scale_sm_surfR = load_surf('right')#, usePar=4, wb_path=wb_path
-)
+) #Is there a way to supply a mwall mask here?
 
-saveRDS(temp, paste0(out_dir, 'temp.rds'))
+saveRDS(temp, paste0(outdir, 'temp.rds'))
