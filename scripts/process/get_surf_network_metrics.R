@@ -69,7 +69,7 @@ parc_add_subcortex()
 
 # Write out resulting image
 
-###### Load the template to serve as a prior
+###### Load the template to serve as a prior (not using atm)
 Yeo17 <- ciftiTools::load_parc('Yeo_17')
 Yeo17_values <- as.matrix(Yeo17)
 Yeo17_names <- Yeo17$meta$cifti$labels$parcels
@@ -79,13 +79,43 @@ subcort_names <- xii$meta$subcort$labels
 
 #template <- #set of mean and between-subject variance maps for Yeo17... where can I get this?
 
-###### Single subject template estimation - not working
+###### Smooth the data
+rest_cifti <- smooth_cifti(rest_cifti, surf_FWHM = 5)
+
+###### Single subject template estimation 
 networks_img <- templateICA(rest_cifti, template_obj, tvar_method = 'unbiased', 
-            scale = 'global', TR = 0.555, scale_sm_FWHM = 0) 
+            scale = 'local', TR = 0.555, scale_sm_FWHM = 0) 
             # for BOLD, can include multiple images
+networks_img2 <- templateICA(rest_cifti, template_obj, tvar_method = 'unbiased', 
+            scale = 'local', TR = 0.555, scale_sm_FWHM = 2) #not working
+
+surfL <- read_surf(paste0(surf_dir, 'sub-', subid, '/anat/sub-', subid, 
+    '.L.midthickness.32k_fs_LR.surf.gii'), expected_hemisphere = 'left')
+surfR <- read_surf(paste0(surf_dir, 'sub-', subid, '/anat/sub-', subid, 
+    '.R.midthickness.32k_fs_LR.surf.gii'), expected_hemisphere = 'right')
+
+networks_img3 <- templateICA(rest_cifti, scale_sm_surfL = surfL, 
+            scale_sm_surfR = surfR, template_obj, tvar_method = 'unbiased', 
+            scale = 'local', TR = 0.555, scale_sm_FWHM = 0) 
+
+networks_img4 <- templateICA(rest_cifti, scale_sm_surfL = surfL, 
+            scale_sm_surfR = surfR, template_obj, tvar_method = 'unbiased', 
+            scale = 'local', TR = 0.555, scale_sm_FWHM = 2) 
 
 ###### Identify areas of engagement and deviation
 network_membership <- activations(networks_img, verbose = TRUE)
+
+#network_membership$active$data[[1]] 
+# returns a matrix with 18 columns, one for each IC, and 32492 rows,
+# one for each vertex. 
+# 1 = positively engaged, 0 = not engaged, -1 = negatively engaged
+
+# Salience/Ventral Attention A
+sum(c(network_membership$active$data[[1]][, 8]) == 1, na.rm = TRUE)/nrow(network_membership$active$data[[1]])
+# 84.5% of the cortex is significantly engaged 
+
+# Salience/Ventral Attention B
+sum(c(network_membership$active$data[[1]][, 9]) == 1, na.rm = TRUE)/nrow(network_membership$active$data[[1]])
 
 ###### Get the area that each network takes up (expansiveness)
 surf_area(network_membership)
