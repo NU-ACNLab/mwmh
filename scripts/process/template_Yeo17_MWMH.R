@@ -28,7 +28,7 @@ ciftiTools.setOption('wb_path', '/Applications/workbench')
 #devtools::install_github('mandymejia/templateICAr', '8.0') # Need dev version, not CRAN
 #^ try again
 library(templateICAr)
-stopifnot(utils::packageVersion('templateICAr') >= '0.8.1')
+stopifnot(utils::packageVersion('templateICAr') >= '0.8.5')
 
 
 ## -----------------------------------------------------------------------------
@@ -75,21 +75,24 @@ mwall_R <- recode(mwall_R, `0`=TRUE, `1`=FALSE)
 GPARC$data$cortex_left[!mwall_L,] <- NA
 GPARC$data$cortex_right[!mwall_R,] <- NA
 
-GPARC <- move_to_mwall(GPARC, values = -1) #why not NA?
+GPARC <- move_to_mwall(GPARC, values = c(NA, 0)) #why not NA?
+
+mwall_L <- GPARC$meta$cortex$medial_wall$left
+mwall_R <- GPARC$meta$cortex$medial_wall$right
 
 save(list=ls(), file=paste0(outdir, 'template_Yeo17_HCP_args.rda'))
 
 temp_subjs <- read.csv(paste0(indir, 'tabulated/temp_subjs.csv'))
 
 cii_fnames <- c()
-for (i in 1:nrow(temp_subjs)) {
+for (i in 1:nrow(temp_subjs)) { 
   subid <- temp_subjs[i, 'subid']
   sesid <- temp_subjs[i, 'sesid']
-  #cii_fnames <- c(cii_fnames, paste0(indir, 'surf/sub-', subid, '/ses-', 
-  #                sesid, '/func/sub-', sesid, '/sub-', subid, '_ses-', sesid, 
-  #                '_task-rest_space-fsLR_desc-postproc_bold.dscalar.nii'))
-  cii_fnames <- c(cii_fnames, paste0(indir, 'surf/sub-', subid, '_ses-', sesid, 
+  cii_fnames <- c(cii_fnames, paste0(indir, 'surf/sub-', subid, '/ses-', 
+                  sesid, '/func/sub-', sesid, '/sub-', subid, '_ses-', sesid, 
                   '_task-rest_space-fsLR_desc-postproc_bold.dscalar.nii'))
+  #cii_fnames <- c(cii_fnames, paste0(indir, 'surf/sub-', subid, '_ses-', sesid, 
+  #                '_task-rest_space-fsLR_desc-postproc_bold.dscalar.nii'))
 }
 
 # Mask out medial walls
@@ -106,10 +109,9 @@ for (cii_fname in cii_fnames) {
 # something is wrong with this file (48): sub-MWMH113_ses-1_task-rest_space-fsLR_desc-postproc_bold.dscalar.nii
 
 temp <- estimate_template(
-  mget(paste0('cii', 1:47)), #get(paste0('cii', 1:length(cii_fnames)))
-  GPARC,
-  TR = 0.555, 
-  #hpf = 0, #this isn't working: Cannot apply `hpf` because `TR` was not provided. Either provide `TR` or set `hpf=0`.
+  get(paste0('cii', 1:length(cii_fnames))),
+  GICA = GPARC,
+  hpf = 0, #this isn't working: Cannot apply `hpf` because `TR` was not provided. Either provide `TR` or set `hpf=0`.
   brainstructures = c('left', 'right'),
   #resamp_res=12000,
   FC = FALSE,

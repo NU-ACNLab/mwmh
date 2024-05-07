@@ -44,28 +44,8 @@ mwall_R <- recode(mwall_R, `0`=TRUE, `1`=FALSE)
 rest_cifti$data$cortex_left[!mwall_L,] <- NA
 rest_cifti$data$cortex_right[!mwall_R,] <- NA
 
-# set these vertices to NA... not working
+# set these vertices to NA
 rest_cifti <- move_to_mwall(rest_cifti, values = NA)
-
-###### Downsample surfaces (if necessary)... working
-#rest_cifti <- resample_cifti(rest_cifti, resamp_res = 10000)
-
-###### Add in subcortical data - TO DO
-# Load postproc image in MNI space
-postproc_dir <- '~/Documents/Northwestern/studies/mwmh/data/processed/neuroimaging/postproc/'
-rest_mni_path <- paste0(postproc_dir, 'sub-', subid, '/ses-', sesid, '/sub-', subid, 
-    '_ses-', sesid, '_task-', task, '_space-MNI152NLin6Asym_desc-postproc_bold.nii.gz')
-subcort_path <- paste0(surf_dir, 'sub-', subid, '/ses-', sesid, '/func/sub-', subid, 
-    '_ses-', sesid, '_task-', task, '_space-fsLR_desc-subcort_bold.dscalar.nii')
-subcort_atlas_path <- '~/Documents/Northwestern/templates/91282_Greyordinates/91282_Greyordinates.dscalar.nii'
-#rest_mni <- readNifti(rest_mni_path) #from another package, not clear if this will work
-## Example command using wb_command (part of Connectome Workbench)
-
-
-system(paste('wb_command -cifti-create-dense-from-template', subcort_atlas_path, subcort_path,
-                '-volume-all', rest_mni_path))
-# 
-parc_add_subcortex()
 
 # Write out resulting image
 
@@ -100,7 +80,7 @@ networks_img3 <- templateICA(rest_cifti, scale_sm_surfL = surfL,
 
 networks_img4 <- templateICA(rest_cifti, scale_sm_surfL = surfL, 
             scale_sm_surfR = surfR, template_obj, tvar_method = 'unbiased', 
-            scale = 'local', TR = 0.555, scale_sm_FWHM = 2) 
+            scale = 'local', hpf = 0, scale_sm_FWHM = 2) 
 
 ###### Identify areas of engagement and deviation
 network_membership <- activations(networks_img, verbose = TRUE)
