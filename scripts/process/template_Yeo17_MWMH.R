@@ -89,7 +89,7 @@ for (i in 1:nrow(temp_subjs)) {
   subid <- temp_subjs[i, 'subid']
   sesid <- temp_subjs[i, 'sesid']
   cii_fnames <- c(cii_fnames, paste0(indir, 'surf/sub-', subid, '/ses-', 
-                  sesid, '/func/sub-', sesid, '/sub-', subid, '_ses-', sesid, 
+                  sesid, '/func/sub-', subid, '_ses-', sesid, 
                   '_task-rest_space-fsLR_desc-postproc_bold.dscalar.nii'))
   #cii_fnames <- c(cii_fnames, paste0(indir, 'surf/sub-', subid, '_ses-', sesid, 
   #                '_task-rest_space-fsLR_desc-postproc_bold.dscalar.nii'))
