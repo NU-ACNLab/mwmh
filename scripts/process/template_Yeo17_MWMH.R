@@ -24,7 +24,7 @@ library(fMRItools)
 stopifnot(utils::packageVersion('fMRItools') >= '0.4.4')
 #install.packages('ciftiTools')
 library(ciftiTools)
-ciftiTools.setOption('wb_path', '/Applications/workbench')
+ciftiTools.setOption('wb_path', '/projects/b1108/software/workbench')
 #devtools::install_github('mandymejia/templateICAr', '8.0') # Need dev version, not CRAN
 #^ try again
 library(templateICAr)
@@ -103,13 +103,14 @@ for (cii_fname in cii_fnames) {
   cii$data$cortex_left[!mwall_L,] <- NA
   cii$data$cortex_right[!mwall_R,] <- NA
   cii <- move_to_mwall(cii, values = NA)
+  cii <- smooth_cifti(cii, surf_FWHM = 5)
   assign(paste0('cii', i), cii)
   i = i + 1
 } 
 # something is wrong with this file (48): sub-MWMH113_ses-1_task-rest_space-fsLR_desc-postproc_bold.dscalar.nii
 
 temp <- estimate_template(
-  get(paste0('cii', 1:length(cii_fnames))),
+  mget(paste0('cii', 1:length(cii_fnames))),
   GICA = GPARC,
   hpf = 0, #this isn't working: Cannot apply `hpf` because `TR` was not provided. Either provide `TR` or set `hpf=0`.
   brainstructures = c('left', 'right'),
