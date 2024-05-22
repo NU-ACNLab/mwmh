@@ -107,17 +107,15 @@ for (cii_fname in cii_fnames) {
   assign(paste0('cii', i), cii)
   i = i + 1
 } 
-# something is wrong with this file (48): sub-MWMH113_ses-1_task-rest_space-fsLR_desc-postproc_bold.dscalar.nii
 
 temp <- estimate_template(
   mget(paste0('cii', 1:length(cii_fnames))),
   GICA = GPARC,
-  hpf = 0, #this isn't working: Cannot apply `hpf` because `TR` was not provided. Either provide `TR` or set `hpf=0`.
+  hpf = 0, 
   brainstructures = c('left', 'right'),
-  #resamp_res=12000,
   FC = FALSE,
   scale_sm_surfL = load_surf('left'),
   scale_sm_surfR = load_surf('right')#, usePar=4, wb_path=wb_path
-) #Is there a way to supply a mwall mask here?
+) 
 
 saveRDS(temp, paste0(outdir, 'temp.rds'))
