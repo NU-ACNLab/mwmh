@@ -112,7 +112,7 @@ for (j in 1:nrow(temp_subjs)) {
 
 
 temp <- estimate_template(
-  mget(paste0('cii', 1:length(cii_fnames))),
+  mget(paste0('cii', 1:nrow(temp_subjs))),
   GICA = GPARC,
   hpf = 0, 
   brainstructures = c('left', 'right'),
