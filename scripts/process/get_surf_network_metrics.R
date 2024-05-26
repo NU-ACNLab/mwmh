@@ -18,7 +18,7 @@ ciftiTools.setOption('wb_path', '/projects/b1108/software/workbench')
 parser <- ArgumentParser()
 parser$add_argument('s', '--subid', type='character', help='Subject Identifier')
 parser$add_argument('e', '--sesid', type='character', help='Session Identifier')
-parser$add_argument('t', '--tasks', nargs='+', help='fMRI tasks (rest, faces, avoid)')
+parser$add_argument('t', '--tasks', nargs='+', help='fMRI tasks (rest, faces, avoid)') #this is how it works in python. unclear if it will work here
 
 args <- parser$parse_args()
 
