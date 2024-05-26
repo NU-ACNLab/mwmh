@@ -106,7 +106,7 @@ for (j in 1:nrow(temp_subjs)) {
   cii$data$cortex_right[!mwall_R,] <- NA
   cii <- move_to_mwall(cii, values = NA)
   cii <- smooth_cifti(cii, surf_FWHM = 5)
-  assign(paste0('cii', i), cii)
+  assign(paste0('cii', j), cii)
 }
 
 
