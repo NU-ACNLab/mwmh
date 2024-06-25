@@ -37,6 +37,8 @@ print(sesid)
 Sys.setenv('R_MAX_VSIZE'=32000000000)
 
 # ---------- Load and modify the Yeo 17 parcellation ---------- #
+
+hcp_dir <- '/projects/b1108/templates/HCP_S1200_GroupAvg_v1/'
 GPARC <- ciftiTools::load_parc('Yeo_17')
 ### Get new labels by removing the subnetwork and LH/RH parts of the label.
 y <- rownames(GPARC$meta$cifti$labels[[1]])
