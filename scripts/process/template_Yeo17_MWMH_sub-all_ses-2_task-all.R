@@ -88,28 +88,12 @@ Sys.setenv('R_MAX_VSIZE'=32000000000)
 for (j in 1:nrow(temp_subjs)) { 
   subid <- temp_subjs[j, 'subid']
   sesid <- temp_subjs[j, 'sesid']
-  paths <- c(system(paste0('find ', indir, 'surf/sub-', subid, '/ses-', 
-            sesid, '/func/ ', '-name "*_space-fsLR_desc-postproc_bold.dscalar.nii"'), intern=TRUE))
-  i = 1
-  for (path in paths) {
-      cifti <- read_cifti(path)
-      if (i == 1) {
-          cii <- cifti
-      } else {
-          cii <- merge_xifti(cii, cifti)
-      }
-      i = i + 1
-  }
+  path <- c(system(paste0('find ', indir, 'surf/sub-', subid, '/ses-', 
+            sesid, '/func/ ', '-name "*_space-fsLR_desc-postproc_smoothed.dscalar.nii"'), intern=TRUE))
 
-  # Mask out medial walls
-  cii$data$cortex_left[!mwall_L,] <- NA
-  cii$data$cortex_right[!mwall_R,] <- NA
-  cii <- move_to_mwall(cii, values = NA)
-  cii <- smooth_cifti(cii, surf_FWHM = 5)
+  cifti <- read_cifti(path)
   assign(paste0('cii', j), cii)
 }
-
-
 
 temp <- estimate_template(
   mget(paste0('cii', 1:nrow(temp_subjs))),
