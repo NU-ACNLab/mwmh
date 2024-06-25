@@ -34,13 +34,6 @@ sesid = args$sesid #1
 print(subid)
 print(sesid)
 
-subid = args$s
-sesid = args$e
-
-print(subid)
-print(sesid)
-
-
 Sys.setenv('R_MAX_VSIZE'=32000000000)
 
 paths <- c(system(paste0('find ', indir, 'surf/sub-', subid, '/ses-', 
