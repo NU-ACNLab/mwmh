@@ -30,13 +30,8 @@ args <- parser$parse_args()
 subid = parser$subid #'MWMH317'
 sesid = parser$sesid #1
 
-temp_subjs <- read.csv(paste0(indir, 'tabulated/temp_subjs_sub-all_ses-2_task-all.csv'))
-
-
 Sys.setenv('R_MAX_VSIZE'=32000000000)
 
-subid <- temp_subjs[which(temp_subjs$subid == subid & temp_subjs$sesid == sesid), 'subid']
-sesid <- temp_subjs[which(temp_subjs$subid == subid & temp_subjs$sesid == sesid), 'sesid']
 paths <- c(system(paste0('find ', indir, 'surf/sub-', subid, '/ses-', 
         sesid, '/func/ ', '-name "*_space-fsLR_desc-postproc_bold.dscalar.nii"'), intern=TRUE))
 i = 1

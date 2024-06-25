@@ -1,7 +1,5 @@
-### This script identifies individuals who only have one session
-### of resting state data so that they can be used in template
-### construction, without losing any subjects from the ultimate
-### analysis (which requires two session per participant)
+### This script identifies individuals who have any resting state
+### data from the second session
 ### 
 ### Ellyn Butler
 ### June 7, 2024
