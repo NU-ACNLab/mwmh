@@ -7,6 +7,7 @@
 
 # Packages
 #devtools::install_github('mandymejia/fMRItools', '0.4') # Need dev version, not CRAN
+library(argparse)
 library(fMRItools)
 stopifnot(utils::packageVersion('fMRItools') >= '0.4.4')
 #install.packages('ciftiTools')

@@ -28,12 +28,12 @@ subdirs = glob.glob(indir + "sub-*")
 
 for subdir in subdirs:
     sub = subdir.split('/')[9]
-    ses = 
+    subid = sub.split('-')[1]
     ses2_rest = os.path.exists(indir + sub + '/ses-2/func/' + sub + '_ses-2_task-rest_space-fsLR_desc-postproc_bold.dscalar.nii')
     ses2_faces = os.path.exists(indir + sub + '/ses-2/func/' + sub + '_ses-2_task-faces_space-fsLR_desc-postproc_bold.dscalar.nii')
     ses2_avoid = os.path.exists(indir + sub + '/ses-2/func/' + sub + '_ses-2_task-avoid_space-fsLR_desc-postproc_bold.dscalar.nii')
     if ses2_rest or ses2_faces or ses2_avoid:
-        cmd = ['bash /projects/b1108/studies/mwmh/scripts/process/mwall_smooth.R -s', sub, ' -e', ses]
+        cmd = ['Rscript /projects/b1108/studies/mwmh/scripts/process/mwall_smooth.R -s ', subid, ' -e 2']
         mwall_smooth_script = launchdir+sub+'_mwall_smooth_run.sh'
         os.system('cat /projects/b1108/studies/mwmh/scripts/process/sbatchinfo_9hr_10G_general.sh > '+mwall_smooth_script)
         os.system('echo '+' '.join(cmd)+' >> '+mwall_smooth_script)
