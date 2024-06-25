@@ -17,6 +17,7 @@ ciftiTools.setOption('wb_path', '/projects/b1108/software/workbench')
 #^ try again
 library(templateICAr)
 stopifnot(utils::packageVersion('templateICAr') >= '0.8.5')
+library(dplyr)
 
 # Paths
 indir <- '/projects/b1108/studies/mwmh/data/processed/neuroimaging/'
