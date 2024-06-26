@@ -53,7 +53,7 @@ for (path in paths) {
 }
 
 print('Read in the image with the correct medial wall masks')
-GPARC <- readRDS('/projects/b1108/studies/mwmh/data/processed/neuroimaging/tica_template/GPARC.rds')
+GPARC <- readRDS('/projects/b1108/studies/mwmh/data/processed/neuroimaging/template/GPARC.rds')
 mwall_L <- GPARC$meta$cortex$medial_wall$left
 mwall_R <- GPARC$meta$cortex$medial_wall$right
 

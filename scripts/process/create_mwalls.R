@@ -57,4 +57,4 @@ GPARC$data$cortex_left[!mwall_L,] <- NA
 GPARC$data$cortex_right[!mwall_R,] <- NA
 
 GPARC <- move_to_mwall(GPARC, values = c(NA, 0)) #why not NA?
-saveRDS(GPARC, '/projects/b1108/studies/mwmh/data/processed/neuroimaging/tica_template/GPARC.rds')
+saveRDS(GPARC, '/projects/b1108/studies/mwmh/data/processed/neuroimaging/template/GPARC.rds')
