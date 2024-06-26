@@ -26,6 +26,7 @@ if not os.path.exists(launchdir):
 
 subdirs = glob.glob(indir + "sub-*")
 
+subdirs = subdirs[0:]
 for subdir in subdirs:
     sub = subdir.split('/')[9]
     subid = sub.split('-')[1]

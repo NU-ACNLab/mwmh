@@ -57,7 +57,7 @@ GPARC <- readRDS('/projects/b1108/studies/mwmh/data/processed/neuroimaging/templ
 mwall_L <- GPARC$meta$cortex$medial_wall$left
 mwall_R <- GPARC$meta$cortex$medial_wall$right
 
-print('Mask out medial wallsand smooth the data')
+print('Mask out medial walls and smooth the data')
 cii$data$cortex_left[!mwall_L,] <- NA
 cii$data$cortex_right[!mwall_R,] <- NA
 cii <- move_to_mwall(cii, values = NA)
