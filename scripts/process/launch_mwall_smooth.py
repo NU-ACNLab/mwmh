@@ -26,14 +26,42 @@ if not os.path.exists(launchdir):
 
 subdirs = glob.glob(indir + "sub-*")
 
-subdirs = subdirs[0:]
+subdirs = subdirs[0:10]#done
+subdirs = subdirs[10:20]#done
+subdirs = subdirs[20:30]#done
+subdirs = subdirs[30:40]#done
+subdirs = subdirs[40:50]#done
+subdirs = subdirs[50:60]#done
+subdirs = subdirs[60:70]#done
+subdirs = subdirs[70:80]#done
+subdirs = subdirs[80:90]#done
+subdirs = subdirs[90:100]#done
+subdirs = subdirs[100:110]#done
+subdirs = subdirs[110:120]#done
+subdirs = subdirs[120:130]#done
+subdirs = subdirs[130:140]#done
+subdirs = subdirs[140:150]#done
+subdirs = subdirs[150:160]#done
+subdirs = subdirs[160:170]#done
+subdirs = subdirs[170:180]#done
+subdirs = subdirs[180:190]#done
+subdirs = subdirs[190:200]#done
+subdirs = subdirs[200:210]#done
+subdirs = subdirs[210:220]#done
+subdirs = subdirs[220:230]#done
+subdirs = subdirs[230:240]#done
+subdirs = subdirs[240:250]#done
+subdirs = subdirs[250:268] #done
+# run through at the end to redo any subjects without successful output
+
 for subdir in subdirs:
     sub = subdir.split('/')[9]
     subid = sub.split('-')[1]
     ses1_rest = os.path.exists(indir + sub + '/ses-1/func/' + sub + '_ses-1_task-rest_space-fsLR_desc-postproc_bold.dscalar.nii')
     ses1_faces = os.path.exists(indir + sub + '/ses-1/func/' + sub + '_ses-1_task-faces_space-fsLR_desc-postproc_bold.dscalar.nii')
     ses1_avoid = os.path.exists(indir + sub + '/ses-1/func/' + sub + '_ses-1_task-avoid_space-fsLR_desc-postproc_bold.dscalar.nii')
-    if ses1_rest or ses1_faces or ses1_avoid:
+    ses1_outfile = os.path.exists(indir + sub + '/ses-1/func/' + sub + '_ses-1_task-all_space-fsLR_desc-postproc_smoothed.dscalar.nii')
+    if (ses1_rest or ses1_faces or ses1_avoid) and not ses1_outfile:
         ses = 'ses-1'
         cmd = ['Rscript /projects/b1108/studies/mwmh/scripts/process/mwall_smooth.R -s ', subid, ' -e 1']
         mwall_smooth_script = launchdir+sub+'_'+ses+'_mwall_smooth_run.sh'
@@ -44,7 +72,8 @@ for subdir in subdirs:
     ses2_rest = os.path.exists(indir + sub + '/ses-2/func/' + sub + '_ses-2_task-rest_space-fsLR_desc-postproc_bold.dscalar.nii')
     ses2_faces = os.path.exists(indir + sub + '/ses-2/func/' + sub + '_ses-2_task-faces_space-fsLR_desc-postproc_bold.dscalar.nii')
     ses2_avoid = os.path.exists(indir + sub + '/ses-2/func/' + sub + '_ses-2_task-avoid_space-fsLR_desc-postproc_bold.dscalar.nii')
-    if ses2_rest or ses2_faces or ses2_avoid:
+    ses2_outfile = os.path.exists(indir + sub + '/ses-2/func/' + sub + '_ses-2_task-all_space-fsLR_desc-postproc_smoothed.dscalar.nii')
+    if (ses2_rest or ses2_faces or ses2_avoid) and not ses2_outfile:
         ses = 'ses-2'
         cmd = ['Rscript /projects/b1108/studies/mwmh/scripts/process/mwall_smooth.R -s ', subid, ' -e 2']
         mwall_smooth_script = launchdir+sub+'_'+ses+'_mwall_smooth_run.sh'
@@ -52,3 +81,4 @@ for subdir in subdirs:
         os.system('echo '+' '.join(cmd)+' >> '+mwall_smooth_script)
         os.system('chmod +x '+mwall_smooth_script)
         os.system('sbatch -o '+launchdir+sub+'_'+ses+'_mwall_smooth.txt'+' '+mwall_smooth_script)
+
