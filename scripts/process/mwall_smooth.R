@@ -63,5 +63,5 @@ cii$data$cortex_right[!mwall_R,] <- NA
 cii <- move_to_mwall(cii, values = NA)
 cii <- smooth_cifti(cii, surf_FWHM = 5)
 write_cifti(cii, paste0(indir, 'surf/sub-', subid, '/ses-', 
-            sesid, '/func/sub-', subid, '/ses-', sesid, 
+            sesid, '/func/sub-', subid, '_ses-', sesid, 
             '_task-all_space-fsLR_desc-postproc_smoothed.dscalar.nii'))
