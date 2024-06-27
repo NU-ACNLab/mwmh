@@ -45,7 +45,7 @@ for (j in 1:nrow(temp_subjs)) {
   path <- c(system(paste0('find ', indir, 'surf/sub-', subid, '/ses-', 
             sesid, '/func/ ', '-name "*_space-fsLR_desc-postproc_smoothed.dscalar.nii"'), intern=TRUE))
 
-  cifti <- read_cifti(path)
+  cii <- read_cifti(path)
   assign(paste0('cii', j), cii)
 }
 
