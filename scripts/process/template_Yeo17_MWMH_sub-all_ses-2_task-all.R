@@ -11,8 +11,8 @@ indir <- '/projects/b1108/studies/mwmh/data/processed/neuroimaging/'
 #indir <- '~/Documents/Northwestern/studies/mwmh/data/processed/neuroimaging/'
 
 # Output directory
-outdir <- '/projects/b1108/studies/mwmh/data/processed/neuroimaging/template_Yeo17/'
-#outdir <- '~/Documents/Northwestern/studies/mwmh/data/processed/neuroimaging/template_Yeo17/'
+outdir <- '/projects/b1108/studies/mwmh/data/processed/neuroimaging/template/'
+#outdir <- '~/Documents/Northwestern/studies/mwmh/data/processed/neuroimaging/template/'
 
 # HCP directory
 hcp_dir <- '/projects/b1108/templates/HCP_S1200_GroupAvg_v1/'
