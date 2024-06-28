@@ -34,7 +34,7 @@ stopifnot(utils::packageVersion('templateICAr') >= '0.8.5')
 ## -----------------------------------------------------------------------------
 
 
-save(list=ls(), file=paste0(outdir, 'template_Yeo17_MWMH_task-all_args.rda'))
+save(list=ls(), file=paste0(outdir, 'template_Yeo17_MWMH_sub-all_ses-2_task-all_args.rda'))
 
 temp_subjs <- read.csv(paste0(indir, 'tabulated/temp_subjs_sub-all_ses-2_task-all.csv'))
 
@@ -54,9 +54,11 @@ temp <- estimate_template(
   GICA = GPARC,
   hpf = 0, 
   brainstructures = c('left', 'right'),
+  resample_res = ,
   FC = FALSE,
   scale_sm_surfL = load_surf('left'),
-  scale_sm_surfR = load_surf('right')#, usePar=4, wb_path=wb_path
+  scale_sm_surfR = load_surf('right'), 
+  verbose = TRUE#, usePar=4, wb_path=wb_path
 ) 
 
 saveRDS(temp, paste0(outdir, 'temp_sub-all_ses-2_task-all.rds'))
