@@ -40,6 +40,10 @@ temp_subjs <- read.csv(paste0(indir, 'tabulated/temp_subjs_sub-all_ses-2_task-al
 
 GPARC <- readRDS('/projects/b1108/studies/mwmh/data/processed/neuroimaging/template/GPARC.rds')
 
+print('Resample GPARC')
+
+GPARC <- resample_cifti(GPARC, resamp_res = 10000)
+
 print('Get the paths to the concatenated smoothed data.')
 Sys.setenv('R_MAX_VSIZE'=32000000000)
 paths <- c()
