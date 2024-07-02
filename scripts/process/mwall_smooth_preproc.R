@@ -40,7 +40,7 @@ Sys.setenv('R_MAX_VSIZE'=32000000000)
 
 print('Merge across tasks')
 paths <- c(system(paste0('find ', indir, 'surf/sub-', subid, '/ses-', 
-        sesid, '/func/ ', '-name "*_space-fsLR_desc-postproc_bold.dscalar.nii"'), intern=TRUE))
+        sesid, '/func/ ', '-name "*_space-fsLR_desc-preproc_bold.dscalar.nii"'), intern=TRUE))
 i = 1
 for (path in paths) {
     cifti <- read_cifti(path)
@@ -64,4 +64,4 @@ cii <- move_to_mwall(cii, values = NA)
 cii <- smooth_cifti(cii, surf_FWHM = 5)
 write_cifti(cii, paste0(indir, 'surf/sub-', subid, '/ses-', 
             sesid, '/func/sub-', subid, '_ses-', sesid, 
-            '_task-all_space-fsLR_desc-postproc_smoothed.dscalar.nii'))
+            '_task-all_space-fsLR_desc-preproc_smoothed.dscalar.nii'))
