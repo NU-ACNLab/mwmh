@@ -26,31 +26,31 @@ if not os.path.exists(launchdir):
 
 subdirs = glob.glob(indir + "sub-*")
 
-subdirs = subdirs[0:10]
-subdirs = subdirs[10:20]
-subdirs = subdirs[20:30]
-subdirs = subdirs[30:40]
-subdirs = subdirs[40:50]
-subdirs = subdirs[50:60]
-subdirs = subdirs[60:70]
-subdirs = subdirs[70:80]
-subdirs = subdirs[80:90]
-subdirs = subdirs[90:100]
-subdirs = subdirs[100:110]
-subdirs = subdirs[110:120]
-subdirs = subdirs[120:130]
-subdirs = subdirs[130:140]
-subdirs = subdirs[140:150]
-subdirs = subdirs[150:160]
-subdirs = subdirs[160:170]
-subdirs = subdirs[170:180]
-subdirs = subdirs[180:190]
-subdirs = subdirs[190:200]
-subdirs = subdirs[200:210]
-subdirs = subdirs[210:220]
-subdirs = subdirs[220:230]
-subdirs = subdirs[230:240]
-subdirs = subdirs[240:250]
+subdirs = subdirs[0:10]#done
+subdirs = subdirs[10:20]#done
+subdirs = subdirs[20:30]#done
+subdirs = subdirs[30:40]#done
+subdirs = subdirs[40:50]#done
+subdirs = subdirs[50:60]#done
+subdirs = subdirs[60:70]#done
+subdirs = subdirs[70:80]#done
+subdirs = subdirs[80:90]#done
+subdirs = subdirs[90:100]#done
+subdirs = subdirs[100:110]#done
+subdirs = subdirs[110:120]#done
+subdirs = subdirs[120:130]#done
+subdirs = subdirs[130:140]#done
+subdirs = subdirs[140:150]#done
+subdirs = subdirs[150:160]#done
+subdirs = subdirs[160:170]#done
+subdirs = subdirs[170:180]#done
+subdirs = subdirs[180:190]#done
+subdirs = subdirs[190:200]#done
+subdirs = subdirs[200:210]#done
+subdirs = subdirs[210:220]#done
+subdirs = subdirs[220:230]#done
+subdirs = subdirs[230:240]#done
+subdirs = subdirs[240:250]#done
 subdirs = subdirs[250:268] 
 # run through at the end to redo any subjects without successful output
 
