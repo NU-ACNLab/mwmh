@@ -34,7 +34,7 @@ for subdir in subdirs:
         ses = 'ses-1'
         cmd = ['Rscript /projects/b1108/studies/mwmh/scripts/process/postproc_rest_minimal.R -s ', subid, ' -e 1']
         postproc_rest_minimal_script = launchdir+sub+'_'+ses+'_postproc_rest_minimal_run.sh'
-        os.system('cat /projects/b1108/studies/mwmh/scripts/process/sbatchinfo_10min_7G_general.sh > '+postproc_rest_minimal_script)
+        os.system('cat /projects/b1108/studies/mwmh/scripts/process/sbatchinfo_15min_9G_general.sh > '+postproc_rest_minimal_script)
         os.system('echo '+' '.join(cmd)+' >> '+postproc_rest_minimal_script)
         os.system('chmod +x '+postproc_rest_minimal_script)
         os.system('sbatch -o '+launchdir+sub+'_'+ses+'_postproc_rest_minimal.txt'+' '+postproc_rest_minimal_script)
@@ -44,7 +44,7 @@ for subdir in subdirs:
         ses = 'ses-2'
         cmd = ['Rscript /projects/b1108/studies/mwmh/scripts/process/postproc_rest_minimal.R -s ', subid, ' -e 2']
         postproc_rest_minimal_script = launchdir+sub+'_'+ses+'_postproc_rest_minimal_run.sh'
-        os.system('cat /projects/b1108/studies/mwmh/scripts/process/sbatchinfo_10min_7G_general.sh > '+postproc_rest_minimal_script)
+        os.system('cat /projects/b1108/studies/mwmh/scripts/process/sbatchinfo_15min_9G_general.sh > '+postproc_rest_minimal_script)
         os.system('echo '+' '.join(cmd)+' >> '+postproc_rest_minimal_script)
         os.system('chmod +x '+postproc_rest_minimal_script)
         os.system('sbatch -o '+launchdir+sub+'_'+ses+'_postproc_rest_minimal.txt'+' '+postproc_rest_minimal_script)
