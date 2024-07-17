@@ -6,9 +6,9 @@
 ### Ellyn Butler
 ### July 17, 2024 - 
 
-##### Parse command line options
-
 ##### Load packages
+library(argparse)
+library(stats)
 library(fMRIscrub)
 library(fMRItools)
 library(ciftiTools)
@@ -21,40 +21,70 @@ indir <- '/projects/b1108/studies/mwmh/data/processed/neuroimaging/'
 motdir <- '/projects/b1108/studies/mwmh/data/processed/neuroimaging/fmriprep_23.2.0/'
 #motdir <- '/Users/flutist4129/Documents/Northwestern/studies/mwmh/data/processed/neuroimaging/fmriprep_23.2.0/'
 
-subid <- 'MWMH142'
-sesid <- 1
+##### Parse command line options
+parser <- ArgumentParser()
+parser$add_argument('-s', '--subid', type='character', help='Subject Identifier')
+parser$add_argument('-e', '--sesid', type='character', help='Session Identifier')
+
+args <- parser$parse_args()
+
+subid = args$subid #'MWMH142'
+sesid = args$sesid #1
 
 ##### Post-process
-#x <- Dat1 # time by volumes
-x <- read_cifti(paste0(indir, 'surf/sub-', subid, '/ses-', sesid, '/func/sub-', subid, 
+cii <- read_cifti(paste0(indir, 'surf/sub-', subid, '/ses-', sesid, '/func/sub-', subid, 
                 '_ses-', sesid, '_task-rest_space-fsLR_desc-preproc_bold.dscalar.nii'))
+
+# Mask out medial wall
+GPARC <- readRDS(paste0(indir, 'template/GPARC.rds'))
+mwall_L <- GPARC$meta$cortex$medial_wall$left
+mwall_R <- GPARC$meta$cortex$medial_wall$right
+cii$data$cortex_left[!mwall_L,] <- NA
+cii$data$cortex_right[!mwall_R,] <- NA
+cii <- move_to_mwall(cii, values = NA)
+
+# Get dimensions
+x <- t(rbind(cii$data$cortex_left, cii$data$cortex_right))
 nT <- nrow(x)
 nV <- ncol(x)
 
+# Flagging
 dv <- DVARS(x)
 dv_flag <- dv$outlier_flag$Dual
 dv_nS <- sum(dv_flag)
+
 # One-hot encode outlier flags
 dv_spikes <- matrix(0, nrow=nT, ncol=dv_nS)
 dv_spikes[seq(0, dv_nS-1)*nT + which(dv_flag)] <- 1
 
 # Select motion regressors
-#rp <- cbind(rnorm(nT), rnorm(nT)) # fake other regressors, e.g. motion
 rp <- read.delim(paste0(motdir, 'sub-', subid, '/ses-', sesid, '/func/sub-', subid, 
                 '_ses-', sesid, '_task-rest_desc-confounds_timeseries.tsv'), sep = '\t')
 rp <- rp[, c(paste0('trans_', c('x', 'y', 'z')), paste0('rot_', c('x', 'y', 'z')))]
 
 # Set filtering parameters
 dct <- dct_bases(nT, dct_convert(nT, TR=.72, f=.01)) # .01 Hz HPF
-# ^any worries with filtering before dealing with flagged volumes?
+
+# Detrend
+time_indices <- seq(0, nT-1, 1)*0.555
+det <- poly(time_indices, 2)
 
 # Nuisance regression
-nreg <- cbind(dv_spikes, rp, dct)
-x2 <- nuisance_regression(x, nreg)[!dv_flag,,drop=FALSE]
+nreg <- cbind(dv_spikes, rp, dct, det)
+x_reg <- nuisance_regression(x, nreg)[!dv_flag,,drop=FALSE]
+cii_out <- cii
 
-#> dim(rp)
-#[1] 1110    6
-#> dim(dv_spikes)
-#[1] 64984    48
-#> dim(dct)
-#[1] 64984   935
+nVertices_left <- nrow(cii$data$cortex_left)
+cii_out$data$cortex_left <- t(x_reg[, 1:nVertices_left])
+cii_out$data$cortex_right <- t(x_reg[, (nVertices_left+1):ncol(x_reg)])
+
+# Smooth
+cii_out$meta$cifti$names <- cii_out$meta$cifti$names[1:nrow(x_reg)]
+cii_out <- smooth_cifti(cii_out, surf_FWHM = 5) 
+
+# Downsample
+cii_out <- resample_cifti(cii_out, resamp_res = 10000)
+
+# Write
+write_cifti(cii_out, paste0(indir, 'surf/sub-', subid, '/ses-', sesid, '/func/sub-', subid, 
+                '_ses-', sesid, '_task-rest_space-fsLR_desc-minpostproc_bold.dscalar.nii'))
