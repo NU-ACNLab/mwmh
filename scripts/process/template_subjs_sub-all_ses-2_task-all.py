@@ -1,4 +1,4 @@
-### This script identifies individuals who have any resting state
+### This script identifies individuals who have any functional
 ### data from the second session
 ### 
 ### Ellyn Butler
