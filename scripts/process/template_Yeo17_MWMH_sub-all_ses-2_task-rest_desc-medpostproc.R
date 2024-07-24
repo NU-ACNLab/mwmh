@@ -34,9 +34,9 @@ stopifnot(utils::packageVersion('templateICAr') >= '0.8.5')
 ## -----------------------------------------------------------------------------
 
 
-save(list=ls(), file=paste0(outdir, 'template_Yeo17_MWMH_sub-all_ses-2_task-rest_desc-minpostproc_args.rda'))
+save(list=ls(), file=paste0(outdir, 'template_Yeo17_MWMH_sub-all_ses-2_task-rest_desc-medpostproc_args.rda'))
 
-temp_subjs <- read.csv(paste0(indir, 'tabulated/temp_subjs_sub-all_ses-2_task-rest_desc-minpostproc.csv'))
+temp_subjs <- read.csv(paste0(indir, 'tabulated/temp_subjs_sub-all_ses-2_task-rest_desc-medpostproc.csv'))
 
 GPARC <- readRDS('/projects/b1108/studies/mwmh/data/processed/neuroimaging/template/GPARC.rds')
 
@@ -44,14 +44,14 @@ print('Resample GPARC')
 
 GPARC <- resample_cifti(GPARC, resamp_res = 10000)
 
-print('Get the paths to the minimally postprocessed resting state data.')
+print('Get the paths to the medimally postprocessed resting state data.')
 Sys.setenv('R_MAX_VSIZE'=32000000000)
 paths <- c()
 for (j in 1:nrow(temp_subjs)) { 
   subid <- temp_subjs[j, 'subid']
   sesid <- temp_subjs[j, 'sesid']
   path <- c(system(paste0('find ', indir, 'surf/sub-', subid, '/ses-', 
-            sesid, '/func/ ', '-name "*_space-fsLR_desc-minpostproc_bold.dscalar.nii"'), intern=TRUE))
+            sesid, '/func/ ', '-name "*_space-fsLR_desc-medpostproc_bold.dscalar.nii"'), intern=TRUE))
   paths <- c(paths, path)
 }
 
@@ -69,7 +69,7 @@ temp <- estimate_template(
   verbose = TRUE#, usePar=4, wb_path=wb_path
 ) 
 
-saveRDS(temp, paste0(outdir, 'temp_sub-all_ses-2_task-rest_desc-minpostproc.rds'))
+saveRDS(temp, paste0(outdir, 'temp_sub-all_ses-2_task-rest_desc-medpostproc.rds'))
 
 
-#plot(temp, idx=1:17, fname=paste0('/Users/flutist4129/Documents/Northwestern/studies/mwmh/plots/temp_minpostproc_', 1:17))
+#plot(temp, idx=1:17, fname=paste0('/Users/flutist4129/Documents/Northwestern/studies/mwmh/plots/temp_medpostproc_', 1:17))
