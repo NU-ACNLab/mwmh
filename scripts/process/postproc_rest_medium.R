@@ -63,7 +63,7 @@ rp <- read.delim(paste0(motdir, 'sub-', subid, '/ses-', sesid, '/func/sub-', sub
 rp <- rp[, c(paste0('trans_', c('x', 'y', 'z')), paste0('rot_', c('x', 'y', 'z')))]
 
 # Set filtering parameters
-dct <- dct_bases(nT, dct_convert(nT, TR=.72, f=.01)) # .01 Hz HPF
+dct <- dct_bases(nT, dct_convert(nT, TR=.555, f=.01)) # .01 Hz HPF
 
 # Detrend
 time_indices <- seq(0, nT-1, 1)*0.555
