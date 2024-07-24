@@ -74,6 +74,7 @@ det <- poly(time_indices, 2)
 
 # Nuisance regression
 nreg <- cbind(dv_spikes, rp, dct, det)
+nreg[nreg == 'n/a'] <- 0
 x_reg <- nuisance_regression(x, nreg)[!dv_flag,,drop=FALSE]
 cii_out <- cii
 
