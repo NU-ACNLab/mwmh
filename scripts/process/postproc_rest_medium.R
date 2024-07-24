@@ -1,4 +1,4 @@
-### This script does minimal postprocessing on the resting
+### This script does medium postprocessing on the resting
 ### state data to begin to get a sense of how much 
 ### post-processing we can get away with while still 
 ### getting a decent template
@@ -60,7 +60,10 @@ dv_spikes[seq(0, dv_nS-1)*nT + which(dv_flag)] <- 1
 # Select motion regressors
 rp <- read.delim(paste0(motdir, 'sub-', subid, '/ses-', sesid, '/func/sub-', subid, 
                 '_ses-', sesid, '_task-rest_desc-confounds_timeseries.tsv'), sep = '\t')
-rp <- rp[, c(paste0('trans_', c('x', 'y', 'z')), paste0('rot_', c('x', 'y', 'z')))]
+rp <- rp[, c(paste0('trans_', c('x', 'y', 'z')), paste0('rot_', c('x', 'y', 'z')),
+             paste0('trans_', c('x', 'y', 'z'), '_derivative1'), paste0('rot_', c('x', 'y', 'z'), '_derivative1'), 
+             paste0('trans_', c('x', 'y', 'z'), '_power2'), paste0('rot_', c('x', 'y', 'z'), '_power2'),
+             paste0('trans_', c('x', 'y', 'z'), '_derivative1_power2'), paste0('rot_', c('x', 'y', 'z'), '_derivative1_power2'))]
 
 # Set filtering parameters
 dct <- dct_bases(nT, dct_convert(nT, TR=.555, f=.01)) # .01 Hz HPF
@@ -87,4 +90,4 @@ cii_out <- resample_cifti(cii_out, resamp_res = 10000)
 
 # Write
 write_cifti(cii_out, paste0(indir, 'surf/sub-', subid, '/ses-', sesid, '/func/sub-', subid, 
-                '_ses-', sesid, '_task-rest_space-fsLR_desc-minpostproc_bold.dscalar.nii'))
+                '_ses-', sesid, '_task-rest_space-fsLR_desc-medpostproc_bold.dscalar.nii'))
