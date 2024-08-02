@@ -21,8 +21,8 @@ parser$add_argument('-e', '--sesid', type='character', help='Session Identifier'
 
 args <- parser$parse_args()
 
-subid = parser$subid #'MWMH317'
-sesid = parser$sesid #1
+subid = args$subid #'MWMH317'
+sesid = args$sesid #1
 
 print(subid)
 print(sesid)
