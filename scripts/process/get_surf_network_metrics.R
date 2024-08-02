@@ -24,6 +24,9 @@ args <- parser$parse_args()
 subid = parser$subid #'MWMH317'
 sesid = parser$sesid #1
 
+print(subid)
+print(sesid)
+
 # Set paths
 #neurodir <- '~/Documents/Northwestern/studies/mwmh/data/processed/neuroimaging/'
 neurodir <- '/projects/b1108/studies/mwmh/data/processed/neuroimaging/'
