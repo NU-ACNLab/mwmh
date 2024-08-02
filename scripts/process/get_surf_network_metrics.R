@@ -16,8 +16,8 @@ ciftiTools.setOption('wb_path', '/projects/b1108/software/workbench')
 
 # Parse command line arguments
 parser <- ArgumentParser()
-parser$add_argument('s', '--subid', type='character', help='Subject Identifier')
-parser$add_argument('e', '--sesid', type='character', help='Session Identifier')
+parser$add_argument('-s', '--subid', type='character', help='Subject Identifier')
+parser$add_argument('-e', '--sesid', type='character', help='Session Identifier')
 
 args <- parser$parse_args()
 
