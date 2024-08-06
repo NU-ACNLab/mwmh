@@ -4,7 +4,7 @@
 ### Yeo networks: https://www.researchgate.net/figure/Network-parcellation-of-Yeos-17-networks-The-17-networks-include-the-following-regions_fig1_352966687#:~:text=The%2017%2Dnetworks%20include%20the%20following%20regions%3A%20N1%3A%20VisCent,N7%3A%20SalVentAttnA%20%2DSalience%2FVentral
 ###
 ### Ellyn Butler
-### July 31, 2024
+### July 31, 2024 - August 6, 2024
 
 # Load libraries
 library(templateICAr)
@@ -80,47 +80,10 @@ salvenab <- sum(c(network_membership$active$data[[1]][, 7]) == 1 | c(network_mem
 salvenab_pos <- sum(c(network_membership$active$data[[1]][, 7]) == 1 | c(network_membership$active$data[[1]][, 8]) == 1, na.rm = TRUE)/nrow(network_membership$active$data[[1]]) #probably the one I want to be analyzing because most similar to Lynch
 salvenab_neg <- sum(c(network_membership$active$data[[1]][, 7]) == -1 | c(network_membership$active$data[[1]][, 8]) == -1, na.rm = TRUE)/nrow(network_membership$active$data[[1]])
 
-###### Estimate within network connectivity
-### Create FC matrix within SN
-# Salience/Ventral Attention A
-vertices_a <- cii$data$cortex_left[, ] #9282 vertices versus 10242 active or not active...
-FC_mat_a <-
-FC_mat_a_pos <- 
-FC_mat_a_neg <-  
-
-# Salience/Ventral Attention B
-FC_mat_b <- 
-FC_mat_b_pos <- 
-FC_mat_b_neg <- 
-
-# # Salience/Ventral Attention A or B
-FC_mat_ab <- 
-FC_mat_ab_pos <- 
-FC_mat_ab_neg <- 
-
-# Turn the upper triangle into a vector
-FC_vec <- FC_mat[upper.tri(FC_mat)]
-
-# Average
-FC_within_SN <- mean(FC_vec)
-
-###### Estimate amygdala betweenness centrality
-# Load amygdala timeseries
-
-
-# Calculate FC between amygdala and vertices in the SN (and put in matrix)
-
-FC_mat <- 
-
-# Transform FC into "distances"
-FC_mat <- ((FC_mat*-1)+1)/2
-
-# Use random walk to get estimates of 
-BC_amygdala_SN <- cbet(dist_mat_trans)
-
 ###### Output the data
-df <- data.frame(subid=subid, sesid=sesid, salvena=salvena, 
-                 salvenb=salvenb, salvenab=salvenab,
-                 FC_within_SN=FC_within_SN, 
-                 BC_amygdala_SN=BC_amygdala_SN)
-write.csv(df, paste0(outdir, 'sub-', subid, '/ses-', sesid, '/'))
+df <- data.frame(subid=subid, sesid=sesid, 
+                 salvena=salvena, salvena=salvena_pos, salvena=salvena_neg, 
+                 salvenb=salvenb, salvenb=salvenb_pos, salvenb=salvenb_neg, 
+                 salvenab=salvenab, salvenab=salvenab_pos, salvenab=salvenab_neg)
+write.csv(df, paste0(outdir, 'sub-', subid, '/ses-', sesid, '/sub-', subid, '_ses-', sesid,
+                     '_expansiveness.csv'))
