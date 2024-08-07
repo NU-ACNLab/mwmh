@@ -29,10 +29,11 @@ for subdir in subdirs:
     for ses in sessions:
         if not os.path.exists(outdir+sub+'/'+ses):
             os.mkdir(outdir+sub+'/'+ses)
-        sesid = str(ses).split('-')[1]
-        cmd = ['Rscript /projects/b1108/studies/mwmh/scripts/process/get_expansiveness.R -s', subid, '-e', sesid]
-        get_expansiveness_script = launchdir+sub+'_'+ses+'_get_expansiveness_run.sh'
-        os.system('cat /projects/b1108/studies/mwmh/scripts/process/sbatchinfo_9hr_10G_general.sh > '+get_expansiveness_script)
-        os.system('echo '+' '.join(cmd)+' >> '+get_expansiveness_script)
-        os.system('chmod +x '+get_expansiveness_script)
-        os.system('sbatch -o '+launchdir+sub+'_'+ses+'_get_expansiveness.txt'+' '+get_expansiveness_script)
+        if not os.path.isfile(outdir+sub+'/'+ses+'/'+sub+'_'+ses+'_expansiveness.csv'):
+            sesid = str(ses).split('-')[1]
+            cmd = ['Rscript /projects/b1108/studies/mwmh/scripts/process/get_expansiveness.R -s', subid, '-e', sesid]
+            get_expansiveness_script = launchdir+sub+'_'+ses+'_get_expansiveness_run.sh'
+            os.system('cat /projects/b1108/studies/mwmh/scripts/process/sbatchinfo_9hr_10G_general.sh > '+get_expansiveness_script)
+            os.system('echo '+' '.join(cmd)+' >> '+get_expansiveness_script)
+            os.system('chmod +x '+get_expansiveness_script)
+            os.system('sbatch -o '+launchdir+sub+'_'+ses+'_get_expansiveness.txt'+' '+get_expansiveness_script)
