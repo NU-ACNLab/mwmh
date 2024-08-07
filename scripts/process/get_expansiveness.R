@@ -82,8 +82,8 @@ salvenab_neg <- sum(c(network_membership$active$data[[1]][, 7]) == -1 | c(networ
 
 ###### Output the data
 df <- data.frame(subid=subid, sesid=sesid, 
-                 salvena=salvena, salvena=salvena_pos, salvena=salvena_neg, 
-                 salvenb=salvenb, salvenb=salvenb_pos, salvenb=salvenb_neg, 
-                 salvenab=salvenab, salvenab=salvenab_pos, salvenab=salvenab_neg)
+                 salvena=salvena, salvena_pos=salvena_pos, salvena_neg=salvena_neg, 
+                 salvenb=salvenb, salvenb_pos=salvenb_pos, salvenb_neg=salvenb_neg, 
+                 salvenab=salvenab, salvenab_pos=salvenab_pos, salvenab_neg=salvenab_neg)
 write.csv(df, paste0(outdir, 'sub-', subid, '/ses-', sesid, '/sub-', subid, '_ses-', sesid,
-                     '_expansiveness.csv'))
+                     '_expansiveness.csv'), row.names = FALSE)
