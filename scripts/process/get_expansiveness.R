@@ -67,7 +67,7 @@ if (!file.exists(paste0(outdir, 'sub-', subid, '/ses-', sesid, '/network_members
 ###### Get the area that each network takes up (expansiveness)
 # Salience/Ventral Attention A
 salvena <- sum(c(network_membership$active$data[[1]][, 7]) == 1 | c(network_membership$active$data[[1]][, 7]) == -1, na.rm = TRUE)/nrow(network_membership$active$data[[1]])
-salvena_pos <- sum(c(network_membership$active$data[[1]][, 7]) == 1, na.rm = TRUE)/nrow(network_membership$active$data[[1]]) #probably the one I want to be analyzing because most similar to Lynch
+salvena_pos <- sum(c(network_membership$active$data[[1]][, 7]) == 1, na.rm = TRUE)/nrow(network_membership$active$data[[1]]) 
 salvena_neg <- sum(c(network_membership$active$data[[1]][, 7]) == -1, na.rm = TRUE)/nrow(network_membership$active$data[[1]])
 
 # Salience/Ventral Attention B
@@ -77,7 +77,7 @@ salvenb_neg <- sum(c(network_membership$active$data[[1]][, 8]) == -1, na.rm = TR
 
 # # Salience/Ventral Attention A or B
 salvenab <- sum(c(network_membership$active$data[[1]][, 7]) == 1 | c(network_membership$active$data[[1]][, 8]) == 1 | c(network_membership$active$data[[1]][, 7]) == -1 | c(network_membership$active$data[[1]][, 8]) == -1, na.rm = TRUE)/nrow(network_membership$active$data[[1]])
-salvenab_pos <- sum(c(network_membership$active$data[[1]][, 7]) == 1 | c(network_membership$active$data[[1]][, 8]) == 1, na.rm = TRUE)/nrow(network_membership$active$data[[1]]) #probably the one I want to be analyzing because most similar to Lynch
+salvenab_pos <- sum(c(network_membership$active$data[[1]][, 7]) == 1 | c(network_membership$active$data[[1]][, 8]) == 1, na.rm = TRUE)/nrow(network_membership$active$data[[1]]) 
 salvenab_neg <- sum(c(network_membership$active$data[[1]][, 7]) == -1 | c(network_membership$active$data[[1]][, 8]) == -1, na.rm = TRUE)/nrow(network_membership$active$data[[1]])
 
 ###### Output the data

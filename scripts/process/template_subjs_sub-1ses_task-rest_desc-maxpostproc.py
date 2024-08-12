@@ -4,7 +4,7 @@
 ### analysis (which requires two session per participant)
 ### 
 ### Ellyn Butler
-### July 31, 2024
+### July 31, 2024 - August 11, 2024
 
 import os
 import shutil
@@ -23,7 +23,7 @@ temp_subjs = {'subid':[], 'sesid':[]}
 for subdir in subdirs:
     sub = subdir.split('/')[9]
     subid = sub.split('-')[1]
-    if subid == 'MWMH001':
+    if subid == 'MWMH001' or subid == 'MWMH102':
         continue
     ses1 = os.path.exists(indir + sub + '/ses-1/func/' + sub + '_ses-1_task-rest_space-fsLR_desc-maxpostproc_bold.dscalar.nii')
     ses2 = os.path.exists(indir + sub + '/ses-2/func/' + sub + '_ses-2_task-rest_space-fsLR_desc-maxpostproc_bold.dscalar.nii')
