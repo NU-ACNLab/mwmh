@@ -65,10 +65,6 @@ rp <- rp[, c(paste0('trans_', c('x', 'y', 'z')), paste0('rot_', c('x', 'y', 'z')
 # Set filtering parameters
 dct <- dct_bases(nT, dct_convert(nT, TR=.555, f=.01)) # .01 Hz HPF
 
-# Detrend
-time_indices <- seq(0, nT-1, 1)*0.555
-det <- poly(time_indices, 2)
-
 # Nuisance regression
 nreg <- cbind(dv_spikes, rp, dct, det)
 x_reg <- nuisance_regression(x, nreg)[!dv_flag,,drop=FALSE]

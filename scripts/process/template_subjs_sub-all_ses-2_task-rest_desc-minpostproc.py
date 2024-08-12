@@ -21,7 +21,7 @@ temp_subjs = {'subid':[], 'sesid':[]}
 for subdir in subdirs:
     sub = subdir.split('/')[9]
     subid = sub.split('-')[1]
-    if subid == 'MWMH001':
+    if subid == 'MWMH001' or subid == 'MWMH102':
         continue
     ses2_rest = os.path.exists(indir + sub + '/ses-2/func/' + sub + '_ses-2_task-rest_space-fsLR_desc-minpostproc_bold.dscalar.nii')
     if ses2_rest:

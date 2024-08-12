@@ -23,11 +23,11 @@ for subdir in subdirs:
     subid = sub.split('-')[1]
     if subid == 'MWMH001' or subid == 'MWMH102':
         continue
-    ses2_rest = os.path.exists(indir + sub + '/ses-2/func/' + sub + '_ses-2_task-rest_space-fsLR_desc-maxpostproc_bold.dscalar.nii')
+    ses2_rest = os.path.exists(indir + sub + '/ses-2/func/' + sub + '_ses-2_task-rest_space-fsLR_desc-smepostproc_bold.dscalar.nii')
     if ses2_rest:
         sesid = 2
         temp_subjs['subid'].append(subid)
         temp_subjs['sesid'].append(sesid)
 
 temp_subjs_df = pd.DataFrame(temp_subjs)
-temp_subjs_df.to_csv(outdir + 'temp_subjs_sub-all_ses-2_task-rest_desc-maxpostproc.csv', index = False)
+temp_subjs_df.to_csv(outdir + 'temp_subjs_sub-all_ses-2_task-rest_desc-smepostproc.csv', index = False)
