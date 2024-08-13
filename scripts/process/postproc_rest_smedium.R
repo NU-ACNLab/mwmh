@@ -67,7 +67,7 @@ rp <- rp[, c(paste0('trans_', c('x', 'y', 'z')), paste0('rot_', c('x', 'y', 'z')
 dct <- dct_bases(nT, dct_convert(nT, TR=.555, f=.01)) # .01 Hz HPF
 
 # Nuisance regression
-nreg <- cbind(dv_spikes, rp, dct, det)
+nreg <- cbind(dv_spikes, rp, dct)
 nreg[nreg == 'n/a'] <- 0
 x_reg <- nuisance_regression(x, nreg)[!dv_flag,,drop=FALSE]
 cii_out <- cii
