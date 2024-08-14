@@ -85,4 +85,4 @@ cii_out <- resample_cifti(cii_out, resamp_res = 10000)
 
 # Write
 write_cifti(cii_out, paste0(indir, 'surf/sub-', subid, '/ses-', sesid, '/func/sub-', subid, 
-                '_ses-', sesid, '_task-rest_space-fsLR_desc-maxpostproc_bold.dscalar.nii'))
+                '_ses-', sesid, '_task-rest_space-fsLR_desc-smepostproc_bold.dscalar.nii'))
