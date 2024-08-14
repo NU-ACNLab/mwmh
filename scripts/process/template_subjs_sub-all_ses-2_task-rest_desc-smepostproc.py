@@ -2,7 +2,7 @@
 ### resting state data from the second session
 ### 
 ### Ellyn Butler
-### July 24, 2024
+### August 14, 2024
 
 import os
 import shutil
