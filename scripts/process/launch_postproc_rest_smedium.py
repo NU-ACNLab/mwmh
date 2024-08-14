@@ -39,7 +39,7 @@ for subdir in subdirs:
         os.system('chmod +x '+postproc_rest_smedium_script)
         os.system('sbatch -o '+launchdir+sub+'_'+ses+'_postproc_rest_smedium.txt'+' '+postproc_rest_smedium_script)
     ses2_rest = os.path.exists(indir + sub + '/ses-2/func/' + sub + '_ses-2_task-rest_space-fsLR_desc-preproc_bold.dscalar.nii')
-    ses2_outfile = os.path.exists(indir + sub + '/ses-2/func/' + sub + '_ses-2_task-rest_space-fsLR_desc-maxpostproc_bold.dscalar.nii')
+    ses2_outfile = os.path.exists(indir + sub + '/ses-2/func/' + sub + '_ses-2_task-rest_space-fsLR_desc-smepostproc_bold.dscalar.nii')
     if ses2_rest and not ses2_outfile:
         ses = 'ses-2'
         cmd = ['Rscript /projects/b1108/studies/mwmh/scripts/process/postproc_rest_smedium.R -s ', subid, ' -e 2']
