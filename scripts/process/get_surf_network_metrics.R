@@ -1,7 +1,7 @@
 ### This script is a first stab at creating a single subject template using
 ### templateICAr
 ### https://github.com/mandymejia/templateICAr
-### Yeo networks: https://www.researchgate.net/figure/Network-parcellation-of-Yeos-17-networks-The-17-networks-include-the-following-regions_fig1_352966687#:~:text=The%2017%2Dnetworks%20include%20the%20following%20regions%3A%20N1%3A%20VisCent,N7%3A%20SalVentAttnA%20%2DSalience%2FVentral
+### Yeo networks: https://www.researchgate.net/figure/Network-parcellation-of-Yeos-17-networks-The-17-networks-include-the-following-regions_fig1_352966687#:~:text=The%2017%2Dnetworks%20include%20the%20following%20regions%3A%20N1%3A%20VisCent,N7%3A%20exp_tAttnA%20%2DSalience%2FVentral
 ###
 ### Ellyn Butler
 ### July 31, 2024
@@ -70,43 +70,43 @@ if (!file.exists(paste0(outdir, 'sub-', subid, '/ses-', sesid, '/network_members
 
 ###### Get the area that each network takes up (expansiveness)
 # Salience/Ventral Attention A # TO DO: [[1]] is just one of the hemispheres
-salvena_left <- sum(c(network_membership$active$data[[1]][, 7]) == 1 | c(network_membership$active$data[[1]][, 7]) == -1, na.rm = TRUE)/nrow(network_membership$active$data[[1]])
-salvena_pos_left <- sum(c(network_membership$active$data[[1]][, 7]) == 1, na.rm = TRUE)/nrow(network_membership$active$data[[1]]) 
-salvena_neg_left <- sum(c(network_membership$active$data[[1]][, 7]) == -1, na.rm = TRUE)/nrow(network_membership$active$data[[1]])
+exp_a_left <- sum(c(network_membership$active$data[[1]][, 7]) == 1 | c(network_membership$active$data[[1]][, 7]) == -1, na.rm = TRUE)/nrow(network_membership$active$data[[1]])
+exp_a_pos_left <- sum(c(network_membership$active$data[[1]][, 7]) == 1, na.rm = TRUE)/nrow(network_membership$active$data[[1]]) 
+exp_a_neg_left <- sum(c(network_membership$active$data[[1]][, 7]) == -1, na.rm = TRUE)/nrow(network_membership$active$data[[1]])
 
-salvena_right <- sum(c(network_membership$active$data[[2]][, 7]) == 1 | c(network_membership$active$data[[2]][, 7]) == -1, na.rm = TRUE)/nrow(network_membership$active$data[[1]])
-salvena_pos_right <- sum(c(network_membership$active$data[[2]][, 7]) == 1, na.rm = TRUE)/nrow(network_membership$active$data[[2]]) 
-salvena_neg_right <- sum(c(network_membership$active$data[[2]][, 7]) == -1, na.rm = TRUE)/nrow(network_membership$active$data[[2]])
+exp_a_right <- sum(c(network_membership$active$data[[2]][, 7]) == 1 | c(network_membership$active$data[[2]][, 7]) == -1, na.rm = TRUE)/nrow(network_membership$active$data[[1]])
+exp_a_pos_right <- sum(c(network_membership$active$data[[2]][, 7]) == 1, na.rm = TRUE)/nrow(network_membership$active$data[[2]]) 
+exp_a_neg_right <- sum(c(network_membership$active$data[[2]][, 7]) == -1, na.rm = TRUE)/nrow(network_membership$active$data[[2]])
 
-salvena <- (sum(c(network_membership$active$data[[1]][, 7]) == 1 | c(network_membership$active$data[[1]][, 7]) == -1, na.rm = TRUE) + sum(c(network_membership$active$data[[2]][, 7]) == 1 | c(network_membership$active$data[[2]][, 7]) == -1, na.rm = TRUE))/(nrow(network_membership$active$data[[1]]) + nrow(network_membership$active$data[[2]]))
-salvena_pos <- (sum(c(network_membership$active$data[[1]][, 7]) == 1, na.rm = TRUE) + sum(c(network_membership$active$data[[2]][, 7]) == 1, na.rm = TRUE))/(nrow(network_membership$active$data[[1]]) + nrow(network_membership$active$data[[2]]))
-salvena_neg <- (sum(c(network_membership$active$data[[1]][, 7]) == -1, na.rm = TRUE) + sum(c(network_membership$active$data[[2]][, 7]) == -1, na.rm = TRUE))/(nrow(network_membership$active$data[[1]]) + nrow(network_membership$active$data[[2]]))
+exp_a <- (sum(c(network_membership$active$data[[1]][, 7]) == 1 | c(network_membership$active$data[[1]][, 7]) == -1, na.rm = TRUE) + sum(c(network_membership$active$data[[2]][, 7]) == 1 | c(network_membership$active$data[[2]][, 7]) == -1, na.rm = TRUE))/(nrow(network_membership$active$data[[1]]) + nrow(network_membership$active$data[[2]]))
+exp_a_pos <- (sum(c(network_membership$active$data[[1]][, 7]) == 1, na.rm = TRUE) + sum(c(network_membership$active$data[[2]][, 7]) == 1, na.rm = TRUE))/(nrow(network_membership$active$data[[1]]) + nrow(network_membership$active$data[[2]]))
+exp_a_neg <- (sum(c(network_membership$active$data[[1]][, 7]) == -1, na.rm = TRUE) + sum(c(network_membership$active$data[[2]][, 7]) == -1, na.rm = TRUE))/(nrow(network_membership$active$data[[1]]) + nrow(network_membership$active$data[[2]]))
 
 # Salience/Ventral Attention B
-salvenb_left <- sum(c(network_membership$active$data[[1]][, 8]) == 1 | c(network_membership$active$data[[1]][, 8]) == -1, na.rm = TRUE)/nrow(network_membership$active$data[[1]])
-salvenb_pos_left <- sum(c(network_membership$active$data[[1]][, 8]) == 1, na.rm = TRUE)/nrow(network_membership$active$data[[1]]) #probably the one I want to be analyzing because most similar to Lynch
-salvenb_neg_left <- sum(c(network_membership$active$data[[1]][, 8]) == -1, na.rm = TRUE)/nrow(network_membership$active$data[[1]])
+exp_b_left <- sum(c(network_membership$active$data[[1]][, 8]) == 1 | c(network_membership$active$data[[1]][, 8]) == -1, na.rm = TRUE)/nrow(network_membership$active$data[[1]])
+exp_b_pos_left <- sum(c(network_membership$active$data[[1]][, 8]) == 1, na.rm = TRUE)/nrow(network_membership$active$data[[1]]) 
+exp_b_neg_left <- sum(c(network_membership$active$data[[1]][, 8]) == -1, na.rm = TRUE)/nrow(network_membership$active$data[[1]])
 
-salvenb_right <- sum(c(network_membership$active$data[[2]][, 8]) == 1 | c(network_membership$active$data[[2]][, 8]) == -1, na.rm = TRUE)/nrow(network_membership$active$data[[2]])
-salvenb_pos_right <- sum(c(network_membership$active$data[[2]][, 8]) == 1, na.rm = TRUE)/nrow(network_membership$active$data[[2]]) #probably the one I want to be analyzing because most similar to Lynch
-salvenb_neg_right <- sum(c(network_membership$active$data[[2]][, 8]) == -1, na.rm = TRUE)/nrow(network_membership$active$data[[2]])
+exp_b_right <- sum(c(network_membership$active$data[[2]][, 8]) == 1 | c(network_membership$active$data[[2]][, 8]) == -1, na.rm = TRUE)/nrow(network_membership$active$data[[2]])
+exp_b_pos_right <- sum(c(network_membership$active$data[[2]][, 8]) == 1, na.rm = TRUE)/nrow(network_membership$active$data[[2]]) 
+exp_b_neg_right <- sum(c(network_membership$active$data[[2]][, 8]) == -1, na.rm = TRUE)/nrow(network_membership$active$data[[2]])
 
-salvenb <- (sum(c(network_membership$active$data[[1]][, 8]) == 1 | c(network_membership$active$data[[1]][, 8]) == -1, na.rm = TRUE) + sum(c(network_membership$active$data[[2]][, 8]) == 1 | c(network_membership$active$data[[2]][, 8]) == -1, na.rm = TRUE))/(nrow(network_membership$active$data[[1]]) + nrow(network_membership$active$data[[2]]))
-salvenb_pos <- (sum(c(network_membership$active$data[[1]][, 8]) == 1, na.rm = TRUE) + sum(c(network_membership$active$data[[2]][, 8]) == 1, na.rm = TRUE))/(nrow(network_membership$active$data[[1]]) + nrow(network_membership$active$data[[2]]))
-salvenb_neg <- (sum(c(network_membership$active$data[[1]][, 8]) == -1, na.rm = TRUE) + sum(c(network_membership$active$data[[2]][, 8]) == -1, na.rm = TRUE))/(nrow(network_membership$active$data[[1]]) + nrow(network_membership$active$data[[2]]))
+exp_b <- (sum(c(network_membership$active$data[[1]][, 8]) == 1 | c(network_membership$active$data[[1]][, 8]) == -1, na.rm = TRUE) + sum(c(network_membership$active$data[[2]][, 8]) == 1 | c(network_membership$active$data[[2]][, 8]) == -1, na.rm = TRUE))/(nrow(network_membership$active$data[[1]]) + nrow(network_membership$active$data[[2]]))
+exp_b_pos <- (sum(c(network_membership$active$data[[1]][, 8]) == 1, na.rm = TRUE) + sum(c(network_membership$active$data[[2]][, 8]) == 1, na.rm = TRUE))/(nrow(network_membership$active$data[[1]]) + nrow(network_membership$active$data[[2]])) #probably the one I want to be analyzing because most similar to Lynch
+exp_b_neg <- (sum(c(network_membership$active$data[[1]][, 8]) == -1, na.rm = TRUE) + sum(c(network_membership$active$data[[2]][, 8]) == -1, na.rm = TRUE))/(nrow(network_membership$active$data[[1]]) + nrow(network_membership$active$data[[2]]))
 
 # # Salience/Ventral Attention A or B
-salvenab_left <- sum(c(network_membership$active$data[[1]][, 7]) == 1 | c(network_membership$active$data[[1]][, 8]) == 1 | c(network_membership$active$data[[1]][, 7]) == -1 | c(network_membership$active$data[[1]][, 8]) == -1, na.rm = TRUE)/nrow(network_membership$active$data[[1]])
-salvenab_pos_left <- sum(c(network_membership$active$data[[1]][, 7]) == 1 | c(network_membership$active$data[[1]][, 8]) == 1, na.rm = TRUE)/nrow(network_membership$active$data[[1]])
-salvenab_neg_left <- sum(c(network_membership$active$data[[1]][, 7]) == -1 | c(network_membership$active$data[[1]][, 8]) == -1, na.rm = TRUE)/nrow(network_membership$active$data[[1]])
+exp_ab_left <- sum(c(network_membership$active$data[[1]][, 7]) == 1 | c(network_membership$active$data[[1]][, 8]) == 1 | c(network_membership$active$data[[1]][, 7]) == -1 | c(network_membership$active$data[[1]][, 8]) == -1, na.rm = TRUE)/nrow(network_membership$active$data[[1]])
+exp_ab_pos_left <- sum(c(network_membership$active$data[[1]][, 7]) == 1 | c(network_membership$active$data[[1]][, 8]) == 1, na.rm = TRUE)/nrow(network_membership$active$data[[1]])
+exp_ab_neg_left <- sum(c(network_membership$active$data[[1]][, 7]) == -1 | c(network_membership$active$data[[1]][, 8]) == -1, na.rm = TRUE)/nrow(network_membership$active$data[[1]])
 
-salvenab_right <- sum(c(network_membership$active$data[[2]][, 7]) == 1 | c(network_membership$active$data[[2]][, 8]) == 1 | c(network_membership$active$data[[2]][, 7]) == -1 | c(network_membership$active$data[[2]][, 8]) == -1, na.rm = TRUE)/nrow(network_membership$active$data[[2]])
-salvenab_pos_right <- sum(c(network_membership$active$data[[2]][, 7]) == 1 | c(network_membership$active$data[[2]][, 8]) == 1, na.rm = TRUE)/nrow(network_membership$active$data[[2]])
-salvenab_neg_right <- sum(c(network_membership$active$data[[2]][, 7]) == -1 | c(network_membership$active$data[[2]][, 8]) == -1, na.rm = TRUE)/nrow(network_membership$active$data[[2]])
+exp_ab_right <- sum(c(network_membership$active$data[[2]][, 7]) == 1 | c(network_membership$active$data[[2]][, 8]) == 1 | c(network_membership$active$data[[2]][, 7]) == -1 | c(network_membership$active$data[[2]][, 8]) == -1, na.rm = TRUE)/nrow(network_membership$active$data[[2]])
+exp_ab_pos_right <- sum(c(network_membership$active$data[[2]][, 7]) == 1 | c(network_membership$active$data[[2]][, 8]) == 1, na.rm = TRUE)/nrow(network_membership$active$data[[2]])
+exp_ab_neg_right <- sum(c(network_membership$active$data[[2]][, 7]) == -1 | c(network_membership$active$data[[2]][, 8]) == -1, na.rm = TRUE)/nrow(network_membership$active$data[[2]])
 
-salvenab <- (sum(c(network_membership$active$data[[1]][, 7]) == 1 | c(network_membership$active$data[[1]][, 8]) == 1 | c(network_membership$active$data[[1]][, 7]) == -1 | c(network_membership$active$data[[1]][, 8]) == -1, na.rm = TRUE) + sum(c(network_membership$active$data[[2]][, 7]) == 1 | c(network_membership$active$data[[2]][, 8]) == 1 | c(network_membership$active$data[[2]][, 7]) == -1 | c(network_membership$active$data[[2]][, 8]) == -1, na.rm = TRUE))/(nrow(network_membership$active$data[[1]]) + nrow(network_membership$active$data[[2]]))
-salvenab_pos <- (sum(c(network_membership$active$data[[1]][, 7]) == 1 | c(network_membership$active$data[[1]][, 8]) == 1, na.rm = TRUE) + sum(c(network_membership$active$data[[2]][, 7]) == 1 | c(network_membership$active$data[[2]][, 8]) == 1, na.rm = TRUE))/(nrow(network_membership$active$data[[1]]) + nrow(network_membership$active$data[[2]]))
-salvenab_neg <- (sum(c(network_membership$active$data[[1]][, 7]) == -1 | c(network_membership$active$data[[1]][, 8]) == -1, na.rm = TRUE) + sum(c(network_membership$active$data[[2]][, 7]) == -1 | c(network_membership$active$data[[2]][, 8]) == -1, na.rm = TRUE))/(nrow(network_membership$active$data[[1]]) + nrow(network_membership$active$data[[2]]))
+exp_ab <- (sum(c(network_membership$active$data[[1]][, 7]) == 1 | c(network_membership$active$data[[1]][, 8]) == 1 | c(network_membership$active$data[[1]][, 7]) == -1 | c(network_membership$active$data[[1]][, 8]) == -1, na.rm = TRUE) + sum(c(network_membership$active$data[[2]][, 7]) == 1 | c(network_membership$active$data[[2]][, 8]) == 1 | c(network_membership$active$data[[2]][, 7]) == -1 | c(network_membership$active$data[[2]][, 8]) == -1, na.rm = TRUE))/(nrow(network_membership$active$data[[1]]) + nrow(network_membership$active$data[[2]]))
+exp_ab_pos <- (sum(c(network_membership$active$data[[1]][, 7]) == 1 | c(network_membership$active$data[[1]][, 8]) == 1, na.rm = TRUE) + sum(c(network_membership$active$data[[2]][, 7]) == 1 | c(network_membership$active$data[[2]][, 8]) == 1, na.rm = TRUE))/(nrow(network_membership$active$data[[1]]) + nrow(network_membership$active$data[[2]]))
+exp_ab_neg <- (sum(c(network_membership$active$data[[1]][, 7]) == -1 | c(network_membership$active$data[[1]][, 8]) == -1, na.rm = TRUE) + sum(c(network_membership$active$data[[2]][, 7]) == -1 | c(network_membership$active$data[[2]][, 8]) == -1, na.rm = TRUE))/(nrow(network_membership$active$data[[1]]) + nrow(network_membership$active$data[[2]]))
 
 ###### Estimate within network connectivity
 ### Create FC matrix within SN
@@ -114,28 +114,37 @@ salvenab_neg <- (sum(c(network_membership$active$data[[1]][, 7]) == -1 | c(netwo
 #vertices_a <- cii$data$cortex_left[, ] #9282 vertices versus 10242 active or not active...
 cii <- move_from_mwall(cii, NA)
 
-mask_a <- as.matrix(network_membership$active)[,7] != 0
-FC_mat_a <- as.matrix(cii)[mask_a,,drop=FALSE]
+mask_a <- as.matrix(network_membership$active)[,7] != 0 #length(mask_a) = 20484
+FC_mat_a <- cor(t(as.matrix(cii)[mask_a & complete.cases(as.matrix(cii)),])) 
+FC_vec_a <- FC_mat_a[upper.tri(FC_mat_a)]
+FC_a <- mean(FC_vec_a)
+
 mask_a_pos <- as.matrix(network_membership$active)[,7] > 0
-FC_mat_a_pos <- as.matrix(cii)[mask_a_pos,,drop=FALSE] #time series active locations by all the time points
+FC_mat_a_pos <- cor(t(as.matrix(cii)[mask_a_pos & complete.cases(as.matrix(cii)),])) #time series active locations by all the time points
+FC_vec_a_pos <- FC_mat_a_pos[upper.tri(FC_mat_a_pos)]
+FC_a_pos <- mean(FC_vec_a_pos)
+
 mask_a_neg <- as.matrix(network_membership$active)[,7] < 0
-FC_mat_a_neg <-  
+FC_mat_a_neg <- cor(t(as.matrix(cii)[mask_a_neg & complete.cases(as.matrix(cii)),]))
+FC_vec_a_neg <- FC_mat_a_neg[upper.tri(FC_mat_a_neg)]
+FC_a_neg <- mean(FC_vec_a_neg)
 
 # Salience/Ventral Attention B
-FC_mat_b <- 
-FC_mat_b_pos <- 
-FC_mat_b_neg <- 
+mask_b <- as.matrix(network_membership$active)[,8] != 0
+FC_mat_b <- cor(t(as.matrix(cii)[mask_b & complete.cases(as.matrix(cii)),])) 
+FC_vec_b <- FC_mat_b[upper.tri(FC_mat_b)]
+FC_b <- mean(FC_vec_b)
 
-# # Salience/Ventral Attention A or B
-FC_mat_ab <- 
-FC_mat_ab_pos <- 
-FC_mat_ab_neg <- 
+mask_b_pos <- as.matrix(network_membership$active)[,8] > 0
+FC_mat_b_pos <- cor(t(as.matrix(cii)[mask_b_pos & complete.cases(as.matrix(cii)),])) 
+FC_vec_b_pos <- FC_mat_b_pos[upper.tri(FC_mat_b_pos)]
+FC_b_pos <- mean(FC_vec_b_pos)
 
-# Turn the upper triangle into a vector
-FC_vec <- FC_mat[upper.tri(FC_mat)]
+mask_b_neg <- as.matrix(network_membership$active)[,8] < 0
+FC_mat_b_neg <- cor(t(as.matrix(cii)[mask_b_neg & complete.cases(as.matrix(cii)),]))
+FC_vec_b_neg <- FC_mat_a_neg[upper.tri(FC_mat_b_neg)]
+FC_b_neg <- mean(FC_vec_b_neg)
 
-# Average
-FC_within_SN <- mean(FC_vec)
 
 ###### Estimate amygdala betweenness centrality
 # Load amygdala timeseries
@@ -153,21 +162,23 @@ BC_amygdala_SN <- cbet(dist_mat_trans)
 
 ###### Output the data
 df <- data.frame(subid = subid, sesid = sesid, 
-                 salvena_left = salvena_left, salvena_pos_left = salvena_pos_left, 
-                 salvena_neg_left = salvena_neg_left, 
-                 salvenb_left = salvenb_left, salvenb_pos_left = salvenb_pos_left, 
-                 salvenb_neg_left = salvenb_neg_left, 
-                 salvenab_left = salvenab_left, salvenab_pos_left = salvenab_pos_left, 
-                 salvenab_neg_left = salvenab_neg_left,
-                 salvena_right = salvena_right, salvena_pos_right = salvena_pos_right, 
-                 salvena_neg_right = salvena_neg_right, 
-                 salvenb_right = salvenb_right, salvenb_pos_right = salvenb_pos_right, 
-                 salvenb_neg_right = salvenb_neg_right, 
-                 salvenab_right = salvenab_right, salvenab_pos_right = salvenab_pos_right, 
-                 salvenab_neg_right = salvenab_neg_right,
-                 salvena = salvena, salvena_pos = salvena_pos, salvena_neg = salvena_neg, 
-                 salvenb = salvenb, salvenb_pos = salvenb_pos, salvenb_neg = salvenb_neg, 
-                 salvenab = salvenab, salvenab_pos = salvenab_pos, salvenab_neg = salvenab_neg,
-                 FC_within_SN=FC_within_SN, 
-                 BC_amygdala_SN=BC_amygdala_SN)
+                 exp_a_left = exp_a_left, exp_a_pos_left = exp_a_pos_left, 
+                 exp_a_neg_left = exp_a_neg_left, 
+                 exp_b_left = exp_b_left, exp_b_pos_left = exp_b_pos_left, 
+                 exp_b_neg_left = exp_b_neg_left, 
+                 exp_ab_left = exp_ab_left, exp_ab_pos_left = exp_ab_pos_left, 
+                 exp_ab_neg_left = exp_ab_neg_left,
+                 exp_a_right = exp_a_right, exp_a_pos_right = exp_a_pos_right, 
+                 exp_a_neg_right = exp_a_neg_right, 
+                 exp_b_right = exp_b_right, exp_b_pos_right = exp_b_pos_right, 
+                 exp_b_neg_right = exp_b_neg_right, 
+                 exp_ab_right = exp_ab_right, exp_ab_pos_right = exp_ab_pos_right, 
+                 exp_ab_neg_right = exp_ab_neg_right,
+                 exp_a = exp_a, exp_a_pos = exp_a_pos, exp_a_neg = exp_a_neg, 
+                 exp_b = exp_b, exp_b_pos = exp_b_pos, exp_b_neg = exp_b_neg, 
+                 exp_ab = exp_ab, exp_ab_pos = exp_ab_pos, exp_ab_neg = exp_ab_neg,
+                 FC_a = FC_a, FC_a_pos = FC_a_pos, FC_a_neg = FC_a_neg,
+                 FC_b = FC_b, FC_b_pos = FC_b_pos, FC_b_neg = FC_b_neg)
 write.csv(df, paste0(outdir, 'sub-', subid, '/ses-', sesid, '/'))
+
+#Variables of interest: exp_b_pos, FC_b_pos, BC_b_pos
