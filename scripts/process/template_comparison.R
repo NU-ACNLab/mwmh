@@ -29,6 +29,7 @@ for (i in 1:17) {
                                 sme$template$mean[,i], max$template$mean[,i])
     base$template$varNN <- cbind(min$template$varNN[,i], med$template$varNN[,i], 
                                 sme$template$varNN[,i], max$template$varNN[,i])
+    #base$dat_struct$meta$cifti$names <- c(paste0('Column ', 1:4))
     assign(paste0('IC', i), base) 
 }
  
@@ -36,9 +37,9 @@ for (i in 1:17) {
 pdf(paste0(plotdir, 'temp_comparison_by_IC.pdf'), width=10, height=34)
 par(mfrow=c(17, 4))
 for (i in 1:17) {
-    plot(get('IC', i), idx=1)
-    plot(get('IC', i), idx=2)
-    plot(get('IC', i), idx=3)
-    plot(get('IC', i), idx=4)
+    plot(get(paste0('IC', i)), idx=1)
+    plot(get(paste0('IC', i)), idx=2)
+    plot(get(paste0('IC', i)), idx=3)
+    plot(get(paste0('IC', i)), idx=4)
 }
 dev.off()
