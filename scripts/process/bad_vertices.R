@@ -3,7 +3,7 @@
 ### mean, low variance, or low SNR
 ###
 ### Ellyn Butler
-### August 20, 2024
+### August 20, 2024 - August 21, 2024
 
 
 ##### Load packages
@@ -32,13 +32,16 @@ sesid = args$sesid #1
 cii <- read_cifti(paste0(indir, 'surf/sub-', subid, '/ses-', sesid, '/func/sub-', subid, 
                 '_ses-', sesid, '_task-rest_space-fsLR_desc-medpostproc_bold.dscalar.nii'))
 
-cii_mean <- apply_xifti(cii, margin = 1, mean)
-cii_sd <- apply_xifti(cii, margin = 1, sd) #mean and sd maps look identical, just on different scales
+cii_mean <- apply_xifti(cii, margin = 1, mean) #divide by median of the mean across the time series for each vertex
+cii_meanmed <- cii_mean/median(as.matrix(cii_mean))
+cii_sd <- apply_xifti(cii, margin = 1, sd)
 cii_snr <- cii_mean/cii_sd #transform_xifti
 
 ##### Write out
 write_cifti(cii_mean, paste0(indir, 'surf/sub-', subid, '/ses-', sesid, '/func/sub-', subid, 
                 '_ses-', sesid, '_task-rest_space-fsLR_desc-medpostproc_mean.dscalar.nii'))
+write_cifti(cii_meanmed, paste0(indir, 'surf/sub-', subid, '/ses-', sesid, '/func/sub-', subid, 
+                '_ses-', sesid, '_task-rest_space-fsLR_desc-medpostproc_meanmed.dscalar.nii'))
 write_cifti(cii_sd, paste0(indir, 'surf/sub-', subid, '/ses-', sesid, '/func/sub-', subid, 
                 '_ses-', sesid, '_task-rest_space-fsLR_desc-medpostproc_sd.dscalar.nii'))
 write_cifti(cii_snr, paste0(indir, 'surf/sub-', subid, '/ses-', sesid, '/func/sub-', subid, 

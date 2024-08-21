@@ -1,7 +1,7 @@
 ### This script generates submission scripts for fmriprep for the first visit
 ###
 ### Ellyn Butler
-### July 17, 2024 - July 24, 2024
+### August 20, 2024
 
 
 import os
