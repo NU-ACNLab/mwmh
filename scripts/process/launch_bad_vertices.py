@@ -29,7 +29,7 @@ for subdir in subdirs:
     sub = subdir.split('/')[9]
     subid = sub.split('-')[1]
     ses1_rest = os.path.exists(indir + sub + '/ses-1/func/' + sub + '_ses-1_task-rest_space-fsLR_desc-medpostproc_bold.dscalar.nii')
-    ses1_outfile = os.path.exists(indir + sub + '/ses-1/func/' + sub + '_ses-1_task-rest_space-fsLR_desc-medpostproc_snr.dscalar.nii')
+    ses1_outfile = os.path.exists(indir + sub + '/ses-1/func/' + sub + '_ses-1_task-rest_space-fsLR_desc-medpostproc_meanmed.dscalar.nii')
     if ses1_rest and not ses1_outfile:
         ses = 'ses-1'
         cmd = ['Rscript /projects/b1108/studies/mwmh/scripts/process/bad_vertices.R -s ', subid, ' -e 1']
@@ -39,7 +39,7 @@ for subdir in subdirs:
         os.system('chmod +x '+bad_vertices_script)
         os.system('sbatch -o '+launchdir+sub+'_'+ses+'_bad_vertices.txt'+' '+bad_vertices_script)
     ses2_rest = os.path.exists(indir + sub + '/ses-2/func/' + sub + '_ses-2_task-rest_space-fsLR_desc-medpostproc_bold.dscalar.nii')
-    ses2_outfile = os.path.exists(indir + sub + '/ses-2/func/' + sub + '_ses-2_task-rest_space-fsLR_desc-medpostproc_snr.dscalar.nii')
+    ses2_outfile = os.path.exists(indir + sub + '/ses-2/func/' + sub + '_ses-2_task-rest_space-fsLR_desc-medpostproc_meanmed.dscalar.nii')
     if ses2_rest and not ses2_outfile:
         ses = 'ses-2'
         cmd = ['Rscript /projects/b1108/studies/mwmh/scripts/process/bad_vertices.R -s ', subid, ' -e 2']
