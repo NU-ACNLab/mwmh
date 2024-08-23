@@ -56,6 +56,7 @@ for (j in 1:nrow(temp_subjs)) {
 }
 
 mask <- read_xifti(paste0(outdir, 'sub-all_ses-2_task-rest_space-fsLR_desc-medpostproc_mask_meanmeds.dscalar.nii'))
+mask <- as.logical(c(as.matrix(mask)))
 
 print('Estimate template.') 
 temp <- estimate_template(
