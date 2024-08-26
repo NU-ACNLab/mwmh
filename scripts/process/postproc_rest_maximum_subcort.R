@@ -4,7 +4,7 @@
 ### getting a decent template
 ###
 ### Ellyn Butler
-### August 6, 2024 
+### August 6, 2024 - August 23, 2024
 
 ##### Load packages
 library(argparse)
@@ -12,6 +12,7 @@ library(stats)
 library(fMRIscrub)
 library(fMRItools)
 library(ciftiTools)
+library(RNifti)
 ciftiTools.setOption('wb_path', '/projects/b1108/software/workbench')
 
 ##### Set directories
@@ -31,10 +32,101 @@ args <- parser$parse_args()
 subid = args$subid #'MWMH142'
 sesid = args$sesid #1
 
-##### Post-process
-cii <- read_cifti(paste0(indir, 'surf/sub-', subid, '/ses-', sesid, '/func/sub-', subid, 
-                '_ses-', sesid, '_task-rest_space-fsLR_desc-preproc_bold.dscalar.cii'))
+##### Extract amygdala time series
+mask <- readNifti(
+  'sub-MWMH212_ses-2_task-rest_space-MNI152NLin6Asym_desc-brain_mask.nii.gz'
+)
+mask_L <- readNifti(
+  'MNI_L_Amyg_bin_Cons.nii.gz'
+)
+mask_R <- readNifti(
+  'MNI_R_Amyg_bin_Cons.nii.gz'
+)
+BOLD <- readNifti(
+  'sub-MWMH212_ses-2_task-rest_space-MNI152NLin6Asym_desc-preproc_bold.nii.gz'
+)
 
+# Load amygdala time series (L)
+mask_L_rs <- read_xifti()
+
+BOLD_L <- matrix(BOLD[mask_L_rs[]], ncol=dim(BOLD)[4])
+
+xii <- as.xifti(
+  subcortVol = BOLD_L,
+  subcortLabs = factor(
+    rep('Amygdala-L', nrow(BOLD_L)),
+    levels=ciftiTools::substructure_table()$ciftiTools_Name
+  ),
+  subcortMask = mask_L_rs
+)
+
+# Load amygdala time series (R)
+mask_R_rs <- read_xifti()
+
+BOLD_R <- matrix(BOLD[mask_R_rs[]], ncol=dim(BOLD)[4])
+
+xii <- as.xifti(
+  subcortVol = BOLD_R,
+  subcortLabs = factor(
+    rep('Amygdala-R', nrow(BOLD_R)),
+    levels=ciftiTools::substructure_table()$ciftiTools_Name
+  ),
+  subcortMask = mask_R_rs
+)
+
+write_cifti(xii, '~/Downloads/Amygdala-R.dtseries.nii')
+
+##### Post-process
+
+## (L)
+# Get dimensions
+x <- t(rbind(cii$data$cortex_left, cii$data$cortex_right))
+nT <- nrow(x)
+nV <- ncol(x)
+
+# Flagging
+dv <- DVARS(x)
+dv_flag <- dv$outlier_flag$Dual
+dv_nS <- sum(dv_flag)
+
+# One-hot encode outlier flags
+dv_spikes <- matrix(0, nrow=nT, ncol=dv_nS)
+dv_spikes[seq(0, dv_nS-1)*nT + which(dv_flag)] <- 1
+
+# Select motion regressors
+rp <- read.delim(paste0(motdir, 'sub-', subid, '/ses-', sesid, '/func/sub-', subid, 
+                '_ses-', sesid, '_task-rest_desc-confounds_timeseries.tsv'), sep = '\t')
+rp <- rp[, c(paste0('trans_', c('x', 'y', 'z')), paste0('rot_', c('x', 'y', 'z')),
+             paste0('trans_', c('x', 'y', 'z'), '_derivative1'), paste0('rot_', c('x', 'y', 'z'), '_derivative1'), 
+             paste0('trans_', c('x', 'y', 'z'), '_power2'), paste0('rot_', c('x', 'y', 'z'), '_power2'),
+             paste0('trans_', c('x', 'y', 'z'), '_derivative1_power2'), paste0('rot_', c('x', 'y', 'z'), '_derivative1_power2'),
+             paste0('global_signal', c('_derivative1', '_power2', '_derivative1_power2')))]
+
+# Set filtering parameters
+dct <- dct_bases(nT, dct_convert(nT, TR=.555, f=.01)) # .01 Hz HPF
+
+# Nuisance regression
+nreg <- cbind(dv_spikes, rp, dct, det)
+nreg[nreg == 'n/a'] <- 0
+x_reg <- nuisance_regression(x, nreg)[!dv_flag,,drop=FALSE]
+cii_out <- cii
+
+nVertices_left <- nrow(cii$data$cortex_left)
+cii_out$data$cortex_left <- t(x_reg[, 1:nVertices_left])
+cii_out$data$cortex_right <- t(x_reg[, (nVertices_left+1):ncol(x_reg)])
+
+# Smooth
+cii_out$meta$cifti$names <- cii_out$meta$cifti$names[1:nrow(x_reg)]
+cii_out <- smooth_cifti(cii_out, surf_FWHM = 5) 
+
+# Downsample
+cii_out <- resample_cifti(cii_out, resamp_res = 10000)
+
+# Write
+write_cifti(cii_out, paste0(indir, 'surf/sub-', subid, '/ses-', sesid, '/func/sub-', subid, 
+                '_ses-', sesid, '_task-rest_space-fsLR_desc-maxpostproc_bold.dscalar.cii'))
+
+## (R)
 # Get dimensions
 x <- t(rbind(cii$data$cortex_left, cii$data$cortex_right))
 nT <- nrow(x)
