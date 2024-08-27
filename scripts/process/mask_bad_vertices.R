@@ -3,7 +3,7 @@
 ### vertex.
 ###
 ### Ellyn Butler
-### August 21, 2024
+### August 21, 2024 - August 26, 2024
 
 ##### Load packages
 library(stats)
@@ -34,7 +34,7 @@ xiftis_list <- lapply(1:nrow(temp_subjs), function(i) get(paste0("cii", i)))
 meanmeds <- do.call(merge_xifti, xiftis_list)
 ciis_mean <- apply_xifti(meanmeds, margin = 1, mean)
 ciis_med <- apply_xifti(meanmeds, margin = 1, median)
-ciis_mask <- ciis_mean > 0.65
+ciis_mask <- ciis_mean > 0.87
 
 ##### Write out
 write_cifti(ciis_mean, paste0(outdir, 
