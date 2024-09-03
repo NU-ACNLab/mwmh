@@ -4,7 +4,7 @@
 ### getting a decent template
 ###
 ### Ellyn Butler
-### August 6, 2024 - September 2, 2024
+### August 6, 2024 - September 3, 2024
 
 ##### Load packages
 library(argparse)
@@ -36,48 +36,41 @@ subid = args$subid #'MWMH142'
 sesid = args$sesid #1
 
 ##### Extract amygdala time series
-BOLD <- readNifti(
+BOLD <- readNifti( #dim = 75   94   79 1110
   paste0(indir, 'sub-', subid, '/ses-', sesid, '/func/sub-', subid, 
     '_ses-', sesid, '_task-rest_space-MNI152NLin6Asym_desc-preproc_bold.nii.gz')
 )
 
-# Load amygdala time series (L)
-mask_L_rs <- readNifti(
-  paste0(tmpdir, 'MNI_L_Amyg_bin_Cons_res-02.nii.gz')
-)
-
-BOLD_L <- matrix(BOLD[mask_L_rs[]], ncol=dim(BOLD)[4])
-
-xii <- as.xifti(
-  subcortVol = BOLD_L,
-  subcortLabs = factor(
-    rep('Amygdala-L', nrow(BOLD_L)),
-    levels=ciftiTools::substructure_table()$ciftiTools_Name
-  ),
-  subcortMask = mask_L_rs
-)
-
-# Load amygdala time series (R)
-mask_R_rs <- readNifti(
-  paste0(tmpdir, 'MNI_R_Amyg_bin_Cons_res-02.nii.gz')
-)
-
-BOLD_R <- matrix(BOLD[mask_R_rs[]], ncol=dim(BOLD)[4])
-
-xii <- as.xifti(
-  subcortVol = BOLD_R,
-  subcortLabs = factor(
-    rep('Amygdala-R', nrow(BOLD_R)),
-    levels=ciftiTools::substructure_table()$ciftiTools_Name
-  ),
-  subcortMask = mask_R_rs
-)
-
 ##### Post-process
-
 ## (L)
+system(paste('flirt -in', paste0(tmpdir, 'MNI_L_Amyg_bin_Cons_res-02.nii.gz'), 
+             '-ref', paste0(indir, 'sub-', subid, '/ses-', sesid, '/func/sub-', subid, 
+                '_ses-', sesid, '_task-rest_space-MNI152NLin6Asym_desc-preproc_bold.nii.gz'), 
+             '-out', paste0(indir, 'sub-', subid, '/ses-', sesid, 
+                '/func/sub-', subid, '_ses-', sesid, '_MNI_L_Amyg_bin_Cons_res-02.nii.gz'), 
+             '-applyxfm -usesqform'))
+
+mask_L_rs <- readNifti( #dim = 75 94 79
+    paste0(indir, 'sub-', subid, '/ses-', sesid, 
+        '/func/sub-', subid, '_ses-', sesid, '_MNI_L_Amyg_bin_Cons_res-02.nii.gz')
+)
+
+#BOLD_L <- matrix(BOLD[mask_L_rs[]], ncol=dim(BOLD)[4]) # dim = 1 1110
+#BOLD_L <- BOLD[mask_L_rs,]
+
+xii <- as.xifti(
+  subcortVol = BOLD, #i \times j \times k \times T... dim(BOLD_L) = 1 1110... should be 75 94 79 1110, which is dim(BOLD)
+  subcortLabs = factor( #i \times j \times k... length 1
+    rep('Amygdala-L', nrow(BOLD)),
+    levels=ciftiTools::substructure_table()$ciftiTools_Name
+  ),
+  subcortMask = mask_L_rs #i \times j \times k... dim = 75 94 79
+)
+
+xii <- as.xifti(BOLD_L)
+
 # Get dimensions
-x <- t(rbind(xii$data$cortex_left, xii$data$cortex_right))
+x <- t(xii$data$subcort)
 nT <- nrow(x)
 nV <- ncol(x)
 
@@ -117,8 +110,14 @@ write_cifti(xii_out, paste0(outdir, 'surf/sub-', subid, '/ses-', sesid, '/func/s
                 '_ses-', sesid, '_task-rest_space-MNI152NLin6Asym_desc-maxpostproc_amygl.dtseries.cii'))
 
 ## (R)
+mask_R_rs <- readNifti(
+  paste0(tmpdir, 'MNI_R_Amyg_bin_Cons_res-02.nii.gz')
+)
+BOLD_R <- matrix(BOLD[mask_R_rs[]], ncol=dim(BOLD)[4])
+xii <- as.xifti(BOLD_R)
+
 # Get dimensions
-x <- t(rbind(xii$data$cortex_left, xii$data$cortex_right))
+x <- t(rbind(xii$data$subcort))
 nT <- nrow(x)
 nV <- ncol(x)
 
