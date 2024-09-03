@@ -4,7 +4,7 @@
 ### getting a decent template
 ###
 ### Ellyn Butler
-### August 6, 2024 - August 23, 2024
+### August 6, 2024 - September 2, 2024
 
 ##### Load packages
 library(argparse)
@@ -16,11 +16,14 @@ library(RNifti)
 ciftiTools.setOption('wb_path', '/projects/b1108/software/workbench')
 
 ##### Set directories
-indir <- '/projects/b1108/studies/mwmh/data/processed/neuroimaging/'
-#indir <- '/Users/flutist4129/Documents/Northwestern/studies/mwmh/data/processed/neuroimaging/'
+indir <- '/projects/b1108/studies/mwmh/data/processed/neuroimaging/fmriprep_23.2.0/'
+#indir <- '/Users/flutist4129/Documents/Northwestern/studies/mwmh/data/processed/neuroimaging/fmriprep_23.2.0/'
 
-motdir <- '/projects/b1108/studies/mwmh/data/processed/neuroimaging/fmriprep_23.2.0/'
-#motdir <- '/Users/flutist4129/Documents/Northwestern/studies/mwmh/data/processed/neuroimaging/fmriprep_23.2.0/'
+outdir <- '/projects/b1108/studies/mwmh/data/processed/neuroimaging/surf/'
+#outdir <- '/Users/flutist4129/Documents/Northwestern/studies/mwmh/data/processed/neuroimaging/surf/s'
+
+tmpdir <- '/projects/b1108/templates/fsl_first_subcortical/'
+#tmpdir <- '~/Documents/Northwestern/templates/fsl_first_subcortical/'
 
 ##### Parse command line options
 parser <- ArgumentParser()
@@ -33,22 +36,18 @@ subid = args$subid #'MWMH142'
 sesid = args$sesid #1
 
 ##### Extract amygdala time series
-mask <- readNifti(
-  'sub-MWMH212_ses-2_task-rest_space-MNI152NLin6Asym_desc-brain_mask.nii.gz'
+mask_L_rs <- readNifti(
+  paste0(tmpdir, 'MNI_L_Amyg_bin_Cons_res-02.nii.gz')
 )
-mask_L <- readNifti(
-  'MNI_L_Amyg_bin_Cons.nii.gz'
-)
-mask_R <- readNifti(
-  'MNI_R_Amyg_bin_Cons.nii.gz'
+mask_R_rs <- readNifti(
+  paste0(tmpdir, 'MNI_R_Amyg_bin_Cons_res-02.nii.gz')
 )
 BOLD <- readNifti(
-  'sub-MWMH212_ses-2_task-rest_space-MNI152NLin6Asym_desc-preproc_bold.nii.gz'
+  paste0(indir, 'sub-', subid, '/ses-', sesid, '/func/sub-', subid, 
+    '_ses-', sesid, '_task-rest_space-MNI152NLin6Asym_desc-preproc_bold.nii.gz')
 )
 
 # Load amygdala time series (L)
-mask_L_rs <- read_xifti()
-
 BOLD_L <- matrix(BOLD[mask_L_rs[]], ncol=dim(BOLD)[4])
 
 xii <- as.xifti(
@@ -61,8 +60,6 @@ xii <- as.xifti(
 )
 
 # Load amygdala time series (R)
-mask_R_rs <- read_xifti()
-
 BOLD_R <- matrix(BOLD[mask_R_rs[]], ncol=dim(BOLD)[4])
 
 xii <- as.xifti(
@@ -74,13 +71,11 @@ xii <- as.xifti(
   subcortMask = mask_R_rs
 )
 
-write_cifti(xii, '~/Downloads/Amygdala-R.dtseries.nii')
-
 ##### Post-process
 
 ## (L)
 # Get dimensions
-x <- t(rbind(cii$data$cortex_left, cii$data$cortex_right))
+x <- t(rbind(xii$data$cortex_left, xii$data$cortex_right))
 nT <- nrow(x)
 nV <- ncol(x)
 
@@ -94,7 +89,7 @@ dv_spikes <- matrix(0, nrow=nT, ncol=dv_nS)
 dv_spikes[seq(0, dv_nS-1)*nT + which(dv_flag)] <- 1
 
 # Select motion regressors
-rp <- read.delim(paste0(motdir, 'sub-', subid, '/ses-', sesid, '/func/sub-', subid, 
+rp <- read.delim(paste0(indir, 'sub-', subid, '/ses-', sesid, '/func/sub-', subid, 
                 '_ses-', sesid, '_task-rest_desc-confounds_timeseries.tsv'), sep = '\t')
 rp <- rp[, c(paste0('trans_', c('x', 'y', 'z')), paste0('rot_', c('x', 'y', 'z')),
              paste0('trans_', c('x', 'y', 'z'), '_derivative1'), paste0('rot_', c('x', 'y', 'z'), '_derivative1'), 
@@ -109,26 +104,19 @@ dct <- dct_bases(nT, dct_convert(nT, TR=.555, f=.01)) # .01 Hz HPF
 nreg <- cbind(dv_spikes, rp, dct, det)
 nreg[nreg == 'n/a'] <- 0
 x_reg <- nuisance_regression(x, nreg)[!dv_flag,,drop=FALSE]
-cii_out <- cii
+xii_out <- xii
 
-nVertices_left <- nrow(cii$data$cortex_left)
-cii_out$data$cortex_left <- t(x_reg[, 1:nVertices_left])
-cii_out$data$cortex_right <- t(x_reg[, (nVertices_left+1):ncol(x_reg)])
-
-# Smooth
-cii_out$meta$cifti$names <- cii_out$meta$cifti$names[1:nrow(x_reg)]
-cii_out <- smooth_cifti(cii_out, surf_FWHM = 5) 
-
-# Downsample
-cii_out <- resample_cifti(cii_out, resamp_res = 10000)
+nVertices_left <- nrow(xii$data$cortex_left)
+xii_out$data$cortex_left <- t(x_reg[, 1:nVertices_left])
+xii_out$data$cortex_right <- t(x_reg[, (nVertices_left+1):ncol(x_reg)])
 
 # Write
-write_cifti(cii_out, paste0(indir, 'surf/sub-', subid, '/ses-', sesid, '/func/sub-', subid, 
-                '_ses-', sesid, '_task-rest_space-fsLR_desc-maxpostproc_bold.dscalar.cii'))
+write_cifti(xii_out, paste0(outdir, 'surf/sub-', subid, '/ses-', sesid, '/func/sub-', subid, 
+                '_ses-', sesid, '_task-rest_space-MNI152NLin6Asym_desc-maxpostproc_amygl.dtseries.cii'))
 
 ## (R)
 # Get dimensions
-x <- t(rbind(cii$data$cortex_left, cii$data$cortex_right))
+x <- t(rbind(xii$data$cortex_left, xii$data$cortex_right))
 nT <- nrow(x)
 nV <- ncol(x)
 
@@ -142,7 +130,7 @@ dv_spikes <- matrix(0, nrow=nT, ncol=dv_nS)
 dv_spikes[seq(0, dv_nS-1)*nT + which(dv_flag)] <- 1
 
 # Select motion regressors
-rp <- read.delim(paste0(motdir, 'sub-', subid, '/ses-', sesid, '/func/sub-', subid, 
+rp <- read.delim(paste0(indir, 'sub-', subid, '/ses-', sesid, '/func/sub-', subid, 
                 '_ses-', sesid, '_task-rest_desc-confounds_timeseries.tsv'), sep = '\t')
 rp <- rp[, c(paste0('trans_', c('x', 'y', 'z')), paste0('rot_', c('x', 'y', 'z')),
              paste0('trans_', c('x', 'y', 'z'), '_derivative1'), paste0('rot_', c('x', 'y', 'z'), '_derivative1'), 
@@ -157,19 +145,12 @@ dct <- dct_bases(nT, dct_convert(nT, TR=.555, f=.01)) # .01 Hz HPF
 nreg <- cbind(dv_spikes, rp, dct, det)
 nreg[nreg == 'n/a'] <- 0
 x_reg <- nuisance_regression(x, nreg)[!dv_flag,,drop=FALSE]
-cii_out <- cii
+xii_out <- xii
 
-nVertices_left <- nrow(cii$data$cortex_left)
-cii_out$data$cortex_left <- t(x_reg[, 1:nVertices_left])
-cii_out$data$cortex_right <- t(x_reg[, (nVertices_left+1):ncol(x_reg)])
-
-# Smooth
-cii_out$meta$cifti$names <- cii_out$meta$cifti$names[1:nrow(x_reg)]
-cii_out <- smooth_cifti(cii_out, surf_FWHM = 5) 
-
-# Downsample
-cii_out <- resample_cifti(cii_out, resamp_res = 10000)
+nVertices_left <- nrow(xii$data$cortex_left)
+xii_out$data$cortex_left <- t(x_reg[, 1:nVertices_left])
+xii_out$data$cortex_right <- t(x_reg[, (nVertices_left+1):ncol(x_reg)])
 
 # Write
-write_cifti(cii_out, paste0(indir, 'surf/sub-', subid, '/ses-', sesid, '/func/sub-', subid, 
-                '_ses-', sesid, '_task-rest_space-fsLR_desc-maxpostproc_bold.dscalar.cii'))
+write_cifti(xii_out, paste0(outdir, 'surf/sub-', subid, '/ses-', sesid, '/func/sub-', subid, 
+                '_ses-', sesid, '_task-rest_space-MNI152NLin6Asym_desc-maxpostproc_amygr.dtseries.cii'))

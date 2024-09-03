@@ -119,11 +119,19 @@ min <- readRDS(paste0(neurodir, 'template/temp_sub-all_ses-2_task-rest_desc-minp
 export_template(min, out_fname = paste0(neurodir, 'template/temp_sub-all_ses-2_task-rest_desc-minpostproc_masked'))
 med <- readRDS(paste0(neurodir, 'template/temp_sub-all_ses-2_task-rest_desc-medpostproc_masked.rds'))
 export_template(med, out_fname = paste0(neurodir, 'template/temp_sub-all_ses-2_task-rest_desc-medpostproc_masked'))
+sme <- readRDS(paste0(neurodir, 'template/temp_sub-all_ses-2_task-rest_desc-smepostproc.rds'))
+export_template(sme, out_fname = paste0(neurodir, 'template/temp_sub-all_ses-2_task-rest_desc-smepostproc'))
+max <- readRDS(paste0(neurodir, 'template/temp_sub-all_ses-2_task-rest_desc-maxpostproc.rds'))
+export_template(max, out_fname = paste0(neurodir, 'template/temp_sub-all_ses-2_task-rest_desc-maxpostproc'))
 
 min_mean <- read_cifti(paste0(neurodir, 'template/temp_sub-all_ses-2_task-rest_desc-minpostproc_masked_mean.dscalar.nii'))
 min_var <- read_cifti(paste0(neurodir, 'template/temp_sub-all_ses-2_task-rest_desc-minpostproc_masked_var.dscalar.nii'))
 med_mean <- read_cifti(paste0(neurodir, 'template/temp_sub-all_ses-2_task-rest_desc-medpostproc_masked_mean.dscalar.nii'))
 med_var <- read_cifti(paste0(neurodir, 'template/temp_sub-all_ses-2_task-rest_desc-medpostproc_masked_var.dscalar.nii'))
+sme_mean <- read_cifti(paste0(neurodir, 'template/temp_sub-all_ses-2_task-rest_desc-smepostproc_mean.dscalar.nii'))
+sme_var <- read_cifti(paste0(neurodir, 'template/temp_sub-all_ses-2_task-rest_desc-smepostproc_var.dscalar.nii'))
+max_mean <- read_cifti(paste0(neurodir, 'template/temp_sub-all_ses-2_task-rest_desc-maxpostproc_mean.dscalar.nii'))
+max_var <- read_cifti(paste0(neurodir, 'template/temp_sub-all_ses-2_task-rest_desc-maxpostproc_var.dscalar.nii'))
 
 mean_temp <- merge_xifti(min_mean, med_mean, sme_mean, max_mean)
 var_temp <- merge_xifti(min_var, med_var, sme_var, max_var)
@@ -143,7 +151,9 @@ for (i in 1:17) {
 # Export plots
 for (i in 1:17) {
     plot(get(paste0('IC', i, '_var')), fname=paste0(plotdir, 'IC', i, '_var_winGSR_masked'), idx=1:2)
-    #plot(get(paste0('IC', i, '_var')), fname=paste0(plotdir, 'IC', i, '_var_winGSR'), idx=3:4)
+    plot(get(paste0('IC', i, '_var')), fname=paste0(plotdir, 'IC', i, '_var_winGSR'), idx=3:4)
+    plot(get(paste0('IC', i, '_mean')), fname=paste0(plotdir, 'IC', i, '_mean_winGSR_masked'), idx=1:2)
+    plot(get(paste0('IC', i, '_mean')), fname=paste0(plotdir, 'IC', i, '_mean_winGSR'), idx=3:4)
 }
 
 # Load plots
@@ -153,19 +163,39 @@ for (i in 1:17) {
     plot2 <- readPNG(paste0(plotdir, 'IC', i, '_var_winGSR_masked_', vt$meta$cifti$names[2], '.png'))
     plot3 <- readPNG(paste0(plotdir, 'IC', i, '_var_winGSR_', vt$meta$cifti$names[3], '.png'))
     plot4 <- readPNG(paste0(plotdir, 'IC', i, '_var_winGSR_', vt$meta$cifti$names[4], '.png'))
-    assign(vt$meta$cifti$names[1], plot1)
-    assign(vt$meta$cifti$names[2], plot2)
-    assign(vt$meta$cifti$names[3], plot3)
-    assign(vt$meta$cifti$names[4], plot4)
+    assign(paste0('Var_', vt$meta$cifti$names[1]), plot1)
+    assign(paste0('Var_', vt$meta$cifti$names[2]), plot2)
+    assign(paste0('Var_', vt$meta$cifti$names[3]), plot3)
+    assign(paste0('Var_', vt$meta$cifti$names[4]), plot4)
+    mt <- get(paste0('IC', i, '_mean'))
+    plot1 <- readPNG(paste0(plotdir, 'IC', i, '_mean_winGSR_masked_', mt$meta$cifti$names[1], '.png'))
+    plot2 <- readPNG(paste0(plotdir, 'IC', i, '_mean_winGSR_masked_', mt$meta$cifti$names[2], '.png'))
+    plot3 <- readPNG(paste0(plotdir, 'IC', i, '_mean_winGSR_', mt$meta$cifti$names[3], '.png'))
+    plot4 <- readPNG(paste0(plotdir, 'IC', i, '_mean_winGSR_', mt$meta$cifti$names[4], '.png'))
+    assign(paste0('Mean_', mt$meta$cifti$names[1]), plot1)
+    assign(paste0('Mean_', mt$meta$cifti$names[2]), plot2)
+    assign(paste0('Mean_', mt$meta$cifti$names[3]), plot3)
+    assign(paste0('Mean_', mt$meta$cifti$names[4]), plot4)
 }
 
 pdf(paste0(plotdir, 'IC_var_winGSR_masked.pdf'), width = 4.5, height = 4)
 for(i in 1:17) {
     vt <- get(paste0('IC', i, '_var'))
-    grid.arrange(rasterGrob(get(vt$meta$cifti$names[1])), 
-                 rasterGrob(get(vt$meta$cifti$names[2])), 
-                 rasterGrob(get(vt$meta$cifti$names[3])), 
-                 rasterGrob(get(vt$meta$cifti$names[4])),  
+    grid.arrange(rasterGrob(get(paste0('Var_', vt$meta$cifti$names[1]))), 
+                 rasterGrob(get(paste0('Var_',vt$meta$cifti$names[2]))), 
+                 rasterGrob(get(paste0('Var_',vt$meta$cifti$names[3]))), 
+                 rasterGrob(get(paste0('Var_',vt$meta$cifti$names[4]))),  
+                 ncol = 2, nrow = 2)
+}
+dev.off()
+
+pdf(paste0(plotdir, 'IC_mean_winGSR_masked.pdf'), width = 4.5, height = 4)
+for(i in 1:17) {
+    mt <- get(paste0('IC', i, '_mean'))
+    grid.arrange(rasterGrob(get(paste0('Mean_', mt$meta$cifti$names[1]))), 
+                 rasterGrob(get(paste0('Mean_', mt$meta$cifti$names[2]))), 
+                 rasterGrob(get(paste0('Mean_', mt$meta$cifti$names[3]))), 
+                 rasterGrob(get(paste0('Mean_', mt$meta$cifti$names[4]))),  
                  ncol = 2, nrow = 2)
 }
 dev.off()
