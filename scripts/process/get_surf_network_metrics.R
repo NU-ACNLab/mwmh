@@ -4,7 +4,7 @@
 ### Yeo networks: https://www.researchgate.net/figure/Network-parcellation-of-Yeos-17-networks-The-17-networks-include-the-following-regions_fig1_352966687#:~:text=The%2017%2Dnetworks%20include%20the%20following%20regions%3A%20N1%3A%20VisCent,N7%3A%20exp_tAttnA%20%2DSalience%2FVentral
 ###
 ### Ellyn Butler
-### July 31, 2024
+### July 31, 2024 - September 3, 2024
 
 # Load libraries
 library(templateICAr)
@@ -152,13 +152,13 @@ FC_b_neg <- mean(FC_vec_b_neg)
 
 # Calculate FC between amygdala and vertices in the SN (and put in matrix)
 
-FC_mat <- 
+#FC_mat <- 
 
 # Transform FC into "distances"
-FC_mat <- ((FC_mat*-1)+1)/2
+#FC_mat <- ((FC_mat*-1)+1)/2
 
 # Use random walk to get estimates of 
-BC_amygdala_SN <- cbet(dist_mat_trans)
+#BC_amygdala_SN <- cbet(dist_mat_trans)
 
 ###### Output the data
 df <- data.frame(subid = subid, sesid = sesid, 

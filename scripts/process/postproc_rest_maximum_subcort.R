@@ -13,6 +13,7 @@ library(fMRIscrub)
 library(fMRItools)
 library(ciftiTools)
 library(RNifti)
+library(dplyr)
 ciftiTools.setOption('wb_path', '/projects/b1108/software/workbench')
 
 ##### Set directories
