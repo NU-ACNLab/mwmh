@@ -36,18 +36,16 @@ subid = args$subid #'MWMH142'
 sesid = args$sesid #1
 
 ##### Extract amygdala time series
-mask_L_rs <- readNifti(
-  paste0(tmpdir, 'MNI_L_Amyg_bin_Cons_res-02.nii.gz')
-)
-mask_R_rs <- readNifti(
-  paste0(tmpdir, 'MNI_R_Amyg_bin_Cons_res-02.nii.gz')
-)
 BOLD <- readNifti(
   paste0(indir, 'sub-', subid, '/ses-', sesid, '/func/sub-', subid, 
     '_ses-', sesid, '_task-rest_space-MNI152NLin6Asym_desc-preproc_bold.nii.gz')
 )
 
 # Load amygdala time series (L)
+mask_L_rs <- readNifti(
+  paste0(tmpdir, 'MNI_L_Amyg_bin_Cons_res-02.nii.gz')
+)
+
 BOLD_L <- matrix(BOLD[mask_L_rs[]], ncol=dim(BOLD)[4])
 
 xii <- as.xifti(
@@ -60,6 +58,10 @@ xii <- as.xifti(
 )
 
 # Load amygdala time series (R)
+mask_R_rs <- readNifti(
+  paste0(tmpdir, 'MNI_R_Amyg_bin_Cons_res-02.nii.gz')
+)
+
 BOLD_R <- matrix(BOLD[mask_R_rs[]], ncol=dim(BOLD)[4])
 
 xii <- as.xifti(
