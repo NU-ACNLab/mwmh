@@ -45,24 +45,20 @@ path <- paste0(surfdir, 'sub-', subid, '/ses-', sesid, '/func/sub-', subid,
 cii <- read_cifti(path)
 
 ###### Single subject template estimation 
-if (!file.exists(paste0(outdir, 'sub-', subid, '/ses-', sesid, '/network_membership.rds'))) {
-        networks_img <- templateICA(cii, temp, tvar_method = 'unbiased', hpf = 0,
+networks_img <- templateICA(cii, temp, tvar_method = 'unbiased', hpf = 0,
                 scale = 'local', TR = 0.555, scale_sm_FWHM = 2, GSR = FALSE) 
                 #Q (7/31/24): Still says "Pre-processing BOLD data"... What the heck is it doing? I turned off all of the options that are supposed to comprise preprocessing
 
-        saveRDS(networks_img, paste0(outdir, 'sub-', subid, '/ses-', sesid, '/networks_img.rds'))
+saveRDS(networks_img, paste0(outdir, 'sub-', subid, '/ses-', sesid, '/networks_img.rds'))
 
-        ###### Identify areas of engagement and deviation
-        network_membership <- activations(networks_img, verbose = TRUE, alpha = .01, method_p = 'Bonferroni', type = 'abs >')
-        saveRDS(network_membership, paste0(outdir, 'sub-', subid, '/ses-', sesid, '/network_membership.rds'))
-        network_membership_pos <- activations(networks_img, verbose = TRUE, alpha = .01, method_p = 'Bonferroni', type = '>')
-        saveRDS(network_membership_pos, paste0(outdir, 'sub-', subid, '/ses-', sesid, '/network_membership_pos.rds'))
-        network_membership_neg <- activations(networks_img, verbose = TRUE, alpha = .01, method_p = 'Bonferroni', type = '<')
-        saveRDS(network_membership_neg, paste0(outdir, 'sub-', subid, '/ses-', sesid, '/network_membership_neg.rds'))
-} else {
-        networks_img <- readRDS(paste0(outdir, 'sub-', subid, '/ses-', sesid, '/networks_img.rds'))
-        network_membership <- readRDS(paste0(outdir, 'sub-', subid, '/ses-', sesid, '/network_membership.rds'))
-}
+###### Identify areas of engagement and deviation
+network_membership <- activations(networks_img, verbose = TRUE, alpha = .01, method_p = 'Bonferroni', type = 'abs >')
+saveRDS(network_membership, paste0(outdir, 'sub-', subid, '/ses-', sesid, '/network_membership.rds'))
+network_membership_pos <- activations(networks_img, verbose = TRUE, alpha = .01, method_p = 'Bonferroni', type = '>')
+saveRDS(network_membership_pos, paste0(outdir, 'sub-', subid, '/ses-', sesid, '/network_membership_pos.rds'))
+network_membership_neg <- activations(networks_img, verbose = TRUE, alpha = .01, method_p = 'Bonferroni', type = '<')
+saveRDS(network_membership_neg, paste0(outdir, 'sub-', subid, '/ses-', sesid, '/network_membership_neg.rds'))
+
 #network_membership$active$data[[1]] 
 # returns a matrix with 17 columns, one for each IC, and 10242 rows,
 # one for each vertex. 
