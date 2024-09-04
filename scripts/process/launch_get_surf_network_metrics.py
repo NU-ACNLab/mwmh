@@ -29,11 +29,11 @@ for subdir in subdirs:
     for ses in sessions:
         if not os.path.exists(outdir+sub+'/'+ses):
             os.mkdir(outdir+sub+'/'+ses)
-        if not os.path.exists(outdir + 'sub-' + subid + '/ses-' + sesid + '/network_membership_pos.rds'):
+        if not os.path.exists(outdir + sub + '/' + ses + '/network_membership_pos.rds'):
             sesid = str(ses).split('-')[1]
             cmd = ['Rscript /projects/b1108/studies/mwmh/scripts/process/get_surf_network_metrics.R -s', subid, '-e', sesid]
             get_surf_network_metrics_script = launchdir+sub+'_'+ses+'_get_surf_network_metrics_run.sh'
-            os.system('cat /projects/b1108/studies/mwmh/scripts/process/sbatchinfo_general_extralong.sh > '+get_surf_network_metrics_script)
+            os.system('cat /projects/b1108/studies/mwmh/scripts/process/sbatchinfo_9hr_10G_general.sh > '+get_surf_network_metrics_script)
             os.system('echo '+' '.join(cmd)+' >> '+get_surf_network_metrics_script)
             os.system('chmod +x '+get_surf_network_metrics_script)
             os.system('sbatch -o '+launchdir+sub+'_'+ses+'_get_surf_network_metrics.txt'+' '+get_surf_network_metrics_script)

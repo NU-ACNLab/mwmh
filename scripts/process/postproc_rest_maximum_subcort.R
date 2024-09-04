@@ -21,7 +21,7 @@ indir <- '/projects/b1108/studies/mwmh/data/processed/neuroimaging/fmriprep_23.2
 #indir <- '/Users/flutist4129/Documents/Northwestern/studies/mwmh/data/processed/neuroimaging/fmriprep_23.2.0/'
 
 outdir <- '/projects/b1108/studies/mwmh/data/processed/neuroimaging/surf/'
-#outdir <- '/Users/flutist4129/Documents/Northwestern/studies/mwmh/data/processed/neuroimaging/surf/s'
+#outdir <- '/Users/flutist4129/Documents/Northwestern/studies/mwmh/data/processed/neuroimaging/surf/'
 
 tmpdir <- '/projects/b1108/templates/fsl_first_subcortical/'
 #tmpdir <- '~/Documents/Northwestern/templates/fsl_first_subcortical/'
@@ -47,7 +47,7 @@ BOLD <- readNifti( #dim = 75   94   79 1110
 system(paste('flirt -in', paste0(tmpdir, 'MNI_L_Amyg_bin_Cons_res-02.nii.gz'), 
              '-ref', paste0(indir, 'sub-', subid, '/ses-', sesid, '/func/sub-', subid, 
                 '_ses-', sesid, '_task-rest_space-MNI152NLin6Asym_desc-preproc_bold.nii.gz'), 
-             '-out', paste0(indir, 'sub-', subid, '/ses-', sesid, 
+             '-out', paste0(outdir, 'sub-', subid, '/ses-', sesid, 
                 '/func/sub-', subid, '_ses-', sesid, '_MNI_L_Amyg_bin_Cons_res-02.nii.gz'), 
              '-applyxfm -usesqform'))
 

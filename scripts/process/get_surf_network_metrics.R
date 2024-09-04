@@ -175,6 +175,7 @@ df <- data.frame(subid = subid, sesid = sesid,
                  exp_ab = exp_ab, exp_ab_pos = exp_ab_pos, exp_ab_neg = exp_ab_neg,
                  FC_a = FC_a, FC_a_pos = FC_a_pos, FC_a_neg = FC_a_neg,
                  FC_b = FC_b, FC_b_pos = FC_b_pos, FC_b_neg = FC_b_neg)
-write.csv(df, paste0(outdir, 'sub-', subid, '/ses-', sesid, '/'))
+
+write.csv(df, paste0(outdir, 'sub-', subid, '/ses-', sesid, '/surf_network_metrics.csv'), row.names = FALSE)
 
 #Variables of interest: exp_b_pos, FC_b_pos, BC_b_pos
