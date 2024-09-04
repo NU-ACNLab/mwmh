@@ -52,11 +52,11 @@ networks_img <- templateICA(cii, temp, tvar_method = 'unbiased', hpf = 0,
 saveRDS(networks_img, paste0(outdir, 'sub-', subid, '/ses-', sesid, '/networks_img.rds'))
 
 ###### Identify areas of engagement and deviation
-network_membership <- activations(networks_img, verbose = TRUE, alpha = .01, method_p = 'Bonferroni', type = 'abs >')
+network_membership <- activations(networks_img, verbose = TRUE, alpha = .01, method_p = 'bonferroni', type = 'abs >')
 saveRDS(network_membership, paste0(outdir, 'sub-', subid, '/ses-', sesid, '/network_membership.rds'))
-network_membership_pos <- activations(networks_img, verbose = TRUE, alpha = .01, method_p = 'Bonferroni', type = '>')
+network_membership_pos <- activations(networks_img, verbose = TRUE, alpha = .01, method_p = 'bonferroni', type = '>')
 saveRDS(network_membership_pos, paste0(outdir, 'sub-', subid, '/ses-', sesid, '/network_membership_pos.rds'))
-network_membership_neg <- activations(networks_img, verbose = TRUE, alpha = .01, method_p = 'Bonferroni', type = '<')
+network_membership_neg <- activations(networks_img, verbose = TRUE, alpha = .01, method_p = 'bonferroni', type = '<')
 saveRDS(network_membership_neg, paste0(outdir, 'sub-', subid, '/ses-', sesid, '/network_membership_neg.rds'))
 
 #network_membership$active$data[[1]] 
