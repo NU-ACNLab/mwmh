@@ -69,7 +69,7 @@ saveRDS(network_membership_neg, paste0(outdir, 'sub-', subid, '/ses-', sesid, '/
 ###### Get the area that each network takes up (expansiveness)
 print('Expansiveness')
 
-# Salience/Ventral Attention A # TO DO: [[1]] is just one of the hemispheres
+# Salience/Ventral Attention A 
 exp_a_left <- sum(c(network_membership$active$data[[1]][, 7]) == 1 | c(network_membership$active$data[[1]][, 7]) == -1, na.rm = TRUE)/nrow(network_membership$active$data[[1]])
 exp_a_pos_left <- sum(c(network_membership$active$data[[1]][, 7]) == 1, na.rm = TRUE)/nrow(network_membership$active$data[[1]]) 
 exp_a_neg_left <- sum(c(network_membership$active$data[[1]][, 7]) == -1, na.rm = TRUE)/nrow(network_membership$active$data[[1]])
