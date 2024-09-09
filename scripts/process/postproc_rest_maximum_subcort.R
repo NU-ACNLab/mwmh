@@ -52,7 +52,7 @@ system(paste('flirt -in', paste0(tmpdir, 'MNI_L_Amyg_bin_Cons_res-02.nii.gz'),
              '-applyxfm -usesqform'))
 
 mask_L_rs <- readNifti( #dim = 75 94 79
-    paste0(indir, 'sub-', subid, '/ses-', sesid, 
+    paste0(outdir, 'sub-', subid, '/ses-', sesid, 
         '/func/sub-', subid, '_ses-', sesid, '_MNI_L_Amyg_bin_Cons_res-02.nii.gz')
 )
 
