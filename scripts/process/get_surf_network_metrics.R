@@ -34,8 +34,6 @@ neurodir <- '/projects/b1108/studies/mwmh/data/processed/neuroimaging/'
 temp <- readRDS(paste0(neurodir, 'template/temp_sub-1ses_task-rest_desc-maxpostproc.rds'))
 #temp <- readRDS(paste0(neurodir, 'template/temp_sub-all_ses-2_task-rest_desc-maxpostproc.rds'))
 
-#hcpdir <- '~/Documents/Northwestern/templates/HCP_S1200_GroupAvg_v1/'
-hcpdir <- '/projects/b1108/templates/HCP_S1200_GroupAvg_v1/'
 surfdir <- paste0(neurodir, 'surf/')
 outdir <- paste0(neurodir, 'surfnet/')
 

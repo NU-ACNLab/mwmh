@@ -49,12 +49,14 @@ system(paste('flirt -in', paste0(tmpdir, 'MNI_L_Amyg_bin_Cons_res-02.nii.gz'),
                 '_ses-', sesid, '_task-rest_space-MNI152NLin6Asym_desc-preproc_bold.nii.gz'), 
              '-out', paste0(outdir, 'sub-', subid, '/ses-', sesid, 
                 '/func/sub-', subid, '_ses-', sesid, '_MNI_L_Amyg_bin_Cons_res-02.nii.gz'), 
-             '-applyxfm -usesqform'))
+             '-applyxfm -usesqform')) #THIS ISN'T WORKING... in the cerebellum
 
 mask_L_rs <- readNifti( #dim = 75 94 79
     paste0(outdir, 'sub-', subid, '/ses-', sesid, 
         '/func/sub-', subid, '_ses-', sesid, '_MNI_L_Amyg_bin_Cons_res-02.nii.gz')
 )
+
+mask_L_rs <- mask_L_rs > 0
 
 #BOLD_L <- matrix(BOLD[mask_L_rs[]], ncol=dim(BOLD)[4]) # dim = 1 1110
 #BOLD_L <- BOLD[mask_L_rs,]
@@ -62,13 +64,11 @@ mask_L_rs <- readNifti( #dim = 75 94 79
 xii <- as.xifti(
   subcortVol = BOLD, #i \times j \times k \times T... dim(BOLD_L) = 1 1110... should be 75 94 79 1110, which is dim(BOLD)
   subcortLabs = factor( #i \times j \times k... length 1
-    rep('Amygdala-L', nrow(BOLD)),
+    rep('Amygdala-L', sum(mask_L_rs)),
     levels=ciftiTools::substructure_table()$ciftiTools_Name
   ),
   subcortMask = mask_L_rs #i \times j \times k... dim = 75 94 79
 )
-
-xii <- as.xifti(BOLD_L)
 
 # Get dimensions
 x <- t(xii$data$subcort)
@@ -97,18 +97,16 @@ rp <- rp[, c(paste0('trans_', c('x', 'y', 'z')), paste0('rot_', c('x', 'y', 'z')
 dct <- dct_bases(nT, dct_convert(nT, TR=.555, f=.01)) # .01 Hz HPF
 
 # Nuisance regression
-nreg <- cbind(dv_spikes, rp, dct, det)
+nreg <- cbind(dv_spikes, rp, dct)
 nreg[nreg == 'n/a'] <- 0
 x_reg <- nuisance_regression(x, nreg)[!dv_flag,,drop=FALSE]
 xii_out <- xii
 
-nVertices_left <- nrow(xii$data$cortex_left)
-xii_out$data$cortex_left <- t(x_reg[, 1:nVertices_left])
-xii_out$data$cortex_right <- t(x_reg[, (nVertices_left+1):ncol(x_reg)])
+xii_out$data$subcort <- t(x_reg)
 
 # Write
-write_cifti(xii_out, paste0(outdir, 'surf/sub-', subid, '/ses-', sesid, '/func/sub-', subid, 
-                '_ses-', sesid, '_task-rest_space-MNI152NLin6Asym_desc-maxpostproc_amygl.dtseries.cii'))
+write_cifti(xii_out, paste0(outdir, 'sub-', subid, '/ses-', sesid, '/func/sub-', subid, 
+                '_ses-', sesid, '_task-rest_space-MNI152NLin6Asym_desc-maxpostproc_amygl.dtseries.nii'))
 
 ## (R)
 mask_R_rs <- readNifti(
