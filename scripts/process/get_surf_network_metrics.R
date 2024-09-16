@@ -117,33 +117,33 @@ cii <- move_from_mwall(cii, NA)
 mask_a <- as.matrix(network_membership$active)[,7] != 0 #length(mask_a) = 20484
 FC_mat_a <- cor(t(as.matrix(cii)[mask_a & complete.cases(as.matrix(cii)),])) 
 FC_vec_a <- FC_mat_a[upper.tri(FC_mat_a)]
-FC_a <- mean(FC_vec_a)
+FC_a <- mean(FC_vec_a, na.rm = TRUE)
 
 mask_a_pos <- as.matrix(network_membership$active)[,7] > 0
 FC_mat_a_pos <- cor(t(as.matrix(cii)[mask_a_pos & complete.cases(as.matrix(cii)),])) #time series active locations by all the time points
 FC_vec_a_pos <- FC_mat_a_pos[upper.tri(FC_mat_a_pos)]
-FC_a_pos <- mean(FC_vec_a_pos)
+FC_a_pos <- mean(FC_vec_a_pos, na.rm = TRUE)
 
 mask_a_neg <- as.matrix(network_membership$active)[,7] < 0
 FC_mat_a_neg <- cor(t(as.matrix(cii)[mask_a_neg & complete.cases(as.matrix(cii)),]))
 FC_vec_a_neg <- FC_mat_a_neg[upper.tri(FC_mat_a_neg)]
-FC_a_neg <- mean(FC_vec_a_neg)
+FC_a_neg <- mean(FC_vec_a_neg, na.rm = TRUE)
 
 # Salience/Ventral Attention B
 mask_b <- as.matrix(network_membership$active)[,8] != 0
 FC_mat_b <- cor(t(as.matrix(cii)[mask_b & complete.cases(as.matrix(cii)),])) 
 FC_vec_b <- FC_mat_b[upper.tri(FC_mat_b)]
-FC_b <- mean(FC_vec_b)
+FC_b <- mean(FC_vec_b, na.rm = TRUE)
 
 mask_b_pos <- as.matrix(network_membership$active)[,8] > 0
 FC_mat_b_pos <- cor(t(as.matrix(cii)[mask_b_pos & complete.cases(as.matrix(cii)),])) 
 FC_vec_b_pos <- FC_mat_b_pos[upper.tri(FC_mat_b_pos)]
-FC_b_pos <- mean(FC_vec_b_pos)
+FC_b_pos <- mean(FC_vec_b_pos, na.rm = TRUE)
 
 mask_b_neg <- as.matrix(network_membership$active)[,8] < 0
 FC_mat_b_neg <- cor(t(as.matrix(cii)[mask_b_neg & complete.cases(as.matrix(cii)),]))
 FC_vec_b_neg <- FC_mat_a_neg[upper.tri(FC_mat_b_neg)]
-FC_b_neg <- mean(FC_vec_b_neg)
+FC_b_neg <- mean(FC_vec_b_neg, na.rm = TRUE)
 
 
 ###### Estimate amygdala betweenness centrality
