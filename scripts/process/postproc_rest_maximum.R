@@ -67,7 +67,7 @@ rp <- rp[, c(paste0('trans_', c('x', 'y', 'z')), paste0('rot_', c('x', 'y', 'z')
              paste0('global_signal', c('_derivative1', '_power2', '_derivative1_power2')))]
 
 # Set filtering parameters
-dct <- dct_bases(nT, dct_convert(nT, TR=.555, f=.01)) # .01 Hz HPF
+dct <- dct_bases(nT, dct_convert(nT, TR=.555, f=.01)) # .01 Hz HPF, 12
 
 # Nuisance regression
 nreg <- cbind(dv_spikes, rp, dct)

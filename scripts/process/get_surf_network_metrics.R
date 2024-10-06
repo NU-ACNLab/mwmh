@@ -148,7 +148,10 @@ FC_b_neg <- mean(FC_vec_b_neg, na.rm = TRUE)
 
 ###### Estimate amygdala betweenness centrality
 # Load amygdala timeseries
-
+#amygl <- read_cifti(paste0(surfdir, 'sub-', subid, '/ses-', sesid, '/func/sub-', subid, '_ses-', sesid, 
+#                           '_task-rest_space-MNI152NLin6Asym_desc-maxpostproc_amygl.dtseries.cii'))
+#amygr <- read_cifti(paste0(surfdir, 'sub-', subid, '/ses-', sesid, '/func/sub-', subid, '_ses-', sesid, 
+#                           '_task-rest_space-MNI152NLin6Asym_desc-maxpostproc_amygr.dtseries.cii'))
 
 # Calculate FC between amygdala and vertices in the SN (and put in matrix)
 
@@ -157,8 +160,8 @@ FC_b_neg <- mean(FC_vec_b_neg, na.rm = TRUE)
 # Transform FC into "distances"
 #FC_mat <- ((FC_mat*-1)+1)/2
 
-# Use random walk to get estimates of 
-#BC_amygdala_SN <- cbet(dist_mat_trans)
+# Use random walk to get estimates of amygdala BC - assumes the amygdala timeseries is in the first column
+#BC_amygdala_SN <- mean(cbet(dist_mat_trans)[, 2:]
 
 ###### Output the data
 print('Output')
