@@ -57,8 +57,8 @@ for (j in 1:nrow(temp_subjs)) {
 
 print('Estimate template.') 
 temp <- estimate_template(
-  paths,
-  GPARC, #GICA
+  paths[21:30],
+  GICA = GPARC, 
   hpf = 0, 
   scale = 'local',
   brainstructures = c('left', 'right'),
