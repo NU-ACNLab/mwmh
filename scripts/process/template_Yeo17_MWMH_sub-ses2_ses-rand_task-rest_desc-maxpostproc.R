@@ -28,7 +28,7 @@ ciftiTools.setOption('wb_path', '/projects/b1108/software/workbench')
 #devtools::install_github('mandymejia/templateICAr', '8.0') # Need dev version, not CRAN
 #^ try again
 library(templateICAr)
-stopifnot(utils::packageVersion('templateICAr') >= '0.8.5')
+stopifnot(utils::packageVersion('templateICAr') >= '0.8.6')
 
 
 ## -----------------------------------------------------------------------------
