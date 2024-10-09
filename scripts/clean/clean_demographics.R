@@ -1,7 +1,7 @@
 ### This script cleans the demographics file that Greg sent Ellyn in July 2022
 ###
 ### Ellyn Butler
-### August 22, 2022 - December 4, 2023
+### August 22, 2022 - October 7, 2024
 
 library('dplyr')
 
@@ -17,18 +17,21 @@ racebmipub_df$subid <- paste0('MWMH', racebmipub_df$ID)
 
 first_df <- racebmipub_df[, c('subid', grep('v1', names(racebmipub_df), value=TRUE))]
 first_df$sesid <- 1
-first_df <- rename(first_df, black=v1.c.black, white=v1.c.white,
+first_df <- rename(first_df, black=v1.c.black, white=v1.c.white, hispanic=v1.c.ahispan,
                   otherrace=v1.c.otherrace, BMIperc=BMI.perc.v1, PubCat=PubCatv1)
-first_df <- first_df[, c('subid', 'sesid', 'black', 'white', 'otherrace', 'BMIperc', 'PubCat')]
+first_df <- first_df[, c('subid', 'sesid', 'black', 'white', 'hispanic', 'otherrace', 
+                         'BMIperc', 'PubCat')]
 
 second_df <- racebmipub_df[, c('subid', grep('v2', names(racebmipub_df), value=TRUE))]
 second_df$sesid <- 2
 second_df <- rename(second_df, BMIperc=BMI.perc.v2, PubCat=PubCat.v2)
-second_df <- merge(first_df[, c('subid', 'black', 'white', 'otherrace')], second_df, all=TRUE)
-second_df <- second_df[, c('subid', 'sesid', 'black', 'white', 'otherrace', 'BMIperc', 'PubCat')]
+second_df <- merge(first_df[, c('subid', 'black', 'white', 'hispanic', 'otherrace')], second_df, all=TRUE)
+second_df <- second_df[, c('subid', 'sesid', 'black', 'white', 'hispanic', 'otherrace', 
+                           'BMIperc', 'PubCat')]
 
 racebmipub_df <- rbind(first_df, second_df)
-racebmipub_df <- racebmipub_df[, c('subid', 'sesid', 'black', 'white', 'otherrace', 'BMIperc', 'PubCat')]
+racebmipub_df <- racebmipub_df[, c('subid', 'sesid', 'black', 'white', 'hispanic', 
+                                   'otherrace', 'BMIperc', 'PubCat')]
 
 
 ################################### Sex & IPR ##################################

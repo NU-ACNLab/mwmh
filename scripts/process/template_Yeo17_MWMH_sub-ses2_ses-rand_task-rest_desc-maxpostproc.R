@@ -57,7 +57,7 @@ for (j in 1:nrow(temp_subjs)) {
 
 print('Estimate template.') 
 temp <- estimate_template(
-  paths[21:30],
+  paths,
   GICA = GPARC, 
   hpf = 0, 
   scale = 'local',
