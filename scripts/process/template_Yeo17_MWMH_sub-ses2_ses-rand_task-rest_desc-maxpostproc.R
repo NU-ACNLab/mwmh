@@ -14,10 +14,6 @@ indir <- '/projects/b1108/studies/mwmh/data/processed/neuroimaging/'
 outdir <- '/projects/b1108/studies/mwmh/data/processed/neuroimaging/template/'
 #outdir <- '~/Documents/Northwestern/studies/mwmh/data/processed/neuroimaging/template/'
 
-# HCP directory
-hcp_dir <- '/projects/b1108/templates/HCP_S1200_GroupAvg_v1/'
-#hcp_dir <- '~/Documents/Northwestern/templates/HCP_S1200_GroupAvg_v1/'
-
 # Packages
 #devtools::install_github('mandymejia/fMRItools', '0.4') # Need dev version, not CRAN
 library(fMRItools)
@@ -28,7 +24,7 @@ ciftiTools.setOption('wb_path', '/projects/b1108/software/workbench')
 #devtools::install_github('mandymejia/templateICAr', '8.0') # Need dev version, not CRAN
 #^ try again
 library(templateICAr)
-stopifnot(utils::packageVersion('templateICAr') >= '0.8.6')
+stopifnot(utils::packageVersion('templateICAr') >= '0.9.1')
 
 
 ## -----------------------------------------------------------------------------
