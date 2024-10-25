@@ -4,7 +4,7 @@
 ### Yeo networks: https://www.researchgate.net/figure/Network-parcellation-of-Yeos-17-networks-The-17-networks-include-the-following-regions_fig1_352966687#:~:text=The%2017%2Dnetworks%20include%20the%20following%20regions%3A%20N1%3A%20VisCent,N7%3A%20exp_tAttnA%20%2DSalience%2FVentral
 ###
 ### Ellyn Butler
-### July 31, 2024 - September 3, 2024
+### July 31, 2024 - October 25, 2024
 
 # Load libraries
 library(templateICAr)
@@ -31,8 +31,8 @@ print(sesid)
 # Set paths
 #neurodir <- '~/Documents/Northwestern/studies/mwmh/data/processed/neuroimaging/'
 neurodir <- '/projects/b1108/studies/mwmh/data/processed/neuroimaging/'
-temp <- readRDS(paste0(neurodir, 'template/temp_sub-1ses_task-rest_desc-maxpostproc.rds'))
-#temp <- readRDS(paste0(neurodir, 'template/temp_sub-all_ses-2_task-rest_desc-maxpostproc.rds'))
+temp <- readRDS(paste0(neurodir, 'template/temp_sub-ses2_ses-rand_task-rest_desc-maxpostproc.rds'))
+#temp <- readRDS(paste0(neurodir, 'template/temp_sub-ses2_ses-rand_task-rest_desc-maxpostproc.rds'))
 
 surfdir <- paste0(neurodir, 'surf/')
 outdir <- paste0(neurodir, 'surfnet/')
@@ -186,6 +186,6 @@ df <- data.frame(subid = subid, sesid = sesid,
                  FC_b = FC_b, FC_b_pos = FC_b_pos)
 
 write.csv(df, paste0(outdir, 'sub-', subid, '/ses-', sesid, '/sub-', subid, '_ses-', 
-                     sesid, '_surf_network_metrics.csv'), row.names = FALSE)
+                     sesid, '_surf_network_metrics_2024-10-25.csv'), row.names = FALSE)
 
 #Variables of interest: exp_b_pos, FC_b_pos, BC_b_pos
