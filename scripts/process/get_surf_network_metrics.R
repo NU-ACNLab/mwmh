@@ -93,7 +93,7 @@ exp_b <- (sum(c(network_membership$active$data[[1]][, 8]) == 1 | c(network_membe
 exp_b_pos <- (sum(c(network_membership$active$data[[1]][, 8]) == 1, na.rm = TRUE) + sum(c(network_membership$active$data[[2]][, 8]) == 1, na.rm = TRUE))/(nrow(network_membership$active$data[[1]]) + nrow(network_membership$active$data[[2]])) #probably the one I want to be analyzing because most similar to Lynch
 exp_b_neg <- (sum(c(network_membership$active$data[[1]][, 8]) == -1, na.rm = TRUE) + sum(c(network_membership$active$data[[2]][, 8]) == -1, na.rm = TRUE))/(nrow(network_membership$active$data[[1]]) + nrow(network_membership$active$data[[2]]))
 
-# # Salience/Ventral Attention A or B
+# Salience/Ventral Attention A or B
 exp_ab_left <- sum(c(network_membership$active$data[[1]][, 7]) == 1 | c(network_membership$active$data[[1]][, 8]) == 1 | c(network_membership$active$data[[1]][, 7]) == -1 | c(network_membership$active$data[[1]][, 8]) == -1, na.rm = TRUE)/nrow(network_membership$active$data[[1]])
 exp_ab_pos_left <- sum(c(network_membership$active$data[[1]][, 7]) == 1 | c(network_membership$active$data[[1]][, 8]) == 1, na.rm = TRUE)/nrow(network_membership$active$data[[1]])
 exp_ab_neg_left <- sum(c(network_membership$active$data[[1]][, 7]) == -1 | c(network_membership$active$data[[1]][, 8]) == -1, na.rm = TRUE)/nrow(network_membership$active$data[[1]])
@@ -186,6 +186,6 @@ df <- data.frame(subid = subid, sesid = sesid,
                  FC_b = FC_b, FC_b_pos = FC_b_pos)
 
 write.csv(df, paste0(outdir, 'sub-', subid, '/ses-', sesid, '/sub-', subid, '_ses-', 
-                     sesid, '_surf_network_metrics_2024-10-25.csv'), row.names = FALSE)
+                     sesid, '_surf_network_metrics_2.csv'), row.names = FALSE)
 
 #Variables of interest: exp_b_pos, FC_b_pos, BC_b_pos
