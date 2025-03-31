@@ -70,10 +70,10 @@ exp_dorsalattentiona_pos <- (sum(c(network_membership$active$data[[1]][, 5]) == 
 # Dorsal Attention B (6)
 exp_dorsalattentionb_pos <- (sum(c(network_membership$active$data[[1]][, 6]) == 1, na.rm = TRUE) + sum(c(network_membership$active$data[[2]][, 6]) == 1, na.rm = TRUE))/(nrow(network_membership$active$data[[1]]) + nrow(network_membership$active$data[[2]]))
 
-# Limbic A? (9)
+# Limbic A (9)
 exp_limbica_pos <- (sum(c(network_membership$active$data[[1]][, 9]) == 1, na.rm = TRUE) + sum(c(network_membership$active$data[[2]][, 9]) == 1, na.rm = TRUE))/(nrow(network_membership$active$data[[1]]) + nrow(network_membership$active$data[[2]]))
 
-# Limbic B? (10)
+# Limbic B (10)
 exp_limbicb_pos <- (sum(c(network_membership$active$data[[1]][, 10]) == 1, na.rm = TRUE) + sum(c(network_membership$active$data[[2]][, 10]) == 1, na.rm = TRUE))/(nrow(network_membership$active$data[[1]]) + nrow(network_membership$active$data[[2]]))
 
 # Control A (11)
@@ -139,13 +139,13 @@ FC_mat_dorsalattentionb_pos <- cor(t(as.matrix(cii)[mask_dorsalattentionb_pos & 
 FC_vec_dorsalattentionb_pos <- FC_mat_a_pos[upper.tri(FC_mat_dorsalattentionb_pos)]
 FC_dorsalattentionb_pos <- mean(FC_vec_dorsalattentionb_pos, na.rm = TRUE)
 
-# Limbic A? (9)
+# Limbic A (9)
 mask_limbica_pos <- as.matrix(network_membership$active)[,9] > 0
 FC_mat_limbica_pos <- cor(t(as.matrix(cii)[mask_limbica_pos & complete.cases(as.matrix(cii)),])) #time series active locations by all the time points
 FC_vec_limbica_pos <- FC_mat_limbica_pos[upper.tri(FC_mat_limbica_pos)]
 FC_limbica_pos <- mean(FC_vec_limbica_pos, na.rm = TRUE)
 
-# Limbic B? (10)
+# Limbic B (10)
 mask_limbicb_pos <- as.matrix(network_membership$active)[,10] > 0
 FC_mat_limbicb_pos <- cor(t(as.matrix(cii)[mask_limbicb_pos & complete.cases(as.matrix(cii)),])) #time series active locations by all the time points
 FC_vec_limbicb_pos <- FC_mat_limbicb_pos[upper.tri(FC_mat_limbicb_pos)]
