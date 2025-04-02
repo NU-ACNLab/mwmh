@@ -136,7 +136,7 @@ FC_dorsalattentiona_pos <- mean(FC_vec_dorsalattentiona_pos, na.rm = TRUE)
 # Dorsal Attention B (6)
 mask_dorsalattentionb_pos <- as.matrix(network_membership$active)[,6] > 0
 FC_mat_dorsalattentionb_pos <- cor(t(as.matrix(cii)[mask_dorsalattentionb_pos & complete.cases(as.matrix(cii)),])) #time series active locations by all the time points
-FC_vec_dorsalattentionb_pos <- FC_mat_a_pos[upper.tri(FC_mat_dorsalattentionb_pos)]
+FC_vec_dorsalattentionb_pos <- FC_mat_dorsalattentionb_pos[upper.tri(FC_mat_dorsalattentionb_pos)]
 FC_dorsalattentionb_pos <- mean(FC_vec_dorsalattentionb_pos, na.rm = TRUE)
 
 # Limbic A (9)
